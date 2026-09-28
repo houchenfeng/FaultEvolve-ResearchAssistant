@@ -1,7 +1,8 @@
 # 前端设计文档
 
-> 文档版本：v1.0  
-> 最后更新：2026-09-28
+> 文档版本：v1.1  
+> 最后更新：2026-09-28  
+> **本版本根据 FaultEvolve 主仓库 main@b59c39e 源码同步数据结构**
 
 ## 1. 设计原则
 
@@ -215,27 +216,53 @@
 
 ```typescript
 // stores/evolution-store.ts
+
+// 节点结构（来自 tree.py Tree.to_export()，9 字段）
+interface TreeNode {
+  id: number;
+  branch_id: number;
+  depth: number;
+  operator: 'init' | 'refine' | 'repair' | 'inject' | 'discover';
+  score: number | null;
+  status: 'pending' | 'evaluated' | 'failed';
+  hypothesis_status: 'confirmed' | 'refuted' | null;
+  intent: string;
+  visit_count: number;
+}
+
+// 事件结构（来自 fe.db event 表）
+interface FaultEvolveEvent {
+  id: number;
+  experiment_id: string;
+  type: EventType;
+  payload: Record<string, unknown>;
+  ts: string;
+}
+
 interface EvolutionState {
   // 当前运行
-  currentRunId: string | null;
+  experimentId: string | null;
   mode: 'replay' | 'realtime';
   deploymentMode: 'hybrid' | 'local';
   
-  // 演化树
-  tree: TreeNode | null;
-  selectedNodeId: string | null;
+  // 演化树（来自 tree.json 或 fe.db node 表）
+  nodes: TreeNode[];
+  edges: Array<{from: number; to: number}>;
+  selectedNodeId: number | null;
   
   // 分数
-  scores: ScorePoint[];
   bestScore: number;
+  bestNodeId: number | null;
   
   // 事件流
-  events: EvolutionEvent[];
+  events: FaultEvolveEvent[];
+  lastEventId: number;  // 用于增量轮询
   
   // 操作
-  loadReplay: (files: { events: string; tree: string; db?: string }) => void;
-  selectNode: (nodeId: string) => void;
+  loadReplay: (runDir: string) => Promise<void>;
+  selectNode: (nodeId: number) => void;
   setDeploymentMode: (mode: 'hybrid' | 'local') => void;
+  appendEvents: (events: FaultEvolveEvent[]) => void;
 }
 
 // stores/knowledge-store.ts
@@ -291,28 +318,68 @@ export function useNodeDetail(nodeId: string) {
 
 ## 9. 实时更新
 
-### 9.1 Socket.IO 事件
+### 9.1 实时数据流说明
+
+> **关键**：`events.jsonl`、`tree.json`、`run_summary.json` 只在运行结束后写出。
+> 实时模式下，后端轮询 `fe.db`（WAL 模式），通过 WebSocket 推送事件。
+
+### 9.2 Socket.IO 事件（11 种事件类型）
 
 ```typescript
+// 事件基础类型
+interface FaultEvolveEvent {
+  id: number;
+  experiment_id: string;
+  type: EventType;
+  payload: Record<string, unknown>;
+  ts: string;  // UTC ISO 8601
+}
+
+type EventType =
+  | 'init_evaluated'
+  | 'selection_failed'
+  | 'invalid_generation'
+  | 'repair_failed'
+  | 'repair_success'
+  | 'reflection_design'
+  | 'hypothesis_refuted'
+  | 'insight_extracted'
+  | 'reflection_implementation'
+  | 'iteration_complete'
+  | 'run_finished';
+
 // 订阅演化事件
-socket.on('evolution:node_created', (data: NodeCreatedEvent) => {
-  // 更新演化树
+socket.on('evolution:event', (event: FaultEvolveEvent) => {
+  switch (event.type) {
+    case 'init_evaluated':
+      // 初始节点评估完成，更新树和分数
+      break;
+    case 'repair_success':
+    case 'repair_failed':
+      // 修复结果，更新节点状态
+      break;
+    case 'reflection_design':
+    case 'reflection_implementation':
+      // 反思事件，更新反思笔记面板
+      break;
+    case 'insight_extracted':
+      // 洞见提取，显示洞见卡片
+      break;
+    case 'iteration_complete':
+      // 迭代完成，更新分数曲线
+      break;
+    case 'run_finished':
+      // 运行结束，切换到回放模式
+      break;
+  }
 });
 
-socket.on('evolution:node_evaluated', (data: NodeEvaluatedEvent) => {
-  // 更新分数
-});
-
-socket.on('evolution:reflection', (data: ReflectionEvent) => {
-  // 更新反思笔记
-});
-
-socket.on('evolution:knowledge_discovered', (data: KnowledgeEvent) => {
-  // 更新知识卡
-});
-
-socket.on('evolution:tournament_match', (data: TournamentMatchEvent) => {
-  // 更新锦标赛
+// 树结构增量更新（后端从 fe.db node 表轮询）
+socket.on('evolution:tree_update', (data: {
+  nodes: TreeNode[];  // 9 字段
+  edges: Array<{from: number; to: number}>;
+}) => {
+  // 增量更新演化树
 });
 ```
 
@@ -349,22 +416,41 @@ interface ReplayController {
 
 ## 11. 线框图：演化树节点
 
+> 节点显示 9 字段（来自 `tree.py` Tree.to_export()）
+
 ```
 ASCII 线框：单个节点
 
-┌─────────────────────────┐
-│  #42                    │
-│  ────────────────────── │
-│  ROS: 32.5              │
-│  算子: refine           │
-│  状态: ✓ evaluated      │
-│  ────────────────────── │
-│  采纳卡片: FE01, FE03   │
-└─────────────────────────┘
+┌─────────────────────────────┐
+│  #42  branch:3  depth:5     │  ← id, branch_id, depth
+│  ─────────────────────────  │
+│  ROS: 34.96                 │  ← score
+│  算子: refine               │  ← operator
+│  状态: ✓ evaluated          │  ← status
+│  假设: —                    │  ← hypothesis_status (null)
+│  ─────────────────────────  │
+│  意图: 改进窗口特征计算      │  ← intent
+│  访问: 12                   │  ← visit_count
+└─────────────────────────────┘
          │
          ▼
-    (子节点...)
+    (子节点 via edges)
 ```
+
+节点颜色编码（建议）：
+
+| status | 颜色 | 说明 |
+|--------|------|------|
+| `evaluated` + 高分 | 绿色 | 成功评估且分数高 |
+| `evaluated` + 低分 | 浅绿 | 成功评估但分数低 |
+| `pending` | 灰色 | 等待评估 |
+| `failed` | 红色 | 评估失败 |
+
+| hypothesis_status | 标记 |
+|------------------|------|
+| `confirmed` | ✓ 绿勾 |
+| `refuted` | ✗ 红叉 |
+| `null` | 无标记 |
 
 ## 12. 响应式设计
 

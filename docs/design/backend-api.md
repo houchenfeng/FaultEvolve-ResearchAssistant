@@ -1,13 +1,27 @@
 # 后端 API 设计文档
 
-> 文档版本：v1.0  
-> 最后更新：2026-09-28
+> 文档版本：v1.1  
+> 最后更新：2026-09-28  
+> **本版本根据 FaultEvolve 主仓库 main@b59c39e 源码修订，数据结构已核实**
 
 ## 1. 概述
 
 后端提供 REST API 和 WebSocket 事件接口，支持两种数据源模式：
-- **回放模式**：读取已有的 `events.jsonl`、`tree.json`、`fe.db` 文件
-- **实时模式**：与运行中的 FaultEvolve 引擎通信，tail 事件文件并推送
+- **回放模式**：读取已有的 `events.jsonl`、`tree.json`、`run_summary.json`、`fe.db` 文件
+- **实时模式**：轮询运行中的 `fe.db`（WAL 模式增量写入），推送事件到前端
+
+### 1.1 输出文件写入时机（关键）
+
+| 输出 | 写入时机 | 说明 |
+|------|---------|------|
+| `fe.db` | **运行中增量写入** | SQLite WAL 模式，每个事件/节点立即持久化 |
+| `run_summary.json` | 运行结束后一次性写出 | 包含完整运行统计 |
+| `tree.json` | 运行结束后一次性写出 | 演化树最终快照 |
+| `events.jsonl` | 运行结束后一次性写出 | 事件流完整导出 |
+| `programs/*.py` | 运行结束后一次性写出 | 所有节点程序 |
+| `logs/*.log` | 运行结束后一次性写出 | 运行日志 |
+
+**实时模式采用 fe.db 轮询**：由于 `events.jsonl` 等文件只在运行结束后写出，实时监控必须轮询 `fe.db` 的 `event` 表，通过 `id` 字段做增量读取
 
 ## 2. REST API
 
@@ -106,39 +120,36 @@ POST /api/evolution/runs/:runId/stop
 GET /api/evolution/runs/:runId/tree
 ```
 
-响应（基于 FaultEvolve 的 tree.json 格式，待核）：
+响应（基于 FaultEvolve `tree.py` Tree.to_export() 方法，9 字段 + edges 数组）：
 ```json
 {
-  "root": {
-    "nodeId": "node-0",
-    "programPath": "programs/node_0.py",
-    "score": 22.81,
-    "scoreDetails": {
-      "ros": 22.81,
-      "f1_p10": 0.42,
-      "auprc": 0.35,
-      "r_at_far": 0.15,
-      "f1_boot_std": 0.03
+  "nodes": [
+    {
+      "id": 0,
+      "branch_id": 0,
+      "depth": 0,
+      "operator": "init",
+      "score": 22.81,
+      "status": "evaluated",
+      "hypothesis_status": null,
+      "intent": "初始化基线程序",
+      "visit_count": 45
     },
-    "operator": "init",
-    "status": "evaluated",
-    "visitCount": 45,
-    "createdAt": "2026-09-28T10:00:00Z",
-    "children": [
-      {
-        "nodeId": "node-1",
-        "parentId": "node-0",
-        "programPath": "programs/node_1.py",
-        "score": 28.35,
-        "operator": "refine",
-        "status": "evaluated",
-        "adoptedCards": ["FE01", "FE03"],
-        "children": []
-      }
-    ]
-  },
-  "bestNodeId": "node-42",
-  "bestScore": 34.96
+    {
+      "id": 1,
+      "branch_id": 0,
+      "depth": 1,
+      "operator": "refine",
+      "score": 28.35,
+      "status": "evaluated",
+      "hypothesis_status": null,
+      "intent": "改进窗口特征计算",
+      "visit_count": 23
+    }
+  ],
+  "edges": [
+    {"from": 0, "to": 1}
+  ]
 }
 ```
 
@@ -148,42 +159,23 @@ GET /api/evolution/runs/:runId/tree
 GET /api/evolution/runs/:runId/nodes/:nodeId
 ```
 
-响应：
+响应（基于 `schemas.py` Node 模型和 `fe.db` node 表）：
 ```json
 {
-  "nodeId": "node-42",
-  "parentId": "node-15",
-  "programPath": "programs/node_42.py",
+  "id": 42,
+  "branch_id": 3,
+  "depth": 5,
+  "operator": "refine",
+  "score": 34.96,
+  "status": "evaluated",
+  "hypothesis_status": null,
+  "intent": "改进窗口特征计算",
+  "visit_count": 12,
   "program": "# 节点代码...",
   "parentProgram": "# 父节点代码...",
   "diff": "--- parent\n+++ current\n@@ -10,5 +10,8 @@\n...",
-  "score": 34.96,
-  "scoreDetails": {
-    "ros": 34.96,
-    "f1_p10": 0.52,
-    "auprc": 0.48,
-    "r_at_far": 0.28,
-    "f1_boot_std": 0.025
-  },
-  "operator": "refine",
-  "operatorPrompt": "改进窗口特征计算...",
-  "status": "evaluated",
-  "adoptedCards": ["FE01", "FE03", "FE06"],
-  "reflection": {
-    "layer": "design",
-    "content": "本次改进主要是...",
-    "insights": [
-      {
-        "text": "增量特征比快照特征效果显著提升",
-        "zScore": 2.8,
-        "propagatedTo": ["node-45", "node-48"]
-      }
-    ]
-  },
-  "refutedHypotheses": [],
-  "createdAt": "2026-09-28T11:30:00Z",
-  "evaluatedAt": "2026-09-28T11:32:00Z",
-  "evaluationSeconds": 125
+  "adopted_cards": ["FE01", "FE03", "FE06"],
+  "refuted_cards": []
 }
 ```
 
@@ -195,40 +187,41 @@ GET /api/evolution/runs/:runId/nodes/:nodeId
 GET /api/evolution/runs/:runId/events?limit=100&offset=0
 ```
 
-响应（基于 events.jsonl 格式，待核）：
+响应（基于 `fe.db` event 表和 `schemas.py` Event 模型，11 种事件类型）：
 ```json
 {
   "events": [
     {
-      "eventId": "evt-001",
-      "type": "node_created",
-      "timestamp": "2026-09-28T10:05:00Z",
-      "data": {
-        "nodeId": "node-1",
-        "parentId": "node-0",
-        "operator": "refine"
-      }
+      "id": 1,
+      "experiment_id": "exp-20260928-001",
+      "type": "init_evaluated",
+      "payload": {
+        "node_id": 0,
+        "score": 22.81
+      },
+      "ts": "2026-09-28T10:00:00.000Z"
     },
     {
-      "eventId": "evt-002",
-      "type": "node_evaluated",
-      "timestamp": "2026-09-28T10:07:00Z",
-      "data": {
-        "nodeId": "node-1",
-        "score": 28.35,
-        "scoreDetails": {...},
-        "evaluationSeconds": 118
-      }
+      "id": 2,
+      "experiment_id": "exp-20260928-001",
+      "type": "repair_success",
+      "payload": {
+        "node_id": 1,
+        "attempt": 2,
+        "error_type": "SyntaxError"
+      },
+      "ts": "2026-09-28T10:05:30.000Z"
     },
     {
-      "eventId": "evt-003",
-      "type": "reflection",
-      "timestamp": "2026-09-28T10:07:30Z",
-      "data": {
-        "nodeId": "node-1",
-        "layer": "design",
-        "content": "..."
-      }
+      "id": 3,
+      "experiment_id": "exp-20260928-001",
+      "type": "reflection_design",
+      "payload": {
+        "node_id": 1,
+        "insight": "增量特征比快照特征效果显著提升",
+        "z_score": 2.8
+      },
+      "ts": "2026-09-28T10:07:00.000Z"
     }
   ],
   "total": 342,
@@ -236,7 +229,39 @@ GET /api/evolution/runs/:runId/events?limit=100&offset=0
 }
 ```
 
+#### 11 种事件类型（完整列表）
+
+| 事件类型 | 说明 | payload 主要字段 |
+|---------|------|-----------------|
+| `init_evaluated` | 初始节点评估完成 | `node_id`, `score` |
+| `selection_failed` | UCT 选择失败 | `reason` |
+| `invalid_generation` | 生成的代码无效 | `node_id`, `error_type`, `error_msg` |
+| `repair_failed` | 修复尝试失败 | `node_id`, `attempt`, `error_type` |
+| `repair_success` | 修复成功 | `node_id`, `attempt`, `error_type` |
+| `reflection_design` | 设计层反思 | `node_id`, `insight`, `z_score` |
+| `hypothesis_refuted` | 假设被否证 | `node_id`, `hypothesis`, `evidence` |
+| `insight_extracted` | 提取洞见 | `node_id`, `insight_text`, `propagated_to` |
+| `reflection_implementation` | 实现层反思 | `node_id`, `content` |
+| `iteration_complete` | 一轮迭代完成 | `iteration`, `best_score`, `nodes_count` |
+| `run_finished` | 运行结束 | `reason`, `final_score`, `total_nodes` |
+
+> **PR #3 扩展**：事件 payload 新增 `adopted_cards` 和 `refuted_cards` 数组字段
+```
+
 ### 2.4 分数历史
+
+#### ROS 评分公式（来自 `evaluator.py` lines 15-24）
+
+```python
+ROS = 100 * (0.5 * F1_p10 + 0.3 * AUPRC + 0.2 * R@FAR) * time_factor
+```
+
+| 指标 | 权重 | 说明 |
+|------|------|------|
+| F1_p10 | 0.5 | Precision=10% 时的 F1 分数 |
+| AUPRC | 0.3 | Precision-Recall 曲线下面积 |
+| R@FAR | 0.2 | FAR=0.1% 时的 Recall |
+| time_factor | × | 时间惩罚因子（超时降权） |
 
 #### 获取分数曲线数据
 
@@ -249,22 +274,22 @@ GET /api/evolution/runs/:runId/scores
 {
   "scores": [
     {
-      "nodeId": "node-0",
+      "node_id": 0,
       "iteration": 0,
-      "timestamp": "2026-09-28T10:00:00Z",
+      "ts": "2026-09-28T10:00:00.000Z",
       "score": 22.81,
-      "isBest": false
+      "is_best": false
     },
     {
-      "nodeId": "node-5",
+      "node_id": 5,
       "iteration": 5,
-      "timestamp": "2026-09-28T10:15:00Z",
+      "ts": "2026-09-28T10:15:00.000Z",
       "score": 30.25,
-      "isBest": true
+      "is_best": true
     }
   ],
-  "bestScore": 34.96,
-  "bestNodeId": "node-42"
+  "best_score": 34.96,
+  "best_node_id": 42
 }
 ```
 
@@ -496,7 +521,38 @@ Content-Type: application/json
 }
 ```
 
-### 2.9 设置
+### 2.9 设置与 CLI
+
+#### CLI 命令（来自 `cli.py` evolve_local，lines 298-366）
+
+```bash
+fe evolve local <task_dir> [OPTIONS]
+```
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `<task_dir>` | 任务目录（必须包含 data/, baseline.py 等） | 必填 |
+| `--mock` | 使用 mock LLM（不调用真实 API） | false |
+| `-n, --max-iterations N` | 最大迭代次数 | 50 |
+| `--resume ID` | 从已有实验 ID 恢复 | null |
+| `--json` | JSON 格式输出 | false |
+| `--runs-dir PATH` | 运行输出目录 | `./runs` |
+| `--artifacts-dir PATH` | 制品目录 | `./artifacts` |
+
+#### LLMConfig（来自 `config.py` lines 79-86）
+
+```json
+{
+  "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "api_key": "${DASHSCOPE_API_KEY}",
+  "generate_model": "qwen3-coder-plus",
+  "reason_model": "qwen3-max",
+  "temperature": 0.7,
+  "max_tokens": 4096
+}
+```
+
+> DashScope 兼容 OpenAI SDK 接口，`base_url` 使用 `/compatible-mode/v1` 路径。
 
 #### 获取配置
 
@@ -512,12 +568,12 @@ Content-Type: application/json
 
 {
   "deploymentMode": "hybrid",
-  "qwenConfig": {
-    "endpoint": "https://dashscope.aliyuncs.com/api/v1",
-    "model": "qwen3-coder-plus",
-    "reflectionModel": "qwen3-max"
+  "llmConfig": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "generate_model": "qwen3-coder-plus",
+    "reason_model": "qwen3-max"
   },
-  "dataPath": "/path/to/data"
+  "runsDir": "/path/to/runs"
 }
 ```
 
@@ -531,138 +587,134 @@ const socket = io('/evolution', {
 });
 ```
 
-### 3.2 事件类型
+### 3.2 事件类型（11 种，与 fe.db event 表一致）
 
-#### 节点创建
+> 事件格式统一为 `{id, experiment_id, type, payload, ts}`
 
 ```typescript
-interface NodeCreatedEvent {
-  type: 'node_created';
-  timestamp: string;
-  data: {
-    nodeId: string;
-    parentId: string;
-    operator: 'init' | 'refine' | 'repair' | 'inject' | 'discover';
-    adoptedCards?: string[];
-  };
+// 基础事件接口
+interface FaultEvolveEvent {
+  id: number;
+  experiment_id: string;
+  type: EventType;
+  payload: Record<string, unknown>;
+  ts: string;  // UTC ISO 8601
 }
+
+type EventType =
+  | 'init_evaluated'
+  | 'selection_failed'
+  | 'invalid_generation'
+  | 'repair_failed'
+  | 'repair_success'
+  | 'reflection_design'
+  | 'hypothesis_refuted'
+  | 'insight_extracted'
+  | 'reflection_implementation'
+  | 'iteration_complete'
+  | 'run_finished';
 ```
 
-#### 节点评估完成
+#### init_evaluated - 初始节点评估完成
 
 ```typescript
-interface NodeEvaluatedEvent {
-  type: 'node_evaluated';
-  timestamp: string;
-  data: {
-    nodeId: string;
+interface InitEvaluatedEvent extends FaultEvolveEvent {
+  type: 'init_evaluated';
+  payload: {
+    node_id: number;
     score: number;
-    scoreDetails: {
-      ros: number;
-      f1_p10: number;
-      auprc: number;
-      r_at_far: number;
-      f1_boot_std: number;
-    };
-    isBest: boolean;
-    evaluationSeconds: number;
   };
 }
 ```
 
-#### 评估失败
+#### repair_success / repair_failed - 修复结果
 
 ```typescript
-interface EvaluationFailedEvent {
-  type: 'evaluation_failed';
-  timestamp: string;
-  data: {
-    nodeId: string;
-    errorType: string;
-    errorMessage: string;
-    willRepair: boolean;
+interface RepairEvent extends FaultEvolveEvent {
+  type: 'repair_success' | 'repair_failed';
+  payload: {
+    node_id: number;
+    attempt: number;
+    error_type: string;
   };
 }
 ```
 
-#### 修复尝试
+#### reflection_design / reflection_implementation - 反思
 
 ```typescript
-interface RepairAttemptEvent {
-  type: 'repair_attempt';
-  timestamp: string;
-  data: {
-    nodeId: string;
-    attemptNumber: number;
-    errorType: string;
+interface ReflectionEvent extends FaultEvolveEvent {
+  type: 'reflection_design' | 'reflection_implementation';
+  payload: {
+    node_id: number;
+    insight?: string;
+    z_score?: number;
+    content?: string;
   };
 }
 ```
 
-#### 反思
+#### hypothesis_refuted - 假设否证
 
 ```typescript
-interface ReflectionEvent {
-  type: 'reflection';
-  timestamp: string;
-  data: {
-    nodeId: string;
-    layer: 'implementation' | 'design' | 'hypothesis' | 'mechanism';
-    content: string;
-    insights?: Array<{
-      text: string;
-      zScore: number;
-    }>;
-    refutedHypothesis?: string;
+interface HypothesisRefutedEvent extends FaultEvolveEvent {
+  type: 'hypothesis_refuted';
+  payload: {
+    node_id: number;
+    hypothesis: string;
+    evidence: string;
   };
 }
 ```
 
-#### 知识发现
+#### insight_extracted - 洞见提取
 
 ```typescript
-interface KnowledgeDiscoveredEvent {
-  type: 'knowledge_discovered';
-  timestamp: string;
-  data: {
-    layer: 'phenomenon' | 'mechanism' | 'theory';
-    id: string;
-    grade: 'confirmed' | 'corrected' | 'discovered' | 'refuted';
-    summary: string;
+interface InsightExtractedEvent extends FaultEvolveEvent {
+  type: 'insight_extracted';
+  payload: {
+    node_id: number;
+    insight_text: string;
+    propagated_to: number[];  // node IDs
   };
 }
 ```
 
-#### 锦标赛比赛
+#### iteration_complete - 迭代完成
 
 ```typescript
-interface TournamentMatchEvent {
-  type: 'tournament_match';
-  timestamp: string;
-  data: {
-    matchId: string;
-    mechanism1: string;
-    mechanism2: string;
-    testType: string;
-    winner: string | null;
-    eValue: number;
-    eloBefore: [number, number];
-    eloAfter: [number, number];
+interface IterationCompleteEvent extends FaultEvolveEvent {
+  type: 'iteration_complete';
+  payload: {
+    iteration: number;
+    best_score: number;
+    nodes_count: number;
   };
 }
 ```
 
-#### 运行状态变更
+#### run_finished - 运行结束
 
 ```typescript
-interface RunStatusEvent {
-  type: 'run_status';
-  timestamp: string;
-  data: {
-    status: 'running' | 'paused' | 'completed' | 'failed';
-    message?: string;
+interface RunFinishedEvent extends FaultEvolveEvent {
+  type: 'run_finished';
+  payload: {
+    reason: 'target_reached' | 'max_iterations' | 'error' | 'user_stopped';
+    final_score: number;
+    total_nodes: number;
   };
 }
+```
+
+#### PR #3 扩展字段
+
+```typescript
+// 事件 payload 可包含知识卡追踪字段
+interface CardTrackingPayload {
+  adopted_cards?: string[];  // 本次采纳的卡片 ID
+  refuted_cards?: string[];  // 本次否证的卡片 ID
+}
+```
 ```
 
 ### 3.3 订阅控制
@@ -682,173 +734,333 @@ socket.emit('unsubscribe', { runId: 'run-20260928-001' });
 ```typescript
 interface EvolutionDataSource {
   getTree(): Promise<TreeData>;
-  getEvents(options: { limit?: number; offset?: number }): Promise<EventData[]>;
-  getNode(nodeId: string): Promise<NodeData>;
-  getScores(): Promise<ScoreData[]>;
+  getEvents(options: { limit?: number; afterId?: number }): Promise<EventData[]>;
+  getNode(nodeId: number): Promise<NodeData>;
+  getSummary(): Promise<RunSummary | null>;
   
-  // 实时模式额外方法
-  subscribe?(callback: (event: EvolutionEvent) => void): void;
+  // 实时模式
+  subscribe?(callback: (event: FaultEvolveEvent) => void): void;
   unsubscribe?(): void;
 }
+```
 
+### 4.2 回放模式：读取运行后文件
+
+```typescript
 class ReplayDataSource implements EvolutionDataSource {
   constructor(
-    private eventsFile: string,
-    private treeFile: string,
-    private dbFile?: string
+    private runDir: string  // 包含 tree.json, events.jsonl, run_summary.json, fe.db
   ) {}
   
-  async getTree() {
-    return JSON.parse(await fs.readFile(this.treeFile, 'utf-8'));
+  async getTree(): Promise<TreeData> {
+    const content = await fs.readFile(
+      path.join(this.runDir, 'tree.json'), 'utf-8'
+    );
+    return JSON.parse(content);  // {nodes: [...], edges: [...]}
   }
   
-  async getEvents(options) {
-    const lines = await fs.readFile(this.eventsFile, 'utf-8');
-    return lines.split('\n')
+  async getEvents(options: { limit?: number; afterId?: number }) {
+    const lines = await fs.readFile(
+      path.join(this.runDir, 'events.jsonl'), 'utf-8'
+    );
+    let events = lines.split('\n')
       .filter(Boolean)
-      .map(line => JSON.parse(line))
-      .slice(options.offset, options.offset + options.limit);
+      .map(line => JSON.parse(line));
+    
+    if (options.afterId !== undefined) {
+      events = events.filter(e => e.id > options.afterId);
+    }
+    if (options.limit) {
+      events = events.slice(0, options.limit);
+    }
+    return events;
   }
-}
-
-class RealtimeDataSource implements EvolutionDataSource {
-  constructor(
-    private engineClient: EngineClient,
-    private eventEmitter: EventEmitter
-  ) {}
   
-  subscribe(callback) {
-    // tail events.jsonl 并推送
-    this.tail = new Tail(this.engineClient.eventsPath);
-    this.tail.on('line', (line) => {
-      callback(JSON.parse(line));
-    });
+  async getSummary(): Promise<RunSummary> {
+    const content = await fs.readFile(
+      path.join(this.runDir, 'run_summary.json'), 'utf-8'
+    );
+    return JSON.parse(content);
   }
 }
 ```
 
-### 4.2 事件 Schema（基于 FaultEvolve 实际输出，待核）
+### 4.3 实时模式：轮询 fe.db（关键）
 
-> 以下 schema 基于项目说明书描述推断，需与主仓库实际代码核对。
+> **重要**：`events.jsonl`、`tree.json`、`run_summary.json` 只在运行结束后写出。
+> 实时监控必须轮询 `fe.db` 的 `event` 表。
+
+```typescript
+class RealtimeDataSource implements EvolutionDataSource {
+  private db: Database;
+  private lastEventId = 0;
+  private pollInterval: NodeJS.Timer | null = null;
+  
+  constructor(
+    private feDbPath: string,  // fe.db 路径（WAL 模式，运行中可安全读取）
+    private pollIntervalMs = 500
+  ) {
+    // 以只读模式打开 WAL 数据库
+    this.db = new Database(feDbPath, { readonly: true });
+  }
+  
+  subscribe(callback: (event: FaultEvolveEvent) => void) {
+    this.pollInterval = setInterval(() => {
+      const newEvents = this.db.prepare(`
+        SELECT id, experiment_id, type, payload, ts
+        FROM event
+        WHERE id > ?
+        ORDER BY id ASC
+        LIMIT 100
+      `).all(this.lastEventId);
+      
+      for (const row of newEvents) {
+        const event: FaultEvolveEvent = {
+          id: row.id,
+          experiment_id: row.experiment_id,
+          type: row.type,
+          payload: JSON.parse(row.payload),
+          ts: row.ts
+        };
+        callback(event);
+        this.lastEventId = row.id;
+      }
+    }, this.pollIntervalMs);
+  }
+  
+  unsubscribe() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  }
+  
+  async getTree(): Promise<TreeData> {
+    // 实时模式下从 node 表构建树
+    const nodes = this.db.prepare(`
+      SELECT id, branch_id, depth, operator, score, status,
+             hypothesis_status, intent, visit_count
+      FROM node
+      WHERE experiment_id = ?
+      ORDER BY id ASC
+    `).all(this.experimentId);
+    
+    const edges = this.db.prepare(`
+      SELECT id as to_id, parent_id as from_id
+      FROM node
+      WHERE experiment_id = ? AND parent_id IS NOT NULL
+    `).all(this.experimentId);
+    
+    return {
+      nodes: nodes.map(n => ({
+        id: n.id,
+        branch_id: n.branch_id,
+        depth: n.depth,
+        operator: n.operator,
+        score: n.score,
+        status: n.status,
+        hypothesis_status: n.hypothesis_status,
+        intent: n.intent,
+        visit_count: n.visit_count
+      })),
+      edges: edges.map(e => ({ from: e.from_id, to: e.to_id }))
+    };
+  }
+}
+```
+```
+
+### 4.2 真实数据 Schema（已核实 main@b59c39e）
+
+> 以下 schema 来自 FaultEvolve 主仓库 `store.py` 和 `schemas.py`，已核实。
 
 #### events.jsonl 行格式
 
+每行是一个 JSON 对象，字段如下：
+
 ```json
 {
-  "event_type": "node_created | node_evaluated | reflection | ...",
-  "timestamp": "2026-09-28T10:05:00.123Z",
-  "node_id": "node-1",
-  "parent_id": "node-0",
-  "operator": "refine",
-  "score": 28.35,
-  "score_details": {
-    "ros": 28.35,
-    "f1_p10": 0.45,
-    "auprc": 0.38,
-    "r_at_far": 0.18,
-    "f1_boot_std": 0.028
+  "id": 1,
+  "experiment_id": "exp-20260928-001",
+  "type": "reflection_design",
+  "payload": {
+    "node_id": 1,
+    "insight": "增量特征比快照特征效果显著提升",
+    "z_score": 2.8
   },
-  "reflection_layer": "design",
-  "reflection_content": "...",
-  "adopted_cards": ["FE01", "FE03"],
-  "error_type": null,
-  "error_message": null
+  "ts": "2026-09-28T10:07:00.000Z"
 }
 ```
 
-#### tree.json 格式（待核）
+- `id`: 事件序号（INTEGER，自增）
+- `experiment_id`: 所属实验 ID（TEXT）
+- `type`: 11 种事件类型之一（见上文表格）
+- `payload`: JSON 对象，不同事件类型有不同字段
+- `ts`: UTC ISO 8601 时间戳
+
+#### tree.json 格式
 
 ```json
 {
-  "root_id": "node-0",
-  "nodes": {
-    "node-0": {
-      "node_id": "node-0",
-      "parent_id": null,
-      "children": ["node-1", "node-2"],
-      "program_path": "programs/node_0.py",
-      "score": 22.81,
+  "nodes": [
+    {
+      "id": 0,
+      "branch_id": 0,
+      "depth": 0,
       "operator": "init",
+      "score": 22.81,
       "status": "evaluated",
-      "visit_count": 45,
-      "q_value": 0.0
-    },
-    "node-1": {
-      "node_id": "node-1",
-      "parent_id": "node-0",
-      "children": ["node-5", "node-6"],
-      "program_path": "programs/node_1.py",
-      "score": 28.35,
-      "operator": "refine",
-      "status": "evaluated",
-      "visit_count": 23,
-      "q_value": 0.15,
-      "adopted_cards": ["FE01", "FE03"]
+      "hypothesis_status": null,
+      "intent": "初始化基线程序",
+      "visit_count": 45
     }
-  },
-  "best_node_id": "node-42",
-  "best_score": 34.96,
-  "total_evaluations": 45,
-  "total_tokens": 245000
+  ],
+  "edges": [
+    {"from": 0, "to": 1},
+    {"from": 0, "to": 2}
+  ]
 }
 ```
 
-#### fe.db 表结构（待核）
+节点 9 字段说明（来自 `tree.py` Tree.to_export()）：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | int | 节点 ID |
+| `branch_id` | int | 分支 ID |
+| `depth` | int | 树深度 |
+| `operator` | str | 算子类型：init / refine / repair / inject / discover |
+| `score` | float \| null | ROS 分数，未评估为 null |
+| `status` | str | evaluated / pending / failed |
+| `hypothesis_status` | str \| null | confirmed / refuted / null |
+| `intent` | str | 生成意图描述 |
+| `visit_count` | int | UCT 访问次数 |
+
+#### run_summary.json 格式
+
+```json
+{
+  "experiment_id": "exp-20260928-001",
+  "best_score": 34.96,
+  "best_node_id": 42,
+  "total_nodes": 156,
+  "total_iterations": 50,
+  "total_tokens": 245000,
+  "total_cost_usd": 1.25,
+  "wall_clock_seconds": 9000,
+  "metrics": {
+    "valid_rate": 0.85,
+    "repair_success_rate": 0.78,
+    "avg_score_improvement": 0.15
+  },
+  "config": {
+    "task_dir": "/path/to/task",
+    "target_score": 32.0,
+    "max_iterations": 50,
+    "generate_model": "qwen3-coder-plus",
+    "reason_model": "qwen3-max"
+  }
+}
+```
+
+#### fe.db 表结构（5 表 + WAL 模式）
 
 ```sql
--- 基于项目说明书推断
-CREATE TABLE nodes (
-  node_id TEXT PRIMARY KEY,
-  parent_id TEXT,
-  program_path TEXT,
+-- 来自 store.py，SQLite WAL 模式（line 131）
+PRAGMA journal_mode=WAL;
+
+-- 实验表
+CREATE TABLE experiment (
+  id TEXT PRIMARY KEY,
+  task_dir TEXT NOT NULL,
+  config TEXT NOT NULL,  -- JSON: LLMConfig + RunConfig
+  created_at TEXT NOT NULL,
+  finished_at TEXT,
+  status TEXT DEFAULT 'running'  -- running / completed / failed
+);
+
+-- 节点表
+CREATE TABLE node (
+  id INTEGER PRIMARY KEY,
+  experiment_id TEXT NOT NULL REFERENCES experiment(id),
+  branch_id INTEGER NOT NULL,
+  parent_id INTEGER REFERENCES node(id),
+  depth INTEGER NOT NULL,
+  operator TEXT NOT NULL,  -- init / refine / repair / inject / discover
+  intent TEXT,
+  program TEXT NOT NULL,
   score REAL,
-  ros REAL,
-  f1_p10 REAL,
-  auprc REAL,
-  r_at_far REAL,
-  f1_boot_std REAL,
-  operator TEXT,
-  status TEXT,
-  visit_count INTEGER,
-  q_value REAL,
-  adopted_cards TEXT,  -- JSON array
-  created_at TEXT,
+  status TEXT NOT NULL,  -- pending / evaluated / failed
+  hypothesis_status TEXT,  -- confirmed / refuted / null
+  visit_count INTEGER DEFAULT 0,
+  created_at TEXT NOT NULL,
   evaluated_at TEXT
 );
 
-CREATE TABLE events (
-  event_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  event_type TEXT,
-  timestamp TEXT,
-  node_id TEXT,
-  data TEXT  -- JSON
+-- 洞见表
+CREATE TABLE insight (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  experiment_id TEXT NOT NULL REFERENCES experiment(id),
+  node_id INTEGER NOT NULL REFERENCES node(id),
+  layer TEXT NOT NULL,  -- implementation / design / hypothesis
+  content TEXT NOT NULL,
+  z_score REAL,
+  propagated_to TEXT,  -- JSON array of node IDs
+  created_at TEXT NOT NULL
 );
 
-CREATE TABLE reflections (
-  reflection_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  node_id TEXT,
-  layer TEXT,
-  content TEXT,
-  insights TEXT,  -- JSON array
-  created_at TEXT
+-- LLM 调用记录表
+CREATE TABLE llm_call (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  experiment_id TEXT NOT NULL REFERENCES experiment(id),
+  node_id INTEGER REFERENCES node(id),
+  model TEXT NOT NULL,
+  purpose TEXT NOT NULL,  -- generate / reflect / repair
+  prompt_tokens INTEGER NOT NULL,
+  completion_tokens INTEGER NOT NULL,
+  latency_ms INTEGER NOT NULL,
+  created_at TEXT NOT NULL
 );
 
-CREATE TABLE llm_calls (
-  call_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  node_id TEXT,
-  model TEXT,
-  prompt_tokens INTEGER,
-  completion_tokens INTEGER,
-  latency_ms INTEGER,
-  created_at TEXT
+-- 事件表（实时流核心）
+CREATE TABLE event (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  experiment_id TEXT NOT NULL REFERENCES experiment(id),
+  type TEXT NOT NULL,  -- 11 种事件类型
+  payload TEXT NOT NULL,  -- JSON
+  ts TEXT NOT NULL  -- UTC ISO 8601
+);
+```
+
+#### PR #3 新增表（知识卡追踪）
+
+```sql
+-- 卡片统计表
+CREATE TABLE card_stats (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  experiment_id TEXT NOT NULL REFERENCES experiment(id),
+  card_id TEXT NOT NULL,
+  adopt_count INTEGER DEFAULT 0,
+  refute_count INTEGER DEFAULT 0,
+  last_used_at TEXT
 );
 
-CREATE TABLE branch_memory (
-  memory_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  node_id TEXT,
-  memory_type TEXT,  -- refuted_hypothesis | error_pattern
-  content TEXT,
-  created_at TEXT
+-- 分支否证卡表
+CREATE TABLE branch_refuted_cards (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  experiment_id TEXT NOT NULL REFERENCES experiment(id),
+  branch_id INTEGER NOT NULL,
+  card_id TEXT NOT NULL,
+  refuted_at_node INTEGER NOT NULL REFERENCES node(id),
+  reason TEXT
+);
+
+-- 节点采纳卡表
+CREATE TABLE node_adopted_cards (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  node_id INTEGER NOT NULL REFERENCES node(id),
+  card_id TEXT NOT NULL,
+  adopted_at TEXT NOT NULL
 );
 ```
 
@@ -877,12 +1089,39 @@ CREATE TABLE branch_memory (
 | `ENGINE_ERROR` | 500 | 引擎错误 |
 | `SSH_CONNECTION_FAILED` | 500 | SSH 连接失败 |
 
-## 6. 待核内容
+## 6. 已核实与待核内容
+
+### 6.1 已核实（main@b59c39e）
+
+| 内容 | 来源文件 | 状态 |
+|------|---------|------|
+| events.jsonl 行格式 | `schemas.py` Event 模型 | ✅ 已核实 |
+| 11 种事件类型 | `schemas.py`, SCHEMA_NOTES §1 | ✅ 已核实 |
+| tree.json 9 字段 + edges | `tree.py` Tree.to_export() lines 351-378 | ✅ 已核实 |
+| fe.db 5 表结构 | `store.py` DDL | ✅ 已核实 |
+| fe.db WAL 模式 | `store.py` line 131 | ✅ 已核实 |
+| run_summary.json 格式 | `schemas.py` RunSummary lines 197-218 | ✅ 已核实 |
+| ROS 公式 | `evaluator.py` lines 15-24 | ✅ 已核实 |
+| CLI 参数 | `cli.py` evolve_local lines 298-366 | ✅ 已核实 |
+| LLMConfig 字段 | `config.py` lines 79-86 | ✅ 已核实 |
+| 写入时机（fe.db 增量 vs 其他文件运行后写出） | SCHEMA_NOTES | ✅ 已核实 |
+
+### 6.2 PR #3 扩展（head 673084d，待合入）
 
 | 内容 | 来源 | 状态 |
 |------|------|------|
-| events.jsonl 完整字段列表 | FaultEvolve 主仓库 `store.py` | 待核 |
-| tree.json 完整 schema | FaultEvolve 主仓库输出 | 待核 |
-| fe.db 表结构 | FaultEvolve 主仓库 `store.py` | 待核 |
-| run_summary.json 格式 | FaultEvolve 主仓库输出 | 待核 |
-| 知识卡注入事件格式 | PR #3 | 待核 |
+| card_stats / branch_refuted_cards / node_adopted_cards 表 | PR #3 store_DDL_excerpt.sql | ✅ 已核实 |
+| 事件 payload 新增 adopted_cards / refuted_cards | PR #3 | ✅ 已核实 |
+
+### 6.3 仍待核
+
+| 内容 | 原因 | 说明 |
+|------|------|------|
+| 三层知识（现象/机理/原理）完整数据格式 | 主仓库尚未实现发现流水线 | API 设计基于项目说明书，待后续核实 |
+| 数据裁决锦标赛输出格式 | 同上 | 待后续核实 |
+
+### 6.4 已知缺陷
+
+| 缺陷 | 位置 | 影响 | 状态 |
+|------|------|------|------|
+| `repair_count` NameError | `engine.py` lines 450, 459 | `_attempt_repair` 方法引用未定义变量，修复路径会抛异常 | **主线待修复** |

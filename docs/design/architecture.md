@@ -1,7 +1,8 @@
 # FaultEvolve-ResearchAssistant 整体架构设计
 
-> 文档版本：v1.0  
-> 最后更新：2026-09-28
+> 文档版本：v1.1  
+> 最后更新：2026-09-28  
+> **本版本根据 FaultEvolve 主仓库 main@b59c39e 源码修订**
 
 ## 1. 系统定位
 
@@ -147,22 +148,32 @@ graph TB
 | **数据库** | SQLite + Drizzle ORM | `src/database/`、`drizzle/` |
 | **Skills 契约** | SKILL.md 规范 | `research-skills/`、`research-tools/contract.md` |
 
-### 4.2 从 FaultEvolve 主仓库复用（待核）
+### 4.2 从 FaultEvolve 主仓库复用（已核实 main@b59c39e）
 
-> 注：由于主仓库当前不可访问，以下内容基于项目说明书描述，实际接入时需核对。
+| 内容 | 描述 | 来源文件 | 状态 |
+|------|------|---------|------|
+| 演化引擎 | UCT + 渐进加宽 + 子树 max 回传 | `engine.py` | ✅ 已实现 |
+| Qwen 生成与反思 | DashScope 兼容模式 | `config.py` lines 79-86 | ✅ 已实现 |
+| 三层反思 | implementation / design / hypothesis | `schemas.py` | ✅ 已实现 |
+| 修复算子 | repair 算子 + 分支记忆 | `engine.py` | ✅ 已实现（有缺陷） |
+| 存储层 | fe.db (5 表 + WAL)、tree.json、events.jsonl | `store.py` | ✅ 已实现 |
+| ROS 评估器 | `100*(0.5*F1_p10 + 0.3*AUPRC + 0.2*R@FAR)*time_factor` | `evaluator.py` lines 15-24 | ✅ 已实现 |
+| CLI | `fe evolve local <task_dir> [--mock] [-n N] ...` | `cli.py` lines 298-366 | ✅ 已实现 |
+| 知识卡注入 | 51 张卡，inject 算子，卡片追踪表 | PR #3 (head 673084d) | 🚧 待合入 |
+| 发现流水线 | 论断翻译、对手机制、数据裁判锦标赛 | — | 📋 规划中 |
 
-| 内容 | 描述 | 状态（据说明书） |
-|------|------|----------------|
-| 演化引擎 | UCT + 渐进加宽 + 子树 max 回传 | 已实现 |
-| Qwen 生成与反思 | qwen3-coder-plus 生成、qwen3-max 反思 | 已实现 |
-| 三层反思 | 实现层、设计层、假设层 | 已实现 |
-| 修复算子 | repair 算子 + 分支记忆 | 已实现 |
-| 存储 | fe.db (SQLite)、tree.json、events.jsonl | 已实现 |
-| ROS 评估器 | F1_p10 + AUPRC + R@FAR | 已实现 |
-| 知识卡注入 | 51 张卡，inject 算子 | 开发中 (PR #3) |
-| 发现流水线 | 论断翻译、对手机制、数据裁判锦标赛 | 规划 |
+### 4.3 已知缺陷（主线待修复）
 
-**已知缺陷（待主仓库修复）**：`engine._attempt_repair` 中引用了未定义的 `repair_count`，会导致修复路径抛 NameError。
+| 缺陷 | 位置 | 影响 | 优先级 |
+|------|------|------|--------|
+| `repair_count` NameError | `engine.py` lines 450, 459 | `_attempt_repair` 方法引用未定义变量 `repair_count`，修复路径会抛 NameError | **高（长跑前必须修复）** |
+
+```python
+# engine.py:450, 459 片段（问题代码）
+# 引用了未定义的 repair_count 变量
+if repair_count >= max_repairs:  # ← NameError: repair_count is not defined
+    ...
+```
 
 ## 5. 新增内容
 
@@ -258,28 +269,49 @@ graph TB
 
 ## 7. 数据流
 
-### 7.1 回放模式数据流
+### 7.1 输出文件写入时机（关键）
+
+| 输出 | 写入时机 | 实时可读 |
+|------|---------|---------|
+| `fe.db` | **运行中增量写入**（WAL 模式） | ✅ 是 |
+| `run_summary.json` | 运行结束后一次性写出 | ❌ 否 |
+| `tree.json` | 运行结束后一次性写出 | ❌ 否 |
+| `events.jsonl` | 运行结束后一次性写出 | ❌ 否 |
+| `programs/*.py` | 运行结束后一次性写出 | ❌ 否 |
+| `logs/*.log` | 运行结束后一次性写出 | ❌ 否 |
+
+### 7.2 回放模式数据流
 
 ```
-events.jsonl ──┐
-tree.json ─────┼──→ ReplayService ──→ WebSocket ──→ 前端渲染
-fe.db ─────────┘                           ↓
-                                     演化树、分数曲线、
-                                     节点详情、反思笔记
+run_summary.json ──┐
+events.jsonl ──────┼──→ ReplayService ──→ REST API ──→ 前端渲染
+tree.json ─────────┤                           ↓
+fe.db ─────────────┘                     演化树、分数曲线、
+programs/*.py ─────────────────────────→ 节点详情、代码 Diff
 ```
 
-### 7.2 实时模式数据流
+### 7.3 实时模式数据流（fe.db 轮询）
+
+> **重要**：由于 `events.jsonl` 等文件只在运行结束后写出，实时监控必须轮询 `fe.db`。
 
 ```
 用户启动 ──→ 后端创建任务 ──→ 引擎开始演化
                               ↓
-                         写入事件到 events.jsonl
+                         写入 fe.db（WAL 模式，增量）
+                         ├── event 表：事件流
+                         ├── node 表：节点数据
+                         └── insight 表：洞见
                               ↓
-                         后端 tail/watch 文件
+                         后端轮询 fe.db（500ms 间隔）
+                         SELECT * FROM event WHERE id > last_id
                               ↓
                          WebSocket 推送前端
                               ↓
                          前端实时更新
+
+运行结束 ──→ 引擎写出 tree.json, events.jsonl, run_summary.json
+                              ↓
+                         后端切换到回放模式
 ```
 
 ## 8. 技术选型总结
@@ -301,12 +333,58 @@ fe.db ─────────┘                           ↓
 | 数据库 | SQLite + Drizzle | 复用 Navivisor，扩展 schema |
 | 引擎 | Python FaultEvolve | 独立进程/SSH |
 
-## 9. 待核内容
+## 9. 已核实与待核内容
 
-| 内容 | 说明 |
+### 9.1 已核实（main@b59c39e）
+
+| 内容 | 来源 | 状态 |
+|------|------|------|
+| events.jsonl 行格式 | `schemas.py` Event 模型 | ✅ |
+| 11 种事件类型 | SCHEMA_NOTES §1 | ✅ |
+| tree.json 9 字段 + edges | `tree.py` Tree.to_export() | ✅ |
+| fe.db 5 表 + WAL 模式 | `store.py` | ✅ |
+| run_summary.json 格式 | `schemas.py` RunSummary | ✅ |
+| ROS 评分公式 | `evaluator.py` lines 15-24 | ✅ |
+| CLI 参数 | `cli.py` evolve_local | ✅ |
+| LLMConfig | `config.py` lines 79-86 | ✅ |
+| 写入时机 | SCHEMA_NOTES | ✅ |
+| repair_count 缺陷 | `engine.py` lines 450, 459 | ✅ 确认存在 |
+
+### 9.2 PR #3 扩展（head 673084d，待合入）
+
+| 内容 | 状态 |
 |------|------|
-| FaultEvolve 主仓库代码结构 | 当前仓库不可访问，需获取权限后核对 |
-| events.jsonl 具体字段 | 需从实际运行输出中提取 |
-| fe.db 表结构 | 需从实际数据库中提取 |
-| tree.json 完整 schema | 需从实际输出中提取 |
-| PR #3 知识卡注入实现细节 | 需核对 |
+| card_stats / branch_refuted_cards / node_adopted_cards 表 | ✅ 已核实 |
+| 事件 payload 新增 adopted_cards / refuted_cards | ✅ 已核实 |
+
+### 9.3 仍待核
+
+| 内容 | 原因 |
+|------|------|
+| 三层知识（现象/机理/原理）完整数据格式 | 主仓库尚未实现发现流水线 |
+| 数据裁决锦标赛输出格式 | 同上 |
+
+## 10. SCHEMA_NOTES §10 主线改进建议
+
+> 来自 FaultEvolve SCHEMA_NOTES.md 第 10 节，建议主仓库实施：
+
+1. **修复 `repair_count` NameError**（优先级：高）
+   - 位置：`engine.py` lines 450, 459
+   - 问题：引用未定义变量
+   - 影响：修复路径抛异常，长跑无法正常运行
+
+2. **事件 ID 去重**（优先级：中）
+   - 当前 event 表 `id` 为自增整数
+   - 建议增加复合唯一索引 `(experiment_id, type, ts)` 防止重复
+
+3. **节点 program 字段压缩**（优先级：低）
+   - 长程序占用大量存储
+   - 建议支持 gzip 压缩或外部文件引用
+
+4. **HTTP API Sidecar 模式**（优先级：中）
+   - 当前只有 CLI 入口
+   - 增加可选 HTTP API 便于前端实时控制
+
+5. **tree.json 增加 adopted_cards 字段**（优先级：中）
+   - 当前 tree.json 节点不包含知识卡引用
+   - 建议从 node_adopted_cards 表导出
