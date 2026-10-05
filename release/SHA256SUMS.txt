@@ -1,0 +1,4 @@
+FaultEvolve-ResearchAssistant-competition.zip
+SHA256: 60368d76945d828e7912c92b7aa1d1e7b06afff38f6881e838f19d74015284fb
+Size: 26175846 bytes
+Source commit: 7bab3bb62e663ba229e139fe3b2675cc327b8bf0
