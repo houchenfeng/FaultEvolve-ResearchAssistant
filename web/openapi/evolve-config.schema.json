@@ -1,0 +1,1178 @@
+{
+  "$defs": {
+    "AblationConfig": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_units": {
+          "default": 6,
+          "maximum": 12,
+          "minimum": 1,
+          "title": "Max Units",
+          "type": "integer"
+        },
+        "paired_resamples": {
+          "default": 200,
+          "minimum": 50,
+          "title": "Paired Resamples",
+          "type": "integer"
+        }
+      },
+      "title": "AblationConfig",
+      "type": "object"
+    },
+    "AnalysisConfig": {
+      "description": "Configuration for dev-set error profiling.",
+      "properties": {
+        "dev_late_fraction": {
+          "default": 0.4,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Dev Late Fraction",
+          "type": "number"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "min_group_count": {
+          "default": 10,
+          "minimum": 10,
+          "title": "Min Group Count",
+          "type": "integer"
+        },
+        "on_new_best": {
+          "default": true,
+          "title": "On New Best",
+          "type": "boolean"
+        },
+        "timeout_s": {
+          "default": 600,
+          "exclusiveMinimum": 0,
+          "maximum": 900,
+          "title": "Timeout S",
+          "type": "integer"
+        },
+        "top_k": {
+          "default": 3,
+          "minimum": 0,
+          "title": "Top K",
+          "type": "integer"
+        }
+      },
+      "title": "AnalysisConfig",
+      "type": "object"
+    },
+    "AutotuneConfig": {
+      "properties": {
+        "ablation": {
+          "$ref": "#/$defs/AblationConfig"
+        },
+        "cache": {
+          "$ref": "#/$defs/CacheConfig"
+        },
+        "feedback": {
+          "$ref": "#/$defs/FeedbackConfig"
+        },
+        "hpo": {
+          "$ref": "#/$defs/HpoConfig"
+        },
+        "ledger": {
+          "$ref": "#/$defs/LedgerConfig"
+        },
+        "patch": {
+          "$ref": "#/$defs/PatchConfig"
+        },
+        "quota": {
+          "$ref": "#/$defs/QuotaConfig"
+        }
+      },
+      "title": "AutotuneConfig",
+      "type": "object"
+    },
+    "BudgetConfig": {
+      "description": "Budget constraints for evolution.",
+      "properties": {
+        "cost_window": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Cost Window",
+          "type": "integer"
+        },
+        "expand_gating": {
+          "default": false,
+          "title": "Expand Gating",
+          "type": "boolean"
+        },
+        "max_iterations": {
+          "default": 50,
+          "title": "Max Iterations",
+          "type": "integer"
+        },
+        "max_tokens": {
+          "default": 3000000,
+          "title": "Max Tokens",
+          "type": "integer"
+        },
+        "max_wall_hours": {
+          "default": 6.0,
+          "title": "Max Wall Hours",
+          "type": "number"
+        },
+        "min_iterations_before_stop": {
+          "default": 5,
+          "minimum": 0,
+          "title": "Min Iterations Before Stop",
+          "type": "integer"
+        },
+        "safety_factor": {
+          "default": 1.5,
+          "minimum": 1,
+          "title": "Safety Factor",
+          "type": "number"
+        },
+        "stage_caps": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Stage Caps",
+          "type": "object"
+        },
+        "stagnation_window": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Stagnation Window",
+          "type": "integer"
+        },
+        "stall_iterations": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Stall Iterations",
+          "type": "integer"
+        },
+        "tokens_per_point_cap": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tokens Per Point Cap"
+        }
+      },
+      "title": "BudgetConfig",
+      "type": "object"
+    },
+    "CacheConfig": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "full_eval": {
+          "default": false,
+          "title": "Full Eval",
+          "type": "boolean"
+        }
+      },
+      "title": "CacheConfig",
+      "type": "object"
+    },
+    "CrossoverConfig": {
+      "description": "Configuration for crossover / ensemble operator.",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_code_chars": {
+          "default": 6000,
+          "minimum": 500,
+          "title": "Max Code Chars",
+          "type": "integer"
+        },
+        "min_valid_nodes": {
+          "default": 4,
+          "minimum": 2,
+          "title": "Min Valid Nodes",
+          "type": "integer"
+        },
+        "runtime_budget_s": {
+          "default": 300.0,
+          "exclusiveMinimum": 0,
+          "title": "Runtime Budget S",
+          "type": "number"
+        },
+        "top_quantile": {
+          "default": 0.3,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Top Quantile",
+          "type": "number"
+        }
+      },
+      "title": "CrossoverConfig",
+      "type": "object"
+    },
+    "DiscoveryConfig": {
+      "description": "Configuration for phenomenon-level knowledge discovery.",
+      "properties": {
+        "alpha": {
+          "default": 0.05,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Alpha",
+          "type": "number"
+        },
+        "bootstrap_b": {
+          "default": 500,
+          "minimum": 50,
+          "title": "Bootstrap B",
+          "type": "integer"
+        },
+        "cards_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cards Path"
+        },
+        "confirmation_fraction": {
+          "default": 0.3,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Confirmation Fraction",
+          "type": "number"
+        },
+        "discover_op_every": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Discover Op Every",
+          "type": "integer"
+        },
+        "e_calibrator_kappa": {
+          "default": 0.5,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "E Calibrator Kappa",
+          "type": "number"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "every_n_iterations": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Every N Iterations",
+          "type": "integer"
+        },
+        "extra_card_paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Extra Card Paths",
+          "type": "array"
+        },
+        "inject_same_run": {
+          "default": true,
+          "title": "Inject Same Run",
+          "type": "boolean"
+        },
+        "max_claims_per_round": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Max Claims Per Round",
+          "type": "integer"
+        },
+        "max_neg_control_fpr": {
+          "default": 0.1,
+          "title": "Max Neg Control Fpr",
+          "type": "number"
+        },
+        "max_token_share": {
+          "default": 0.2,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Max Token Share",
+          "type": "number"
+        },
+        "min_insight_z": {
+          "default": 2.0,
+          "title": "Min Insight Z",
+          "type": "number"
+        },
+        "neg_control_repeats": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Neg Control Repeats",
+          "type": "integer"
+        },
+        "planted_strengths": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Planted Strengths",
+          "type": "array"
+        },
+        "rho_max": {
+          "default": 0.8,
+          "title": "Rho Max",
+          "type": "number"
+        },
+        "run_at_end": {
+          "default": true,
+          "title": "Run At End",
+          "type": "boolean"
+        },
+        "sandbox_timeout_s": {
+          "default": 120,
+          "exclusiveMinimum": 0,
+          "title": "Sandbox Timeout S",
+          "type": "integer"
+        },
+        "split_salt": {
+          "default": "fe-kd-2026",
+          "title": "Split Salt",
+          "type": "string"
+        },
+        "top_k_programs": {
+          "default": 3,
+          "minimum": 0,
+          "title": "Top K Programs",
+          "type": "integer"
+        },
+        "tournament": {
+          "$ref": "#/$defs/TournamentConfig"
+        },
+        "use_jev_entailment": {
+          "default": false,
+          "title": "Use Jev Entailment",
+          "type": "boolean"
+        }
+      },
+      "title": "DiscoveryConfig",
+      "type": "object"
+    },
+    "FeedbackConfig": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_chars": {
+          "default": 2500,
+          "minimum": 500,
+          "title": "Max Chars",
+          "type": "integer"
+        }
+      },
+      "title": "FeedbackConfig",
+      "type": "object"
+    },
+    "HpoConfig": {
+      "properties": {
+        "dev": {
+          "$ref": "#/$defs/HpoDevConfig"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "families": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Families",
+          "type": "array"
+        },
+        "max_fits_total": {
+          "default": 80,
+          "minimum": 1,
+          "title": "Max Fits Total",
+          "type": "integer"
+        },
+        "promote_top_k": {
+          "default": 1,
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Promote Top K",
+          "type": "integer"
+        },
+        "search": {
+          "default": "random",
+          "title": "Search",
+          "type": "string"
+        },
+        "threads": {
+          "default": 1,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Threads",
+          "type": "integer"
+        },
+        "trial_timeout_s": {
+          "default": 300,
+          "maximum": 900,
+          "minimum": 10,
+          "title": "Trial Timeout S",
+          "type": "integer"
+        },
+        "trials_per_structure": {
+          "default": 8,
+          "maximum": 64,
+          "minimum": 1,
+          "title": "Trials Per Structure",
+          "type": "integer"
+        }
+      },
+      "title": "HpoConfig",
+      "type": "object"
+    },
+    "HpoDevConfig": {
+      "properties": {
+        "dev_late_fraction": {
+          "default": 0.4,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Dev Late Fraction",
+          "type": "number"
+        },
+        "min_dev_pos": {
+          "default": 20,
+          "minimum": 1,
+          "title": "Min Dev Pos",
+          "type": "integer"
+        },
+        "min_train_pos": {
+          "default": 20,
+          "minimum": 1,
+          "title": "Min Train Pos",
+          "type": "integer"
+        },
+        "purge_days": {
+          "default": 7,
+          "minimum": 0,
+          "title": "Purge Days",
+          "type": "integer"
+        }
+      },
+      "title": "HpoDevConfig",
+      "type": "object"
+    },
+    "InsightsConfig": {
+      "description": "Configuration for insight propagation.",
+      "properties": {
+        "reputation_enabled": {
+          "default": false,
+          "title": "Reputation Enabled",
+          "type": "boolean"
+        },
+        "summarize_every": {
+          "default": 5,
+          "title": "Summarize Every",
+          "type": "integer"
+        },
+        "top_k_branch_memory": {
+          "default": 5,
+          "title": "Top K Branch Memory",
+          "type": "integer"
+        },
+        "top_k_foreign": {
+          "default": 3,
+          "title": "Top K Foreign",
+          "type": "integer"
+        },
+        "top_k_negative": {
+          "default": 3,
+          "title": "Top K Negative",
+          "type": "integer"
+        }
+      },
+      "title": "InsightsConfig",
+      "type": "object"
+    },
+    "JudgeConfig": {
+      "description": "Configuration for the fast structured judge.",
+      "properties": {
+        "api_key_env": {
+          "default": "MIYANG_API_KEY",
+          "title": "Api Key Env",
+          "type": "string"
+        },
+        "audit_rate": {
+          "default": 0.1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Audit Rate",
+          "type": "number"
+        },
+        "base_url": {
+          "default": "https://miyang.cn/api/v1/decisions",
+          "title": "Base Url",
+          "type": "string"
+        },
+        "calibration_window": {
+          "default": 30,
+          "minimum": 0,
+          "title": "Calibration Window",
+          "type": "integer"
+        },
+        "defer_flush_evals": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Defer Flush Evals",
+          "type": "integer"
+        },
+        "initial_trust": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Initial Trust",
+          "type": "number"
+        },
+        "invalid_threshold": {
+          "default": 0.85,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Invalid Threshold",
+          "type": "number"
+        },
+        "low_value_action": {
+          "default": "skip",
+          "pattern": "^(skip|defer)$",
+          "title": "Low Value Action",
+          "type": "string"
+        },
+        "low_value_threshold": {
+          "default": 0.15,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Low Value Threshold",
+          "type": "number"
+        },
+        "max_calls": {
+          "default": 500,
+          "minimum": 0,
+          "title": "Max Calls",
+          "type": "integer"
+        },
+        "max_consecutive_errors": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Max Consecutive Errors",
+          "type": "integer"
+        },
+        "max_state_chars": {
+          "default": 6000,
+          "minimum": 1,
+          "title": "Max State Chars",
+          "type": "integer"
+        },
+        "model": {
+          "default": "miyang/jev-1.13",
+          "title": "Model",
+          "type": "string"
+        },
+        "prescreen": {
+          "default": false,
+          "title": "Prescreen",
+          "type": "boolean"
+        },
+        "prior": {
+          "default": true,
+          "title": "Prior",
+          "type": "boolean"
+        },
+        "prior_tau": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Prior Tau",
+          "type": "number"
+        },
+        "provider": {
+          "default": "none",
+          "pattern": "^(none|jev|mock)$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "retries": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Retries",
+          "type": "integer"
+        },
+        "timeout_s": {
+          "default": 5.0,
+          "exclusiveMinimum": 0,
+          "title": "Timeout S",
+          "type": "number"
+        },
+        "warmup": {
+          "default": 10,
+          "minimum": 0,
+          "title": "Warmup",
+          "type": "integer"
+        }
+      },
+      "title": "JudgeConfig",
+      "type": "object"
+    },
+    "KnowledgeConfig": {
+      "description": "Configuration for knowledge injection.",
+      "properties": {
+        "dir": {
+          "default": "",
+          "title": "Dir",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "k": {
+          "default": 4,
+          "title": "K",
+          "type": "integer"
+        },
+        "max_per_category": {
+          "default": 2,
+          "title": "Max Per Category",
+          "type": "integer"
+        }
+      },
+      "title": "KnowledgeConfig",
+      "type": "object"
+    },
+    "LLMConfig": {
+      "description": "Configuration for LLM calls.",
+      "properties": {
+        "base_url": {
+          "default": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+          "title": "Base Url",
+          "type": "string"
+        },
+        "generate_model": {
+          "default": "qwen3-coder-plus",
+          "title": "Generate Model",
+          "type": "string"
+        },
+        "max_concurrency": {
+          "default": 4,
+          "title": "Max Concurrency",
+          "type": "integer"
+        },
+        "max_tokens": {
+          "default": 8000,
+          "title": "Max Tokens",
+          "type": "integer"
+        },
+        "reason_model": {
+          "default": "qwen3-max",
+          "title": "Reason Model",
+          "type": "string"
+        },
+        "temperature": {
+          "default": 0.7,
+          "title": "Temperature",
+          "type": "number"
+        }
+      },
+      "title": "LLMConfig",
+      "type": "object"
+    },
+    "LedgerConfig": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "full_eval_cap": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Full Eval Cap"
+        }
+      },
+      "title": "LedgerConfig",
+      "type": "object"
+    },
+    "OperatorsConfig": {
+      "description": "Configuration for operators.",
+      "properties": {
+        "bandit": {
+          "default": false,
+          "title": "Bandit",
+          "type": "boolean"
+        },
+        "crossover": {
+          "$ref": "#/$defs/CrossoverConfig"
+        },
+        "enabled": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Enabled",
+          "type": "array"
+        },
+        "fn_keyword_groups": {
+          "default": 3,
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Fn Keyword Groups",
+          "type": "integer"
+        },
+        "fn_keywords": {
+          "default": false,
+          "title": "Fn Keywords",
+          "type": "boolean"
+        },
+        "min_explore": {
+          "default": 0.1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Min Explore",
+          "type": "number"
+        },
+        "prior_alpha": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "title": "Prior Alpha",
+          "type": "number"
+        },
+        "prior_beta": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "title": "Prior Beta",
+          "type": "number"
+        }
+      },
+      "title": "OperatorsConfig",
+      "type": "object"
+    },
+    "PatchConfig": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "fallback": {
+          "default": "reject",
+          "pattern": "^(reject|draft)$",
+          "title": "Fallback",
+          "type": "string"
+        },
+        "max_changed_lines": {
+          "default": 60,
+          "minimum": 1,
+          "title": "Max Changed Lines",
+          "type": "integer"
+        },
+        "max_hunks": {
+          "default": 3,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Max Hunks",
+          "type": "integer"
+        }
+      },
+      "title": "PatchConfig",
+      "type": "object"
+    },
+    "QuotaConfig": {
+      "properties": {
+        "archive_cap": {
+          "default": 20,
+          "minimum": 0,
+          "title": "Archive Cap",
+          "type": "integer"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_restarts": {
+          "default": 2,
+          "minimum": 0,
+          "title": "Max Restarts",
+          "type": "integer"
+        },
+        "plateau_evals": {
+          "default": 8,
+          "minimum": 2,
+          "title": "Plateau Evals",
+          "type": "integer"
+        },
+        "shares": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Shares",
+          "type": "object"
+        }
+      },
+      "title": "QuotaConfig",
+      "type": "object"
+    },
+    "ReflectionConfig": {
+      "description": "Configuration for reflection layers.",
+      "properties": {
+        "design_delta_factor": {
+          "default": 1.0,
+          "title": "Design Delta Factor",
+          "type": "number"
+        },
+        "hypothesis_delta_factor": {
+          "default": 2.0,
+          "title": "Hypothesis Delta Factor",
+          "type": "number"
+        },
+        "max_repair_attempts": {
+          "default": 1,
+          "title": "Max Repair Attempts",
+          "type": "integer"
+        }
+      },
+      "title": "ReflectionConfig",
+      "type": "object"
+    },
+    "SelectionConfig": {
+      "description": "Configuration for node selection.",
+      "properties": {
+        "c_puct": {
+          "default": 1.2,
+          "title": "C Puct",
+          "type": "number"
+        },
+        "kappa_noise": {
+          "default": 1.0,
+          "title": "Kappa Noise",
+          "type": "number"
+        },
+        "lambda_dup": {
+          "default": 0.1,
+          "title": "Lambda Dup",
+          "type": "number"
+        },
+        "policy": {
+          "default": "uct",
+          "title": "Policy",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/SelectionValueConfig"
+        }
+      },
+      "title": "SelectionConfig",
+      "type": "object"
+    },
+    "SelectionValueConfig": {
+      "description": "Multi-objective node value settings (selection only).",
+      "properties": {
+        "backup": {
+          "default": "max",
+          "pattern": "^(max|softmax)$",
+          "title": "Backup",
+          "type": "string"
+        },
+        "elite_m": {
+          "default": 3,
+          "minimum": 0,
+          "title": "Elite M",
+          "type": "integer"
+        },
+        "elite_prob": {
+          "default": 0.2,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Elite Prob",
+          "type": "number"
+        },
+        "lambda_noise": {
+          "default": 1.0,
+          "minimum": 0,
+          "title": "Lambda Noise",
+          "type": "number"
+        },
+        "lambda_rank": {
+          "default": 0.3,
+          "minimum": 0,
+          "title": "Lambda Rank",
+          "type": "number"
+        },
+        "mode": {
+          "default": "scalar",
+          "pattern": "^(scalar|multi)$",
+          "title": "Mode",
+          "type": "string"
+        },
+        "noise_key": {
+          "default": "",
+          "title": "Noise Key",
+          "type": "string"
+        },
+        "rank_keys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rank Keys",
+          "type": "array"
+        },
+        "threshold_keys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Threshold Keys",
+          "type": "array"
+        }
+      },
+      "title": "SelectionValueConfig",
+      "type": "object"
+    },
+    "SmokeTestConfig": {
+      "description": "Configuration for smoke test before full evaluation.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "sample_fraction": {
+          "default": 0.02,
+          "title": "Sample Fraction",
+          "type": "number"
+        },
+        "timeout_s": {
+          "default": 60,
+          "title": "Timeout S",
+          "type": "integer"
+        }
+      },
+      "title": "SmokeTestConfig",
+      "type": "object"
+    },
+    "StopConfig": {
+      "description": "Configuration for stopping conditions.",
+      "properties": {
+        "continue_prob": {
+          "default": 0.2,
+          "title": "Continue Prob",
+          "type": "number"
+        },
+        "improve_rate_q90": {
+          "default": 0.05,
+          "title": "Improve Rate Q90",
+          "type": "number"
+        },
+        "stop_at_target": {
+          "default": true,
+          "title": "Stop At Target",
+          "type": "boolean"
+        },
+        "target_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Score"
+        },
+        "window": {
+          "default": 15,
+          "title": "Window",
+          "type": "integer"
+        }
+      },
+      "title": "StopConfig",
+      "type": "object"
+    },
+    "TaskConfig": {
+      "description": "Task adapter selection (default keeps legacy HDD MVP behavior).",
+      "properties": {
+        "adapter": {
+          "default": "hdd",
+          "title": "Adapter",
+          "type": "string"
+        }
+      },
+      "title": "TaskConfig",
+      "type": "object"
+    },
+    "TournamentConfig": {
+      "description": "Configuration for mechanism tournament (KD2).",
+      "properties": {
+        "elo_k0": {
+          "default": 32.0,
+          "exclusiveMinimum": 0,
+          "title": "Elo K0",
+          "type": "number"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "equiv_margin": {
+          "default": 0.02,
+          "exclusiveMinimum": 0,
+          "title": "Equiv Margin",
+          "type": "number"
+        },
+        "icp_gate_p": {
+          "default": 0.01,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Icp Gate P",
+          "type": "number"
+        },
+        "max_patches": {
+          "default": 1,
+          "minimum": 0,
+          "title": "Max Patches",
+          "type": "integer"
+        },
+        "max_rivals": {
+          "default": 2,
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Max Rivals",
+          "type": "integer"
+        },
+        "max_rounds": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Max Rounds",
+          "type": "integer"
+        },
+        "max_token_share": {
+          "default": 0.1,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Max Token Share",
+          "type": "number"
+        },
+        "min_env_pos": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Min Env Pos",
+          "type": "integer"
+        },
+        "n_slices": {
+          "default": 4,
+          "maximum": 16,
+          "minimum": 2,
+          "title": "N Slices",
+          "type": "integer"
+        }
+      },
+      "title": "TournamentConfig",
+      "type": "object"
+    },
+    "WideningConfig": {
+      "description": "Configuration for progressive widening.",
+      "properties": {
+        "C": {
+          "default": 2.0,
+          "title": "C",
+          "type": "number"
+        },
+        "alpha": {
+          "default": 0.5,
+          "title": "Alpha",
+          "type": "number"
+        }
+      },
+      "title": "WideningConfig",
+      "type": "object"
+    }
+  },
+  "description": "Complete evolution configuration.",
+  "properties": {
+    "analysis": {
+      "$ref": "#/$defs/AnalysisConfig"
+    },
+    "autotune": {
+      "$ref": "#/$defs/AutotuneConfig"
+    },
+    "budget": {
+      "$ref": "#/$defs/BudgetConfig"
+    },
+    "discovery": {
+      "$ref": "#/$defs/DiscoveryConfig"
+    },
+    "insights": {
+      "$ref": "#/$defs/InsightsConfig"
+    },
+    "judge": {
+      "$ref": "#/$defs/JudgeConfig"
+    },
+    "knowledge": {
+      "$ref": "#/$defs/KnowledgeConfig"
+    },
+    "llm": {
+      "$ref": "#/$defs/LLMConfig"
+    },
+    "operators": {
+      "$ref": "#/$defs/OperatorsConfig"
+    },
+    "reflection": {
+      "$ref": "#/$defs/ReflectionConfig"
+    },
+    "seed": {
+      "default": 20260926,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "selection": {
+      "$ref": "#/$defs/SelectionConfig"
+    },
+    "smoke_test": {
+      "$ref": "#/$defs/SmokeTestConfig"
+    },
+    "stop": {
+      "$ref": "#/$defs/StopConfig"
+    },
+    "task": {
+      "$ref": "#/$defs/TaskConfig"
+    },
+    "widening": {
+      "$ref": "#/$defs/WideningConfig"
+    }
+  },
+  "title": "EvolveConfig",
+  "type": "object"
+}

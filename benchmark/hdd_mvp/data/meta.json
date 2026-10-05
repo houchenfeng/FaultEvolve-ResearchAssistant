@@ -1,0 +1,79 @@
+{
+  "horizon_days": 7,
+  "history_days": 14,
+  "min_capacity_bytes": 4000000000000.0,
+  "smart_columns": [
+    "smart_1_raw",
+    "smart_3_raw",
+    "smart_4_raw",
+    "smart_5_raw",
+    "smart_7_raw",
+    "smart_9_raw",
+    "smart_10_raw",
+    "smart_12_raw",
+    "smart_187_raw",
+    "smart_188_raw",
+    "smart_190_raw",
+    "smart_191_raw",
+    "smart_192_raw",
+    "smart_193_raw",
+    "smart_194_raw",
+    "smart_196_raw",
+    "smart_197_raw",
+    "smart_198_raw",
+    "smart_199_raw",
+    "smart_240_raw",
+    "smart_241_raw",
+    "smart_242_raw",
+    "smart_1_normalized",
+    "smart_3_normalized",
+    "smart_5_normalized",
+    "smart_7_normalized",
+    "smart_9_normalized",
+    "smart_187_normalized",
+    "smart_194_normalized",
+    "smart_197_normalized",
+    "smart_198_normalized"
+  ],
+  "splits": {
+    "train": {
+      "cutoff_range": [
+        "2024-07-14",
+        "2024-09-23"
+      ],
+      "n_samples": 31093,
+      "n_positive": 1104,
+      "n_negative": 29989,
+      "n_eligible_negative_disks": 295733,
+      "negative_weight": 9.857766666666667,
+      "history_rows": 428921,
+      "n_models": 44
+    },
+    "val": {
+      "cutoff_range": [
+        "2024-10-14",
+        "2024-12-24"
+      ],
+      "n_samples": 30754,
+      "n_positive": 756,
+      "n_negative": 29998,
+      "n_eligible_negative_disks": 302105,
+      "negative_weight": 10.070166666666667,
+      "history_rows": 422167,
+      "n_models": 43
+    },
+    "test": {
+      "cutoff_range": [
+        "2025-01-14",
+        "2025-03-24"
+      ],
+      "n_samples": 30759,
+      "n_positive": 770,
+      "n_negative": 29989,
+      "n_eligible_negative_disks": 309536,
+      "negative_weight": 10.317866666666667,
+      "history_rows": 427833,
+      "n_models": 46
+    }
+  }
+}

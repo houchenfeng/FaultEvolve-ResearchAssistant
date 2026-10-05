@@ -1,0 +1,14 @@
+task:
+  adapter: smartmem
+
+budget:
+  max_iterations: 10
+
+knowledge:
+  enabled: true
+  dir: knowledge
+  k: 4
+  max_per_category: 2
+
+smoke_test:
+  enabled: false

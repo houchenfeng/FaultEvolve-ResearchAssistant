@@ -1,0 +1,341 @@
+{
+  "experiment_id": "c89e2a01",
+  "nodes": [
+    {
+      "id": "n0a1b2c3",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 12.46,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "初始解：cutoff 当日 SMART 的加权逻辑回归",
+      "visit_count": 3,
+      "adopted_cards": []
+    },
+    {
+      "id": "n1d4e5f6",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 15.92,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 3,
+      "adopted_cards": []
+    },
+    {
+      "id": "n2a7b8c9",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 14.31,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 3,
+      "adopted_cards": []
+    },
+    {
+      "id": "n3d0e1f2",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 3,
+      "adopted_cards": []
+    },
+    {
+      "id": "n4a3b4c5",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 20.11,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n5d6e7f8",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 18.07,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n6a9b0c1",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 22.18,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n7d2e3f4",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 17.06,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n8a5b6c7",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 24.12,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n9d8e9f0",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "recall_focus",
+      "score": 21.03,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "按失败召回定向补特征",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n10a1b2d3",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 26.41,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n11d3e4f5",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 23.18,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n12a5b6d7",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 19.34,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n13d7e8f9",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "refine",
+      "score": 27.56,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n14a7b8d9",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "refine",
+      "score": 25.11,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n15d9e0fa",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n16a9b0db",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "repair",
+      "score": 31.48,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "修复超时的网格搜索",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n17d1e2fc",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "threshold_calibrate",
+      "score": 22.17,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "用分位数重选告警阈值",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n18a3b4dd",
+      "branch_id": "main",
+      "depth": 5,
+      "operator": "refine",
+      "score": 33.7,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n19d5e6fe",
+      "branch_id": "main",
+      "depth": 5,
+      "operator": "refine",
+      "score": 31.12,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "换特征窗口并重训",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "n20a7b8df",
+      "branch_id": "main",
+      "depth": 5,
+      "operator": "inject",
+      "score": 29.08,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "注入跨分支的知识卡后重训",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "n0a1b2c3",
+      "target": "n1d4e5f6"
+    },
+    {
+      "source": "n0a1b2c3",
+      "target": "n2a7b8c9"
+    },
+    {
+      "source": "n0a1b2c3",
+      "target": "n3d0e1f2"
+    },
+    {
+      "source": "n1d4e5f6",
+      "target": "n4a3b4c5"
+    },
+    {
+      "source": "n1d4e5f6",
+      "target": "n5d6e7f8"
+    },
+    {
+      "source": "n2a7b8c9",
+      "target": "n6a9b0c1"
+    },
+    {
+      "source": "n2a7b8c9",
+      "target": "n7d2e3f4"
+    },
+    {
+      "source": "n4a3b4c5",
+      "target": "n8a5b6c7"
+    },
+    {
+      "source": "n4a3b4c5",
+      "target": "n9d8e9f0"
+    },
+    {
+      "source": "n5d6e7f8",
+      "target": "n10a1b2d3"
+    },
+    {
+      "source": "n5d6e7f8",
+      "target": "n11d3e4f5"
+    },
+    {
+      "source": "n7d2e3f4",
+      "target": "n12a5b6d7"
+    },
+    {
+      "source": "n8a5b6c7",
+      "target": "n13d7e8f9"
+    },
+    {
+      "source": "n8a5b6c7",
+      "target": "n14a7b8d9"
+    },
+    {
+      "source": "n10a1b2d3",
+      "target": "n15d9e0fa"
+    },
+    {
+      "source": "n10a1b2d3",
+      "target": "n16a9b0db"
+    },
+    {
+      "source": "n12a5b6d7",
+      "target": "n17d1e2fc"
+    },
+    {
+      "source": "n13d7e8f9",
+      "target": "n18a3b4dd"
+    },
+    {
+      "source": "n13d7e8f9",
+      "target": "n19d5e6fe"
+    },
+    {
+      "source": "n16a9b0db",
+      "target": "n20a7b8df"
+    }
+  ]
+}

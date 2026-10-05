@@ -1,0 +1,15 @@
+[
+  {
+    "neg_trials": 10,
+    "neg_false_positives": 0,
+    "neg_fpr": 0.0,
+    "planted": {
+      "0.5": {
+        "trials": 5.0,
+        "recovered": 4.0,
+        "rate": 0.8
+      }
+    },
+    "passed": true
+  }
+]

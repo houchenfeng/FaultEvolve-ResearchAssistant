@@ -1,0 +1,29 @@
+# 受保护的基准文件必须字节逐字不变。
+#
+# 背景：本机 `core.autocrlf = true`，Git 在 checkout 时会把仓库里的 LF 文本
+# 转成 CRLF 写进工作区。`tests/test_hdd_protected_files.py` 是按**字节**算
+# sha256 的，期望值取自仓库内容（LF），读到的是工作区（CRLF），于是 8 个文本
+# 文件全红，而两个 .gz（被 Git 判为二进制、不转换）反而通过 —— 这个"二进制
+# 通过、文本全红"的组合就是行尾转换的指纹。
+#
+# 所以这里显式钉死行尾：受保护目录下的一律 LF，二进制的一律不碰。
+# 后者尤其重要：SQLite 的 .db / .db-wal / .db-shm 一旦被行尾转换就会损坏。
+#
+# 范围必须是整个 benchmark/，不能只钉 hdd_mvp/：`test_backblaze_task.py`
+# 断言 backblaze_hdd 的副本与 hdd_mvp 的原件**字节相同**。只修一边的话，
+# 一边 LF 一边 CRLF，这条测试反而会从"过"变"红"（它原先是靠两边都被
+# 转换才侥幸通过的）。
+
+benchmark/** text eol=lf
+
+benchmark/hdd_mvp/**/*.gz binary
+benchmark/hdd_mvp/**/*.pyc binary
+benchmark/hdd_mvp/**/*.db binary
+benchmark/hdd_mvp/**/*.db-wal binary
+benchmark/hdd_mvp/**/*.db-shm binary
+
+# 回放 fixture 里的 SQLite 库同理：它被判成二进制靠的是 Git 的内容嗅探，
+# 万一日后文件头变了就会遭到行尾转换而损坏。这里显式钉死。
+tests/fixtures/**/*.db binary
+tests/fixtures/**/*.db-wal binary
+tests/fixtures/**/*.db-shm binary

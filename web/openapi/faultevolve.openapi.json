@@ -1,0 +1,6522 @@
+{
+  "components": {
+    "schemas": {
+      "ApiErrorResponse": {
+        "additionalProperties": false,
+        "description": "Uniform error envelope. The UI shows Chinese text keyed by ``error_code``.",
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Detail"
+          },
+          "error_code": {
+            "title": "Error Code",
+            "type": "string"
+          },
+          "field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Field"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Run Id"
+          }
+        },
+        "required": [
+          "error_code",
+          "message"
+        ],
+        "title": "ApiErrorResponse",
+        "type": "object"
+      },
+      "AppendRoundsRequest": {
+        "additionalProperties": false,
+        "description": "Ask a run to evolve further (PRD §16.1).\n\n``additional_iterations`` is a *delta*, not a new total. The original\ncompletion summary is never rewritten, so \"this run did N rounds, then M\nmore\" stays auditable after the fact.",
+        "properties": {
+          "additional_iterations": {
+            "exclusiveMinimum": 0,
+            "maximum": 500,
+            "title": "Additional Iterations",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "additional_iterations"
+        ],
+        "title": "AppendRoundsRequest",
+        "type": "object"
+      },
+      "ArtifactListResponse": {
+        "additionalProperties": false,
+        "description": "Everything downloadable for one run.",
+        "properties": {
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactResponse"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "artifacts"
+        ],
+        "title": "ArtifactListResponse",
+        "type": "object"
+      },
+      "ArtifactResponse": {
+        "additionalProperties": false,
+        "description": "One downloadable artifact.\n\n``artifact_id`` is minted by the server; the raw path is never accepted or\nreturned, which is what keeps path traversal and access to protected\nevaluation data impossible.",
+        "properties": {
+          "artifact_id": {
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "downloadable": {
+            "title": "Downloadable",
+            "type": "boolean"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Size Bytes"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ArtifactState"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "run_id",
+          "kind",
+          "display_name",
+          "media_type",
+          "state",
+          "downloadable"
+        ],
+        "title": "ArtifactResponse",
+        "type": "object"
+      },
+      "ArtifactState": {
+        "description": "Availability of one artifact inside a run directory.",
+        "enum": [
+          "available",
+          "missing",
+          "invalid"
+        ],
+        "title": "ArtifactState",
+        "type": "string"
+      },
+      "ContractWarning": {
+        "additionalProperties": false,
+        "description": "A field the current version could not fill.\n\nThe UI renders these as \"当前版本未记录\" instead of inventing a value.",
+        "properties": {
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "reason"
+        ],
+        "title": "ContractWarning",
+        "type": "object"
+      },
+      "ControlAction": {
+        "description": "Lifecycle actions the API accepts.\n\n``PAUSE``/``RESUME`` are declared so the API can answer with a stable\n``not_supported`` error instead of pretending (TODO §7.4). The engine has no\nsafe pause point today.",
+        "enum": [
+          "cancel",
+          "pause",
+          "resume"
+        ],
+        "title": "ControlAction",
+        "type": "string"
+      },
+      "DeploymentMode": {
+        "description": "How the engine gets executed. P0 ships cloud-only modes.",
+        "enum": [
+          "local_cloud",
+          "ssh_cloud",
+          "local_desktop"
+        ],
+        "title": "DeploymentMode",
+        "type": "string"
+      },
+      "DeploymentModeAvailability": {
+        "additionalProperties": false,
+        "description": "Whether one deployment mode is usable in this build.",
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/DeploymentMode"
+          },
+          "supported_transports": {
+            "items": {
+              "$ref": "#/components/schemas/DeploymentMode"
+            },
+            "title": "Supported Transports",
+            "type": "array"
+          }
+        },
+        "required": [
+          "mode",
+          "available",
+          "supported_transports"
+        ],
+        "title": "DeploymentModeAvailability",
+        "type": "object"
+      },
+      "DiscoveryResponse": {
+        "additionalProperties": false,
+        "description": "Artifacts of the knowledge-discovery pipeline (TODO §6.2 / §6.3).\n\n``phenomena`` / ``preregistration`` / ``controls`` mirror what\n``discovery/pipeline.py`` writes: all three are JSON *lists* (one entry per\nclaim / preregistration / controls snapshot), not objects.",
+        "properties": {
+          "certificates": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Certificates",
+            "type": "array"
+          },
+          "claims": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "claims_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "controls": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Controls",
+            "type": "array"
+          },
+          "controls_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "discovered_card_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Discovered Card Ids",
+            "type": "array"
+          },
+          "discovered_cards_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Enabled"
+          },
+          "matches": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Matches",
+            "type": "array"
+          },
+          "matches_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "mechanisms_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "phenomena": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Phenomena",
+            "type": "array"
+          },
+          "phenomena_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "preregistration": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Preregistration",
+            "type": "array"
+          },
+          "preregistration_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "theories": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Theories",
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id"
+        ],
+        "title": "DiscoveryResponse",
+        "type": "object"
+      },
+      "EventPageResponse": {
+        "additionalProperties": false,
+        "description": "Incremental event page for polling / SSE catch-up.",
+        "properties": {
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "data_state": {
+            "$ref": "#/components/schemas/RunDataState"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/EventResponse"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "last_event_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Event Id"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "events",
+          "data_state"
+        ],
+        "title": "EventPageResponse",
+        "type": "object"
+      },
+      "EventResponse": {
+        "additionalProperties": false,
+        "description": "One timeline event.\n\n``payload`` stays a free mapping on purpose: every event type has its own\nshape and TODO §13.4 requires unknown types to render generically.",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Id"
+          },
+          "is_known_type": {
+            "default": true,
+            "title": "Is Known Type",
+            "type": "boolean"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "ts": {
+            "default": "",
+            "title": "Ts",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "type"
+        ],
+        "title": "EventResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": false,
+        "description": "Liveness probe. Must never leak paths, keys or environment details.",
+        "properties": {
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "contract_version"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "HypothesisStatus": {
+        "description": "Status of a hypothesis.",
+        "enum": [
+          "open",
+          "supported",
+          "refuted",
+          "inconclusive",
+          "corroborated",
+          "undetermined"
+        ],
+        "title": "HypothesisStatus",
+        "type": "string"
+      },
+      "InsightResponse": {
+        "additionalProperties": false,
+        "description": "One reflection insight recorded by the engine (``insight`` table).",
+        "properties": {
+          "branch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Branch Id"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Created At"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Delta"
+          },
+          "insight_id": {
+            "title": "Insight Id",
+            "type": "string"
+          },
+          "origin_node": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Origin Node"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "polarity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Polarity"
+          },
+          "z_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Z Score"
+          }
+        },
+        "required": [
+          "insight_id"
+        ],
+        "title": "InsightResponse",
+        "type": "object"
+      },
+      "InsightsResponse": {
+        "additionalProperties": false,
+        "description": "Insights for a run.\n\n``available`` distinguishes the two empty cases the UI must not conflate:\nthe run never carried an ``insight`` table at all (``available=false``) vs.\nthe table exists and simply holds no rows (``available=true`` + ``[]``).",
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "insights": {
+            "items": {
+              "$ref": "#/components/schemas/InsightResponse"
+            },
+            "title": "Insights",
+            "type": "array"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "available"
+        ],
+        "title": "InsightsResponse",
+        "type": "object"
+      },
+      "KnowledgeCardResponse": {
+        "additionalProperties": false,
+        "description": "One knowledge card plus how the run actually used it.\n\n``local_label`` is a UI-only marker and must be displayed together with the\nnote that it does not affect the run.\n\nProse (``title``, ``category``, ``claim``, ``source_kind``, ``conditions``,\n``priority``, ``sources``) is copied from the task knowledge catalog when\nthe run registry names that task and the card id matches. A run directory\nstill does not store the prose. Unmatched cards keep these fields empty\nrather than receiving invented text. ``priority`` is the catalog's 1–5\nrank, not a value derived from ``mean_delta``.",
+        "properties": {
+          "adopted_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Adopted Count"
+          },
+          "adopted_iterations": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Adopted Iterations",
+            "type": "array"
+          },
+          "adopted_node_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Adopted Node Ids",
+            "type": "array"
+          },
+          "affects_run": {
+            "default": false,
+            "title": "Affects Run",
+            "type": "boolean"
+          },
+          "card_id": {
+            "title": "Card Id",
+            "type": "string"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Category"
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Claim"
+          },
+          "conditions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Conditions"
+          },
+          "invalid_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Invalid Count"
+          },
+          "local_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Local Label"
+          },
+          "mean_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mean Delta"
+          },
+          "offered_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Offered Count"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Priority"
+          },
+          "refuted_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Refuted Count"
+          },
+          "source_detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Detail"
+          },
+          "source_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Kind"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeSourceResponse"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Title"
+          }
+        },
+        "required": [
+          "card_id"
+        ],
+        "title": "KnowledgeCardResponse",
+        "type": "object"
+      },
+      "KnowledgeCardStatResponse": {
+        "additionalProperties": false,
+        "description": "Per-card adoption statistics, straight from the card_stats table.",
+        "properties": {
+          "card_id": {
+            "title": "Card Id",
+            "type": "string"
+          },
+          "invalid_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Invalid Count"
+          },
+          "mean_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mean Delta"
+          },
+          "n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "N"
+          },
+          "refuted_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Refuted Count"
+          },
+          "sum_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sum Delta"
+          }
+        },
+        "required": [
+          "card_id"
+        ],
+        "title": "KnowledgeCardStatResponse",
+        "type": "object"
+      },
+      "KnowledgeSourceResponse": {
+        "additionalProperties": false,
+        "description": "One bibliography entry cited by a knowledge card.\n\n``url`` is set only for http(s) links copied from the task's\n``knowledge/sources.yaml``. Anything else stays ``None`` so the UI cannot\nturn an unknown string into a navigation.",
+        "properties": {
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "takeaway": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Takeaway"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Title"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          }
+        },
+        "required": [
+          "source_id"
+        ],
+        "title": "KnowledgeSourceResponse",
+        "type": "object"
+      },
+      "MetaResponse": {
+        "additionalProperties": false,
+        "description": "Static capability description consumed once at UI start-up.",
+        "properties": {
+          "auth_required": {
+            "title": "Auth Required",
+            "type": "boolean"
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "default_deployment_mode": {
+            "$ref": "#/components/schemas/DeploymentMode"
+          },
+          "demo_run_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Demo Run Ids",
+            "type": "array"
+          },
+          "deployment_modes": {
+            "items": {
+              "$ref": "#/components/schemas/DeploymentModeAvailability"
+            },
+            "title": "Deployment Modes",
+            "type": "array"
+          },
+          "engine_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Engine Commit"
+          },
+          "engine_version": {
+            "title": "Engine Version",
+            "type": "string"
+          },
+          "nav_modules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Nav Modules",
+            "type": "array"
+          },
+          "preset_names": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Preset Names",
+            "type": "array"
+          },
+          "process_control_enabled": {
+            "title": "Process Control Enabled",
+            "type": "boolean"
+          },
+          "qwen_configured": {
+            "default": false,
+            "title": "Qwen Configured",
+            "type": "boolean"
+          },
+          "qwen_reachable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Qwen Reachable"
+          },
+          "run_registry_configured": {
+            "default": false,
+            "title": "Run Registry Configured",
+            "type": "boolean"
+          },
+          "server_profiles_enabled": {
+            "default": false,
+            "title": "Server Profiles Enabled",
+            "type": "boolean"
+          },
+          "stream_transport": {
+            "title": "Stream Transport",
+            "type": "string"
+          },
+          "task_catalog_available": {
+            "default": false,
+            "title": "Task Catalog Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "contract_version",
+          "engine_version",
+          "deployment_modes",
+          "default_deployment_mode",
+          "nav_modules",
+          "stream_transport",
+          "process_control_enabled",
+          "auth_required"
+        ],
+        "title": "MetaResponse",
+        "type": "object"
+      },
+      "NodeArtifactResponse": {
+        "additionalProperties": false,
+        "description": "Read-only node program.",
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Code"
+          },
+          "hypothesis": {
+            "default": "",
+            "title": "Hypothesis",
+            "type": "string"
+          },
+          "intent": {
+            "default": "",
+            "title": "Intent",
+            "type": "string"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ArtifactState"
+          }
+        },
+        "required": [
+          "node_id",
+          "state"
+        ],
+        "title": "NodeArtifactResponse",
+        "type": "object"
+      },
+      "NodeDetailResponse": {
+        "additionalProperties": false,
+        "description": "Node detail tabs (TODO §5.3).",
+        "properties": {
+          "adopted_card_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Adopted Card Ids",
+            "type": "array"
+          },
+          "artifact": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NodeArtifactResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "code_diff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Code Diff"
+          },
+          "code_diff_truncated": {
+            "default": false,
+            "title": "Code Diff Truncated",
+            "type": "boolean"
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "evaluation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NodeEvaluationResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "event_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Event Ids",
+            "type": "array"
+          },
+          "insights": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Insights",
+            "type": "array"
+          },
+          "llm_call_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Llm Call Count"
+          },
+          "llm_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Llm Tokens"
+          },
+          "log_excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Log Excerpt"
+          },
+          "log_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "node": {
+            "$ref": "#/components/schemas/TreeNodeDTO"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "node"
+        ],
+        "title": "NodeDetailResponse",
+        "type": "object"
+      },
+      "NodeEvaluationResponse": {
+        "additionalProperties": false,
+        "description": "Evaluator output for one node.\n\n``metric`` is per-task and therefore a free mapping; the surrounding numbers\nare typed so the UI can render \"未记录\" correctly.",
+        "properties": {
+          "combined_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Combined Score"
+          },
+          "cost_time": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cost Time"
+          },
+          "delta_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Delta Score"
+          },
+          "error_info": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Error Info"
+          },
+          "metric": {
+            "additionalProperties": true,
+            "title": "Metric",
+            "type": "object"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          },
+          "noise_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Noise Delta"
+          },
+          "validity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Validity"
+          }
+        },
+        "required": [
+          "node_id"
+        ],
+        "title": "NodeEvaluationResponse",
+        "type": "object"
+      },
+      "NodeStatus": {
+        "description": "Status of a node in the evolution tree.",
+        "enum": [
+          "pending",
+          "evaluating",
+          "done",
+          "invalid",
+          "abandoned"
+        ],
+        "title": "NodeStatus",
+        "type": "string"
+      },
+      "OperatorType": {
+        "description": "Types of evolution operators.",
+        "enum": [
+          "init",
+          "refine",
+          "recall_focus",
+          "threshold_calibrate",
+          "inject",
+          "transplant",
+          "crossover",
+          "repair",
+          "hpo",
+          "patch"
+        ],
+        "title": "OperatorType",
+        "type": "string"
+      },
+      "PathProbeRequest": {
+        "additionalProperties": false,
+        "description": "Body of a directory check on an execution target.\n\nThe path is checked against ``WebSettings``' allow-list before anything is\nstat'ed, so ``..`` traversal is rejected rather than normalised away.",
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "title": "PathProbeRequest",
+        "type": "object"
+      },
+      "PathProbeResponse": {
+        "additionalProperties": false,
+        "description": "Result of checking one directory on an execution target.",
+        "properties": {
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "exists": {
+            "title": "Exists",
+            "type": "boolean"
+          },
+          "is_directory": {
+            "title": "Is Directory",
+            "type": "boolean"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "writable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Writable"
+          }
+        },
+        "required": [
+          "path",
+          "exists",
+          "is_directory"
+        ],
+        "title": "PathProbeResponse",
+        "type": "object"
+      },
+      "PresetFieldSource": {
+        "additionalProperties": false,
+        "description": "Where one field of a preset came from (TODO 4.6).\n\nLets the UI explain \"this number is the preset default\" versus \"this came\nfrom your patch\", without the front-end re-deriving the merge.",
+        "properties": {
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "value": {
+            "default": null,
+            "title": "Value"
+          }
+        },
+        "required": [
+          "field",
+          "source"
+        ],
+        "title": "PresetFieldSource",
+        "type": "object"
+      },
+      "PresetListResponse": {
+        "additionalProperties": false,
+        "description": "All presets, in the order the UI should show them.",
+        "properties": {
+          "presets": {
+            "items": {
+              "$ref": "#/components/schemas/PresetResponse"
+            },
+            "title": "Presets",
+            "type": "array"
+          }
+        },
+        "title": "PresetListResponse",
+        "type": "object"
+      },
+      "PresetResponse": {
+        "additionalProperties": false,
+        "description": "A complete, already-validated ``EvolveConfig`` for one preset.\n\n``config`` is the full config dump, not a patch: the front-end sends back\nonly a patch over this, and the server merges and re-validates.",
+        "properties": {
+          "config": {
+            "additionalProperties": true,
+            "title": "Config",
+            "type": "object"
+          },
+          "display_name_zh": {
+            "title": "Display Name Zh",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/PresetFieldSource"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "summary_zh": {
+            "default": "",
+            "title": "Summary Zh",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "display_name_zh"
+        ],
+        "title": "PresetResponse",
+        "type": "object"
+      },
+      "ReportFileResponse": {
+        "additionalProperties": false,
+        "description": "One report file that already exists on disk.",
+        "properties": {
+          "artifact_id": {
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Size Bytes"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ArtifactState"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "display_name",
+          "media_type",
+          "state"
+        ],
+        "title": "ReportFileResponse",
+        "type": "object"
+      },
+      "ReportManifestResponse": {
+        "additionalProperties": false,
+        "description": "Listing of report files for one run.\n\nPhase 2 does not *generate* reports (that is a high-risk action, PRD §13.5,\nphase 9). It only surfaces files a prior export already left behind, so\n``available`` is ``false`` whenever no report file exists.",
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/ReportFileResponse"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "available"
+        ],
+        "title": "ReportManifestResponse",
+        "type": "object"
+      },
+      "RunBudgetResponse": {
+        "additionalProperties": false,
+        "description": "Token and time accounting (TODO §5.7). All values from RunSummary.",
+        "properties": {
+          "avg_smoke_time_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Avg Smoke Time S"
+          },
+          "budget_stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Budget Stop Reason"
+          },
+          "crossover_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Crossover Tokens"
+          },
+          "discovery_token_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Discovery Token Share"
+          },
+          "discovery_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Discovery Tokens"
+          },
+          "elite_archive_sizes": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Elite Archive Sizes",
+            "type": "object"
+          },
+          "expand_skipped_budget": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Expand Skipped Budget"
+          },
+          "generate_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Generate Tokens"
+          },
+          "knowledge_token_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Knowledge Token Share"
+          },
+          "knowledge_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Knowledge Tokens"
+          },
+          "reflect_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reflect Tokens"
+          },
+          "repair_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repair Tokens"
+          },
+          "self_fix_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Self Fix Tokens"
+          },
+          "smoke_time_s_total": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Smoke Time S Total"
+          },
+          "stage_cap_hits": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Stage Cap Hits",
+            "type": "object"
+          },
+          "tokens_per_ros_point": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tokens Per Ros Point"
+          },
+          "tokens_per_score_gain": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tokens Per Score Gain"
+          },
+          "total_eval_time_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total Eval Time S"
+          },
+          "total_llm_latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total Llm Latency Ms"
+          },
+          "total_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total Tokens"
+          },
+          "tournament_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tournament Tokens"
+          },
+          "wall_time_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Wall Time S"
+          }
+        },
+        "title": "RunBudgetResponse",
+        "type": "object"
+      },
+      "RunControlRequest": {
+        "additionalProperties": false,
+        "description": "Pause / resume / cancel request.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ControlAction"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "RunControlRequest",
+        "type": "object"
+      },
+      "RunControlResponse": {
+        "additionalProperties": false,
+        "description": "Current lifecycle state after (or instead of) a control action.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ControlAction"
+          },
+          "applied": {
+            "title": "Applied",
+            "type": "boolean"
+          },
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          }
+        },
+        "required": [
+          "run_id",
+          "action",
+          "applied"
+        ],
+        "title": "RunControlResponse",
+        "type": "object"
+      },
+      "RunCostResponse": {
+        "additionalProperties": false,
+        "description": "Grouped cost/outcome view used by the results page.",
+        "properties": {
+          "budget": {
+            "$ref": "#/components/schemas/RunBudgetResponse"
+          },
+          "judge": {
+            "$ref": "#/components/schemas/RunJudgeResponse"
+          }
+        },
+        "required": [
+          "budget",
+          "judge"
+        ],
+        "title": "RunCostResponse",
+        "type": "object"
+      },
+      "RunCreateRequest": {
+        "additionalProperties": false,
+        "description": "Start one evolution run.\n\n``config_patch`` is a *patch* on top of a server-built preset; the server\nmerges it and re-validates against ``EvolveConfig``.",
+        "properties": {
+          "config_patch": {
+            "additionalProperties": true,
+            "title": "Config Patch",
+            "type": "object"
+          },
+          "mock_llm": {
+            "default": false,
+            "title": "Mock Llm",
+            "type": "boolean"
+          },
+          "preset": {
+            "title": "Preset",
+            "type": "string"
+          },
+          "resume_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Resume Run Id"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Seed"
+          },
+          "server_profile_id": {
+            "title": "Server Profile Id",
+            "type": "string"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "server_profile_id",
+          "preset"
+        ],
+        "title": "RunCreateRequest",
+        "type": "object"
+      },
+      "RunCreateResponse": {
+        "additionalProperties": false,
+        "description": "A run the service accepted and started (TODO 7.3 step 9 -> HTTP 202).\n\nNo filesystem path appears here, on purpose: the UI addresses a run by id\nand asks the server for whatever else it needs. ``execution_backend`` is the\ntransport that actually ran (``local_cloud`` / ``ssh_cloud``), not an echo\nof the request.",
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "execution_backend": {
+            "title": "Execution Backend",
+            "type": "string"
+          },
+          "resumed_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Resumed From"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "status",
+          "execution_backend",
+          "task_id",
+          "created_at"
+        ],
+        "title": "RunCreateResponse",
+        "type": "object"
+      },
+      "RunDataState": {
+        "description": "Which artifacts back a run directory (TODO §2.4).\n\nKept separate from the run's own status: a run can be ``finished`` and still\nbe ``live``-only if its ``run_summary.json`` was never written.",
+        "enum": [
+          "complete",
+          "live",
+          "unreadable"
+        ],
+        "title": "RunDataState",
+        "type": "string"
+      },
+      "RunDetailResponse": {
+        "additionalProperties": false,
+        "description": "Everything the run-level pages read out of one run directory.\n\nEach group is ``None`` when the artifact for it is unavailable, so the UI can\ndistinguish \"read but zero\" from \"cannot be read\".",
+        "properties": {
+          "artifact_states": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ArtifactState"
+            },
+            "title": "Artifact States",
+            "type": "object"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunBudgetResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "data_state": {
+            "$ref": "#/components/schemas/RunDataState"
+          },
+          "discovery": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunDiscoveryResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "judge": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunJudgeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "knowledge": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunKnowledgeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "operators": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunOperatorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunOutcomeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "repair": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRepairResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "data_state"
+        ],
+        "title": "RunDetailResponse",
+        "type": "object"
+      },
+      "RunDiscoveryResponse": {
+        "additionalProperties": false,
+        "description": "Knowledge-discovery, mechanism and tournament counters.\n\nKept apart from :class:`RunJudgeResponse` and from the evaluator outcome:\nnone of these are evolution scores.",
+        "properties": {
+          "certificates_issued": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certificates Issued"
+          },
+          "claims_confirmed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims Confirmed"
+          },
+          "claims_discovered": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims Discovered"
+          },
+          "claims_proposed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims Proposed"
+          },
+          "claims_refuted": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims Refuted"
+          },
+          "claims_revised": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims Revised"
+          },
+          "claims_sandbox_failed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims Sandbox Failed"
+          },
+          "claims_tested": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims Tested"
+          },
+          "claims_undetermined": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claims Undetermined"
+          },
+          "decisive_matches": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decisive Matches"
+          },
+          "discovered_card_adoption_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovered Card Adoption Rate"
+          },
+          "discovered_card_mean_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovered Card Mean Delta"
+          },
+          "discovered_cards_adopted": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovered Cards Adopted"
+          },
+          "discovered_cards_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovered Cards Count"
+          },
+          "discovered_cards_offered": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovered Cards Offered"
+          },
+          "discovery_rounds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovery Rounds"
+          },
+          "discovery_rounds_skipped": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovery Rounds Skipped"
+          },
+          "literature_card_mean_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Literature Card Mean Delta"
+          },
+          "llm_vs_data_kendall_tau": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Vs Data Kendall Tau"
+          },
+          "matches_played": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matches Played"
+          },
+          "mechanism_cards_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mechanism Cards Count"
+          },
+          "mechanism_patches": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mechanism Patches"
+          },
+          "mechanisms_established": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mechanisms Established"
+          },
+          "mechanisms_proposed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mechanisms Proposed"
+          },
+          "mechanisms_refuted": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mechanisms Refuted"
+          },
+          "min_detectable_effect": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Detectable Effect"
+          },
+          "neg_control_false_positives": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Neg Control False Positives"
+          },
+          "neg_control_fpr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Neg Control Fpr"
+          },
+          "planted_mechanism_recovered": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planted Mechanism Recovered"
+          },
+          "planted_recovery_rate": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Planted Recovery Rate",
+            "type": "object"
+          },
+          "score_delta_after_discovery": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Delta After Discovery"
+          },
+          "shuffled_env_false_pass": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shuffled Env False Pass"
+          },
+          "tournament_rounds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tournament Rounds"
+          },
+          "underpowered_draws": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Underpowered Draws"
+          }
+        },
+        "title": "RunDiscoveryResponse",
+        "type": "object"
+      },
+      "RunJudgeResponse": {
+        "additionalProperties": false,
+        "description": "Qwen / Jev and error-profiling cost.\n\nDeliberately isolated from :class:`RunOutcomeResponse`: the acceptance\ncriteria require judge output to be visually separated from evaluator scores.",
+        "properties": {
+          "analysis_calls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Analysis Calls"
+          },
+          "analysis_failures": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Analysis Failures"
+          },
+          "analysis_nonempty_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Analysis Nonempty Rate"
+          },
+          "analysis_time_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Analysis Time S"
+          },
+          "candidates_screened": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Candidates Screened"
+          },
+          "eval_time_saved_est_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Eval Time Saved Est S"
+          },
+          "evaluations_saved": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Evaluations Saved"
+          },
+          "jev_calls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Calls"
+          },
+          "jev_completion_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Completion Tokens"
+          },
+          "jev_disabled_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Disabled Reason"
+          },
+          "jev_errors": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Errors"
+          },
+          "jev_fail_open": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Fail Open"
+          },
+          "jev_latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Latency Ms"
+          },
+          "jev_prior_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Prior Active"
+          },
+          "jev_prompt_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Prompt Tokens"
+          },
+          "jev_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jev Tokens"
+          },
+          "screen_audit_bad": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Screen Audit Bad"
+          },
+          "screen_audited": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Screen Audited"
+          },
+          "screen_shadow": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Screen Shadow"
+          },
+          "screening_precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Screening Precision"
+          }
+        },
+        "title": "RunJudgeResponse",
+        "type": "object"
+      },
+      "RunKnowledgeResponse": {
+        "additionalProperties": false,
+        "description": "Literature knowledge-package usage.",
+        "properties": {
+          "card_adoption_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Card Adoption Rate"
+          },
+          "card_stats": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeCardStatResponse"
+            },
+            "title": "Card Stats",
+            "type": "array"
+          },
+          "cards_adopted": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cards Adopted"
+          },
+          "cards_adopted_valid": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cards Adopted Valid"
+          },
+          "cards_offered": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cards Offered"
+          }
+        },
+        "title": "RunKnowledgeResponse",
+        "type": "object"
+      },
+      "RunLiveResponse": {
+        "additionalProperties": false,
+        "description": "Live state of a run this service started.\n\nDeliberately *not* the replay view. ``RunDetailResponse`` describes\nartifacts on disk; this describes a process. A run can be live with no\nartifacts written yet, and a run directory can exist that this service never\nstarted -- hence ``registered``.",
+        "properties": {
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Created At"
+          },
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "execution_backend": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Execution Backend"
+          },
+          "exit_code": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Exit Code"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Finished At"
+          },
+          "log_artifacts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Log Artifacts",
+            "type": "array"
+          },
+          "log_tail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Log Tail"
+          },
+          "log_tail_truncated": {
+            "default": false,
+            "title": "Log Tail Truncated",
+            "type": "boolean"
+          },
+          "pid": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pid"
+          },
+          "process_alive": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Process Alive"
+          },
+          "registered": {
+            "title": "Registered",
+            "type": "boolean"
+          },
+          "resumed_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Resumed From"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "server_profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Server Profile Id"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "registered"
+        ],
+        "title": "RunLiveResponse",
+        "type": "object"
+      },
+      "RunOperatorResponse": {
+        "additionalProperties": false,
+        "description": "Operator mix, bandit state and crossover counters.",
+        "properties": {
+          "bandit_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Bandit Active"
+          },
+          "crossover_best_gain": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Crossover Best Gain"
+          },
+          "crossover_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Crossover Count"
+          },
+          "crossover_mean_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Crossover Mean Delta"
+          },
+          "crossover_valid_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Crossover Valid Rate"
+          },
+          "generative_valid_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Generative Valid Rate"
+          },
+          "operator_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Operator Counts",
+            "type": "object"
+          },
+          "operator_mean_delta": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Operator Mean Delta",
+            "type": "object"
+          },
+          "operator_posteriors": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "title": "Operator Posteriors",
+            "type": "object"
+          },
+          "operator_tokens": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Operator Tokens",
+            "type": "object"
+          },
+          "operator_valid_rate": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Operator Valid Rate",
+            "type": "object"
+          },
+          "value_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value Mode"
+          }
+        },
+        "title": "RunOperatorResponse",
+        "type": "object"
+      },
+      "RunOutcomeResponse": {
+        "additionalProperties": false,
+        "description": "Headline numbers of a run. These come from the evaluator, never the UI.",
+        "properties": {
+          "best_node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Node Id"
+          },
+          "best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Score"
+          },
+          "improvement": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Improvement"
+          },
+          "initial_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Initial Score"
+          },
+          "iteration_events": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Iteration Events"
+          },
+          "iterations_done": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Iterations Done"
+          },
+          "rounds_to_target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rounds To Target"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stop Reason"
+          },
+          "time_to_target_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Time To Target S"
+          },
+          "tokens_to_target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tokens To Target"
+          },
+          "valid_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Valid Rate"
+          }
+        },
+        "title": "RunOutcomeResponse",
+        "type": "object"
+      },
+      "RunRepairResponse": {
+        "additionalProperties": false,
+        "description": "Repair / pre-check / smoke accounting (TODO §5.5).",
+        "properties": {
+          "adapter_errors": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Adapter Errors"
+          },
+          "perf_rejections": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Perf Rejections"
+          },
+          "precheck_fixes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Precheck Fixes"
+          },
+          "repair_attempts": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repair Attempts"
+          },
+          "repair_iterations": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repair Iterations"
+          },
+          "repair_successes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repair Successes"
+          },
+          "smoke_failures": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Smoke Failures"
+          },
+          "smoke_fixes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Smoke Fixes"
+          },
+          "smoke_tests": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Smoke Tests"
+          }
+        },
+        "title": "RunRepairResponse",
+        "type": "object"
+      },
+      "RunSummaryResponse": {
+        "additionalProperties": false,
+        "description": "One row of the run listing (TODO §2.4).",
+        "properties": {
+          "best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Score"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Created At"
+          },
+          "data_state": {
+            "$ref": "#/components/schemas/RunDataState"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Finished At"
+          },
+          "improvement": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Improvement"
+          },
+          "iterations_done": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Iterations Done"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stop Reason"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Task Id"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id",
+          "data_state"
+        ],
+        "title": "RunSummaryResponse",
+        "type": "object"
+      },
+      "ScorePointResponse": {
+        "additionalProperties": false,
+        "description": "One point on the score timeline. Source is always the evaluator record.",
+        "properties": {
+          "delta_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Delta Score"
+          },
+          "iteration": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Iteration"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          },
+          "noise_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Noise Delta"
+          },
+          "operator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OperatorType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Score"
+          },
+          "ts": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ts"
+          },
+          "within_noise_band": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Within Noise Band"
+          }
+        },
+        "required": [
+          "node_id"
+        ],
+        "title": "ScorePointResponse",
+        "type": "object"
+      },
+      "ScoreboardEntryResponse": {
+        "additionalProperties": false,
+        "description": "Leaderboard row (TODO §2.5).",
+        "properties": {
+          "depth": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Depth"
+          },
+          "is_best": {
+            "default": false,
+            "title": "Is Best",
+            "type": "boolean"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          },
+          "operator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OperatorType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Score"
+          }
+        },
+        "required": [
+          "rank",
+          "node_id"
+        ],
+        "title": "ScoreboardEntryResponse",
+        "type": "object"
+      },
+      "ServerProbeResponse": {
+        "additionalProperties": false,
+        "description": "Reachability + environment report for one execution target.",
+        "properties": {
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "engine_installed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Engine Installed"
+          },
+          "engine_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Engine Version"
+          },
+          "gpu_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gpu Summary"
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Latency Ms"
+          },
+          "llm_key_present": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Llm Key Present"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/DeploymentMode"
+          },
+          "paths": {
+            "items": {
+              "$ref": "#/components/schemas/PathProbeResponse"
+            },
+            "title": "Paths",
+            "type": "array"
+          },
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "python_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Python Version"
+          },
+          "reachable": {
+            "title": "Reachable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "profile_id",
+          "mode",
+          "reachable"
+        ],
+        "title": "ServerProbeResponse",
+        "type": "object"
+      },
+      "ServerProfileListResponse": {
+        "additionalProperties": false,
+        "description": "Every stored execution target, plus which one the UI should preselect.",
+        "properties": {
+          "default_profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Default Profile Id"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/ServerProfileResponse"
+            },
+            "title": "Profiles",
+            "type": "array"
+          },
+          "ssh_available": {
+            "default": false,
+            "title": "Ssh Available",
+            "type": "boolean"
+          }
+        },
+        "title": "ServerProfileListResponse",
+        "type": "object"
+      },
+      "ServerProfileRequest": {
+        "additionalProperties": false,
+        "description": "Create/update a cloud execution target.\n\nSecrets are never part of the request: the client sends a *reference*\n(``private_key_ref``) and the server resolves it locally.",
+        "properties": {
+          "artifacts_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Artifacts Dir"
+          },
+          "conda_env": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Conda Env"
+          },
+          "cpu_limit": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cpu Limit"
+          },
+          "data_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Data Dir"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "gpu_count": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gpu Count"
+          },
+          "gpu_devices": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Gpu Devices",
+            "type": "array"
+          },
+          "gpu_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gpu Model"
+          },
+          "host": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Host"
+          },
+          "logs_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Logs Dir"
+          },
+          "max_concurrency": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Concurrency"
+          },
+          "memory_gb": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Memory Gb"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/DeploymentMode"
+          },
+          "notes": {
+            "default": "",
+            "title": "Notes",
+            "type": "string"
+          },
+          "port": {
+            "anyOf": [
+              {
+                "maximum": 65535,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Port"
+          },
+          "private_key_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Private Key Ref"
+          },
+          "python_executable": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Python Executable"
+          },
+          "repo_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repo Dir"
+          },
+          "runs_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Runs Dir"
+          },
+          "timeout_s": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timeout S"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "User"
+          }
+        },
+        "required": [
+          "display_name",
+          "mode"
+        ],
+        "title": "ServerProfileRequest",
+        "type": "object"
+      },
+      "ServerProfileResponse": {
+        "additionalProperties": false,
+        "description": "A stored profile, with every secret replaced by a masked marker.",
+        "properties": {
+          "artifacts_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Artifacts Dir"
+          },
+          "conda_env": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Conda Env"
+          },
+          "cpu_limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cpu Limit"
+          },
+          "data_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Data Dir"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "gpu_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gpu Count"
+          },
+          "gpu_devices": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Gpu Devices",
+            "type": "array"
+          },
+          "gpu_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gpu Model"
+          },
+          "has_private_key": {
+            "title": "Has Private Key",
+            "type": "boolean"
+          },
+          "host": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Host"
+          },
+          "logs_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Logs Dir"
+          },
+          "max_concurrency": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Concurrency"
+          },
+          "memory_gb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Memory Gb"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/DeploymentMode"
+          },
+          "notes": {
+            "default": "",
+            "title": "Notes",
+            "type": "string"
+          },
+          "port": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Port"
+          },
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "python_executable": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Python Executable"
+          },
+          "repo_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repo Dir"
+          },
+          "runs_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Runs Dir"
+          },
+          "secret_masked": {
+            "title": "Secret Masked",
+            "type": "boolean"
+          },
+          "timeout_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timeout S"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "User"
+          }
+        },
+        "required": [
+          "profile_id",
+          "display_name",
+          "mode",
+          "has_private_key",
+          "secret_masked"
+        ],
+        "title": "ServerProfileResponse",
+        "type": "object"
+      },
+      "TaskCardMetrics": {
+        "additionalProperties": false,
+        "description": "Score contract of one dataset, as shown on its overview card.\n\n``score_source`` exists so the UI can never invent a number: a score is\nonly rendered when it came from the evaluator or from a finished baseline\nrun. PRD 7.3 forbids showing an assumed score for an untested ``init.py``.",
+        "properties": {
+          "initial_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Initial Score"
+          },
+          "primary_metric": {
+            "default": "",
+            "title": "Primary Metric",
+            "type": "string"
+          },
+          "score_source": {
+            "default": "unavailable",
+            "title": "Score Source",
+            "type": "string"
+          },
+          "target_direction": {
+            "default": "higher",
+            "title": "Target Direction",
+            "type": "string"
+          },
+          "target_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Target Score"
+          }
+        },
+        "title": "TaskCardMetrics",
+        "type": "object"
+      },
+      "TaskDatasetCardResponse": {
+        "additionalProperties": false,
+        "description": "One overview card (PRD 7.1 item 3 / PRD 7.7).\n\nAggregates what the overview page needs about a dataset so the front-end\ndoes not have to join ``/api/tasks`` with ``/api/runs`` itself.",
+        "properties": {
+          "adapter": {
+            "title": "Adapter",
+            "type": "string"
+          },
+          "blocked_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Blocked Reason"
+          },
+          "data_missing": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Data Missing",
+            "type": "array"
+          },
+          "data_ready": {
+            "default": false,
+            "title": "Data Ready",
+            "type": "boolean"
+          },
+          "device_type": {
+            "default": "",
+            "title": "Device Type",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "doc_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Doc Path"
+          },
+          "evaluator_ready": {
+            "default": false,
+            "title": "Evaluator Ready",
+            "type": "boolean"
+          },
+          "init_ready": {
+            "default": false,
+            "title": "Init Ready",
+            "type": "boolean"
+          },
+          "is_stub": {
+            "title": "Is Stub",
+            "type": "boolean"
+          },
+          "knowledge_card_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Knowledge Card Count"
+          },
+          "last_best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Best Score"
+          },
+          "last_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Run Id"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/TaskCardMetrics"
+          },
+          "summary": {
+            "default": "",
+            "title": "Summary",
+            "type": "string"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "display_name",
+          "adapter",
+          "is_stub"
+        ],
+        "title": "TaskDatasetCardResponse",
+        "type": "object"
+      },
+      "TaskDetailResponse": {
+        "additionalProperties": false,
+        "description": "A task directory worth of facts the intake form needs.",
+        "properties": {
+          "adapter": {
+            "title": "Adapter",
+            "type": "string"
+          },
+          "candidate_files": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Candidate Files",
+            "type": "array"
+          },
+          "config_schema_available": {
+            "title": "Config Schema Available",
+            "type": "boolean"
+          },
+          "data_dirs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Data Dirs",
+            "type": "array"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "knowledge_enabled": {
+            "title": "Knowledge Enabled",
+            "type": "boolean"
+          },
+          "missing_files": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Files",
+            "type": "array"
+          },
+          "problem_md": {
+            "title": "Problem Md",
+            "type": "string"
+          },
+          "prompt_md": {
+            "title": "Prompt Md",
+            "type": "string"
+          },
+          "required_files": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Files",
+            "type": "array"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "display_name",
+          "adapter",
+          "problem_md",
+          "prompt_md",
+          "required_files",
+          "missing_files",
+          "candidate_files",
+          "data_dirs",
+          "knowledge_enabled",
+          "config_schema_available"
+        ],
+        "title": "TaskDetailResponse",
+        "type": "object"
+      },
+      "TaskReadinessResponse": {
+        "additionalProperties": false,
+        "description": "Result of the pre-flight check for one intake card.",
+        "properties": {
+          "adapter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Adapter"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "resolved_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Resolved Path"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "ready",
+          "checks"
+        ],
+        "title": "TaskReadinessResponse",
+        "type": "object"
+      },
+      "TaskSummaryResponse": {
+        "additionalProperties": false,
+        "description": "One entry of the task listing.",
+        "properties": {
+          "adapter": {
+            "title": "Adapter",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "doc_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Doc Path"
+          },
+          "has_evaluator": {
+            "title": "Has Evaluator",
+            "type": "boolean"
+          },
+          "has_init": {
+            "title": "Has Init",
+            "type": "boolean"
+          },
+          "is_stub": {
+            "title": "Is Stub",
+            "type": "boolean"
+          },
+          "problem_summary": {
+            "default": "",
+            "title": "Problem Summary",
+            "type": "string"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "display_name",
+          "adapter",
+          "has_evaluator",
+          "has_init",
+          "is_stub"
+        ],
+        "title": "TaskSummaryResponse",
+        "type": "object"
+      },
+      "TreeEdgeDTO": {
+        "additionalProperties": false,
+        "description": "One connection between tree nodes.",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/TreeEdgeKind"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "target",
+          "kind"
+        ],
+        "title": "TreeEdgeDTO",
+        "type": "object"
+      },
+      "TreeEdgeKind": {
+        "description": "Why two tree nodes are connected (TODO §5.1).",
+        "enum": [
+          "parent",
+          "crossover_second_parent",
+          "repair"
+        ],
+        "title": "TreeEdgeKind",
+        "type": "string"
+      },
+      "TreeNodeDTO": {
+        "additionalProperties": false,
+        "description": "One node of the evolution tree.\n\n``score`` is ``None`` when the node was never evaluated. The UI must render\n\"未评分\", never ``0``. Parent relationships are carried here (joined from the\nedges) because ``tree.json`` only stores them as a separate edge list.",
+        "properties": {
+          "adopted_card_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Adopted Card Ids",
+            "type": "array"
+          },
+          "branch_id": {
+            "title": "Branch Id",
+            "type": "string"
+          },
+          "delta_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Delta Score"
+          },
+          "depth": {
+            "title": "Depth",
+            "type": "integer"
+          },
+          "error_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Error Class"
+          },
+          "hypothesis_status": {
+            "$ref": "#/components/schemas/HypothesisStatus"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "insight_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Insight Ids",
+            "type": "array"
+          },
+          "intent": {
+            "default": "",
+            "title": "Intent",
+            "type": "string"
+          },
+          "is_best": {
+            "default": false,
+            "title": "Is Best",
+            "type": "boolean"
+          },
+          "is_on_best_path": {
+            "default": false,
+            "title": "Is On Best Path",
+            "type": "boolean"
+          },
+          "noise_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Noise Delta"
+          },
+          "offered_card_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Offered Card Ids",
+            "type": "array"
+          },
+          "operator": {
+            "$ref": "#/components/schemas/OperatorType"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Parent Id"
+          },
+          "repair_attempted": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repair Attempted"
+          },
+          "repair_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repair Count"
+          },
+          "repair_exhausted": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repair Exhausted"
+          },
+          "repair_parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Repair Parent Id"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Score"
+          },
+          "second_parent_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Second Parent Ids",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/NodeStatus"
+          },
+          "visit_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Visit Count"
+          },
+          "within_noise_band": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Within Noise Band"
+          }
+        },
+        "required": [
+          "id",
+          "branch_id",
+          "depth",
+          "operator",
+          "status",
+          "hypothesis_status"
+        ],
+        "title": "TreeNodeDTO",
+        "type": "object"
+      },
+      "TreeResponse": {
+        "additionalProperties": false,
+        "description": "Whole-tree payload for React Flow.",
+        "properties": {
+          "best_node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Node Id"
+          },
+          "best_path": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Best Path",
+            "type": "array"
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "data_state": {
+            "$ref": "#/components/schemas/RunDataState"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/TreeEdgeDTO"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/TreeNodeDTO"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "data_state",
+          "nodes",
+          "edges"
+        ],
+        "title": "TreeResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Read-only control and replay surface for the FaultEvolve engine. Scores are produced by the task evaluator and only ever read back here.",
+    "title": "FaultEvolve Web API",
+    "version": "1.11.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "description": "Liveness probe. Says nothing about the environment.",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/meta": {
+      "get": {
+        "description": "Static capability description the UI reads once at start-up.",
+        "operationId": "meta_api_meta_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetaResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Meta",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/presets": {
+      "get": {
+        "description": "Each preset is a complete, already-validated ``EvolveConfig``.",
+        "operationId": "list_presets_api_presets_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "列出三档进化强度预设",
+        "tags": [
+          "presets"
+        ]
+      }
+    },
+    "/api/presets/{name}": {
+      "get": {
+        "operationId": "get_preset_api_presets__name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取单档预设",
+        "tags": [
+          "presets"
+        ]
+      }
+    },
+    "/api/presets/{name}/merge": {
+      "post": {
+        "description": "Merge, re-validate, and report per-field provenance.\n\nThe body is the raw ``config_patch`` object (``{\"budget\":\n{\"max_iterations\": 3}}``). Phase 7's run-creation endpoint will send\nthe same patch inside ``RunCreateRequest``; validating the merge\nsemantics here means that endpoint cannot discover them late.",
+        "operationId": "merge_preset_api_presets__name__merge_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "title": "Body",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "把用户 patch 合并到预设并重新校验",
+        "tags": [
+          "presets"
+        ]
+      }
+    },
+    "/api/runs": {
+      "get": {
+        "description": "Every run directory one level below the configured roots.\n\nAn unreadable run still appears, marked ``unreadable``: hiding it would\nmake a broken run look like a run that never existed.",
+        "operationId": "list_runs_api_runs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RunSummaryResponse"
+                  },
+                  "title": "Response List Runs Api Runs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "列出可回放的运行",
+        "tags": [
+          "runs"
+        ]
+      },
+      "post": {
+        "description": "TODO 7.3: validate -> resolve paths -> readiness -> spawn -> 202.\n\n``202`` rather than ``201``: the run has been accepted and a process is\nrunning, but nothing is finished. The body carries the id the UI then\npolls ``/live`` with.",
+        "operationId": "create_run_api_runs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunCreateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "创建并启动一次运行",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
+    "/api/runs/{run_id}": {
+      "get": {
+        "description": "Grouped view. Each group is ``null`` when its artifact is unreadable.",
+        "operationId": "get_run_api_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取单个运行的详情",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/artifacts": {
+      "get": {
+        "description": "Everything that exists in the run directory, with a minted id each.",
+        "operationId": "list_artifacts_api_runs__run_id__artifacts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "制品清单",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/artifacts/{artifact_id}": {
+      "get": {
+        "description": "Stream one artifact. Unknown ids 404; engine internals 403.",
+        "operationId": "download_artifact_api_runs__run_id__artifacts__artifact_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "下载制品",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/cancel": {
+      "post": {
+        "description": "TODO test #13: stopping a run never deletes what it produced.",
+        "operationId": "cancel_run_api_runs__run_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunControlResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "取消运行（保留已有制品）",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/discovery": {
+      "get": {
+        "description": "Discovery artifacts, each with its own availability state.",
+        "operationId": "get_discovery_api_runs__run_id__discovery_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "知识发现产物",
+        "tags": [
+          "knowledge"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/events": {
+      "get": {
+        "description": "One page of ``events.jsonl``, keyed on the engine's own event ids.\n\n``after_id`` is what makes reconnection work: the client sends the last\nid it saw and receives only what came after (PRD §16.3).",
+        "operationId": "get_events_api_runs__run_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "按事件序号增量拉取事件",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/insights": {
+      "get": {
+        "description": "Insights, with an explicit ``available`` flag for the empty case.",
+        "operationId": "get_insights_api_runs__run_id__insights_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsightsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "反思洞见",
+        "tags": [
+          "knowledge"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/knowledge/cards": {
+      "get": {
+        "description": "One entry per card the run offered, with how it fared.",
+        "operationId": "get_knowledge_cards_api_runs__run_id__knowledge_cards_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/KnowledgeCardResponse"
+                  },
+                  "title": "Response Get Knowledge Cards Api Runs  Run Id  Knowledge Cards Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "知识卡与运行中的采用统计",
+        "tags": [
+          "knowledge"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/leaderboard": {
+      "get": {
+        "description": "Nodes ranked by score, with unscored nodes sorted last.",
+        "operationId": "get_leaderboard_api_runs__run_id__leaderboard_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScoreboardEntryResponse"
+                  },
+                  "title": "Response Get Leaderboard Api Runs  Run Id  Leaderboard Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "排行榜",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/live": {
+      "get": {
+        "description": "Process state, not artifacts. Read-only, so it needs no control flag.",
+        "operationId": "get_run_live_api_runs__run_id__live_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunLiveResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取运行的进程态摘要",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/nodes/{node_id}": {
+      "get": {
+        "description": "Code, evaluation, insights and a sanitized log excerpt.",
+        "operationId": "get_node_api_runs__run_id__nodes__node_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "title": "Node Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "单个节点的详情",
+        "tags": [
+          "tree"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/pause": {
+      "post": {
+        "description": "Always ``409`` with a reason. The engine has no safe pause point.\n\nDeclared rather than omitted so the UI has a stable answer to render:\na 404 would read as \"wrong URL\", which is not what is happening.",
+        "operationId": "pause_run_api_runs__run_id__pause_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunControlResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "暂停运行（本版本不支持）",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/reports/manifest": {
+      "get": {
+        "description": "List report files that already exist. Never generates one.",
+        "operationId": "get_report_manifest_api_runs__run_id__reports_manifest_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportManifestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "已导出报告清单",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/resume": {
+      "post": {
+        "description": "Continue the same experiment under the same id (``--resume``).",
+        "operationId": "resume_run_api_runs__run_id__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunCreateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "从已有运行恢复",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/rounds": {
+      "post": {
+        "description": "PRD §16.1. ``additional_iterations`` is a delta, not a new total.",
+        "operationId": "append_rounds_api_runs__run_id__rounds_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppendRoundsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunControlResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "追加进化轮次",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/scores": {
+      "get": {
+        "description": "One point per evaluated node, straight from the evaluator's record.",
+        "operationId": "get_scores_api_runs__run_id__scores_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScorePointResponse"
+                  },
+                  "title": "Response Get Scores Api Runs  Run Id  Scores Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "分数时间线",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/stream": {
+      "get": {
+        "description": "Server-sent events for one run, then a finite close.\n\nThe cursor comes from ``?after_id=`` or from the ``Last-Event-ID`` header\na reconnecting browser sends, and **the header wins**.\n\nThat precedence is the whole reason the header exists. ``EventSource``\nreconnects to the *same URL*, so a stream opened as\n``/stream?after_id=40`` comes back as ``?after_id=40`` **plus**\n``Last-Event-ID: 57`` -- and 57 is the truth, because that is what the\nclient actually received. Preferring the query string would re-deliver\neverything after 40 on every automatic reconnect, which PRD §16.3 names\ndirectly (\"同一事件重复投递不会产生重复节点或重复轮次\").\n\nBoth go through the same ``coerce_last_event_id``, so the two paths\ncannot come to mean different things.\n\nNo ``response_model`` on purpose: the body is a stream of frames, not a\ndocument, and declaring a model would make FastAPI try to validate -- and\nbuffer -- an endless body.\n\nThe stream is read-only, so like ``/live`` it needs no control flag.",
+        "operationId": "stream_events_api_runs__run_id__stream_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "SSE 实时事件流（阶段 8）",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/tree": {
+      "get": {
+        "description": "Nodes, edges and the best path.\n\nParent links are joined onto each node because ``tree.json`` stores them\nas a separate edge list; the database's own ``parent_id`` wins when the\ntwo disagree, and the disagreement is reported.",
+        "operationId": "get_tree_api_runs__run_id__tree_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "整棵进化树",
+        "tags": [
+          "tree"
+        ]
+      }
+    },
+    "/api/servers": {
+      "get": {
+        "description": "Masked profiles plus the default one to preselect (plan D-E).",
+        "operationId": "list_servers_api_servers_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerProfileListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "列出服务器配置",
+        "tags": [
+          "servers"
+        ]
+      },
+      "post": {
+        "description": "Secrets never travel: only a ``private_key_ref`` is accepted.",
+        "operationId": "upsert_server_api_servers_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "profile_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Profile Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServerProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "新建或更新服务器配置",
+        "tags": [
+          "servers"
+        ]
+      }
+    },
+    "/api/servers/{profile_id}": {
+      "delete": {
+        "operationId": "delete_server_api_servers__profile_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "删除服务器配置",
+        "tags": [
+          "servers"
+        ]
+      },
+      "get": {
+        "operationId": "get_server_api_servers__profile_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取单个服务器配置",
+        "tags": [
+          "servers"
+        ]
+      }
+    },
+    "/api/servers/{profile_id}/check-path": {
+      "post": {
+        "description": "Existence / writability / free space for one directory.\n\nThe path is checked against the allow-list before anything is\nstat'ed, locally and remotely alike.",
+        "operationId": "check_path_api_servers__profile_id__check_path_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PathProbeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathProbeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "测试目录",
+        "tags": [
+          "servers"
+        ]
+      }
+    },
+    "/api/servers/{profile_id}/probe": {
+      "post": {
+        "description": "Reachability + environment report (PRD 7.4 交互规则 2).",
+        "operationId": "probe_server_api_servers__profile_id__probe_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerProbeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "测试连接",
+        "tags": [
+          "servers"
+        ]
+      }
+    },
+    "/api/tasks": {
+      "get": {
+        "description": "Every task directory one level below the configured task roots.\n\nStub datasets (no four-file set) are listed too, marked ``is_stub``:\nPRD 7.7 wants the card visible with a reason, not hidden.",
+        "operationId": "list_tasks_api_tasks_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskSummaryResponse"
+                  },
+                  "title": "Response List Tasks Api Tasks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "列出任务目录中的任务",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/tasks/{task_id}": {
+      "get": {
+        "description": "Sanitised problem/prompt documents plus file and data listings.",
+        "operationId": "get_task_api_tasks__task_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取单个任务的详情",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/tasks/{task_id}/card": {
+      "get": {
+        "description": "The overview card (PRD 7.7): one request, no client-side joins.",
+        "operationId": "get_task_card_api_tasks__task_id__card_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDatasetCardResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取单个任务的总览卡片",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/tasks/{task_id}/readiness": {
+      "get": {
+        "description": "Pre-flight check. ``checks`` lists blocking problems only.",
+        "operationId": "get_task_readiness_api_tasks__task_id__readiness_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskReadinessResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "任务就绪检查",
+        "tags": [
+          "tasks"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,187 @@
+# Bibliography for the FaultEvolve SmartMem (DRAM UE prediction) knowledge pack.
+#
+# Every entry below was actually read on 2026-10-03: the competition pages and starter-kit files
+# were fetched over HTTPS from their published URLs, the five papers were fetched from the arXiv
+# Atom API (title, author list, date and abstract as published), and the user-run record is a
+# document inside this repository. Nothing here is quoted from memory.
+#
+# retrieved_via: arxiv_api | web_fetch | github_api | local_record
+# evidence_class: external (default) | local (a run record, so it carries no public url)
+# Fields: id, title, authors, year, venue, url, arxiv, retrieved_via, retrieved, evidence_class,
+#         takeaway
+
+- id: smartmem-homepage
+  title: "SmartMem Memory Failure Prediction for Cloud Service Reliability - competition homepage"
+  authors: [hwcloud-RAS]
+  year: 2025
+  venue: https://hwcloud-ras.github.io/SmartMem.github.io/
+  url: https://hwcloud-ras.github.io/SmartMem.github.io/
+  retrieved_via: web_fetch
+  retrieved: "2026-10-03"
+  takeaway: >-
+    States the task as predicting whether each DRAM module suffers a UE inside the next k days,
+    from mcelog records carrying 23 columns (CPU, channel, DIMM, rank, device, bank group, bank,
+    row, column ids), scored by F1 against ground-truth outage markers. Fixes the lead window at
+    15 minutes and the prediction window at 7 days, and leaves the observation window and the
+    labelling method to the participant. Manufacturing details are redacted in the released data.
+
+- id: smarthw-readme
+  title: "SmartHW / Memory Failure Prediction Competition - repository README"
+  authors: [hwcloud-RAS, Qiao Yu]
+  year: 2025
+  venue: GitHub repo hwcloud-RAS/SmartHW
+  url: https://github.com/hwcloud-RAS/SmartHW
+  retrieved_via: github_api
+  retrieved: "2026-10-03"
+  takeaway: >-
+    Names the four challenges the dataset is built around: data noise and extreme imbalance
+    because UEs are exceedingly rare among memory events, heterogeneous sources because field DIMMs
+    come from different manufacturing and architecture platforms, distribution shift from hardware
+    aging, and latent factors from the dynamic access mechanism. Stage 1 ships an A/B list tuned for
+    two memory models, stage 2 adds a mixed-model dataset to test few-shot transfer. Gives the
+    F-score definition with a beta knob (precision-weighted when beta < 1) and the observation
+    window / lead / prediction-period notation.
+
+- id: starterkit-readme
+  title: "SmartMem competition starter kit and baseline - README"
+  authors: [hwcloud-RAS]
+  year: 2025
+  venue: GitHub hwcloud-RAS/SmartHW, competition_starterkit
+  url: https://github.com/hwcloud-RAS/SmartHW/tree/main/competition_starterkit
+  retrieved_via: github_api
+  retrieved: "2026-10-03"
+  takeaway: >-
+    The provided pipeline extracts temporal, spatial and parity features from raw logs, stores them
+    as feather, trains LightGBM and writes a submission of SN name, prediction timestamp and SN
+    type. Quantifies the size question: about 130 GB decompressed as csv versus about 40 GB as
+    feather, and says the feather form is the one meant for processing. Ships a notebook with
+    pre-split datasets for reproducible runs.
+
+- id: starterkit-baseline
+  title: "SmartMem competition baseline implementation (baseline.py)"
+  authors: [hwcloud-RAS]
+  year: 2025
+  venue: GitHub hwcloud-RAS/SmartHW, competition_starterkit/baseline.py
+  url: https://github.com/hwcloud-RAS/SmartHW/blob/main/competition_starterkit/baseline.py
+  retrieved_via: github_api
+  retrieved: "2026-10-03"
+  takeaway: >-
+    Read line by line: window sizes 15 minutes and 1 hour on an hourly feature interval; temporal
+    features split read-CE from scrub-CE by log count and summed Count plus a mean-log-interval and
+    a CE-storm count over a streak threshold; spatial features classify a window into fault_mode
+    others/device/bank/row/column/cell by how many distinct ids appear at each level; parity
+    features decompose the parity string into bit, dq and burst counts plus max intra-parity dq and
+    burst intervals and per-value distributions for a 4-dq x 8-burst DDR4 part; missing values are
+    filled with -1; positives are every feature row of a failing SN inside alarm minus 30 days up to
+    the alarm; negatives are taken only from a single 30-day block ending 30 days before the
+    training cutoff; tickets after the cutoff are dropped; per-SN processing runs in 16 worker
+    processes with chunked concatenation.
+
+- id: codabench-3586
+  title: "WWW 2025: SMARTMEM Memory Failure Prediction Competition - platform record"
+  authors: [CodaBench]
+  year: 2025
+  venue: codabench.org competition 3586
+  url: https://www.codabench.org/api/competitions/3586/
+  retrieved_via: web_fetch
+  retrieved: "2026-10-03"
+  takeaway: >-
+    The API record confirms the competition ran from 2024-12-20 to 2025-03-10 under the Web
+    Conference 2025 banner, and that it is now closed, which is why no new submission can calibrate
+    an absolute score. Treat the leaderboard as a historical reference, not as a reachable target.
+
+- id: yao2021mcelog
+  title: "Highly Efficient Memory Failure Prediction using Mcelog-based Data Mining and
+    Machine Learning"
+  authors: [Chengdong Yao]
+  year: 2021
+  venue: arXiv preprint
+  url: https://arxiv.org/abs/2105.04547
+  arxiv: "2105.04547"
+  retrieved_via: arxiv_api
+  retrieved: "2026-10-03"
+  takeaway: >-
+    Frames production memory prediction as dominated by huge data noise and extreme
+    positive/negative imbalance, and reports the tricks that moved a single gradient-boosted model
+    to 14th place in the
+    2nd Alibaba Cloud AIOps competition, with runtime (30 minutes over the whole set) treated as a
+    first-class constraint rather than an afterthought.
+
+- id: bogatinovski2022firstce
+  title: "First CE Matters: On the Importance of Long Term Properties on Memory Failure Prediction"
+  authors: [Jasmin Bogatinovski, Qiao Yu, Jorge Cardoso, Odej Kao]
+  year: 2022
+  venue: arXiv preprint (DSN 2023 workshop track per the listing)
+  url: https://arxiv.org/abs/2212.10441
+  arxiv: "2212.10441"
+  retrieved_via: arxiv_api
+  retrieved: "2026-10-03"
+  takeaway: >-
+    Argues that because DIMMs are not accessed uniformly, the CE evidence of a failing module is
+    spread over long time intervals, and that prior work truncated the history to fit practical
+    constraints and thereby lost signal; the first correctable error and long-horizon aggregates
+    carry predictive information a short recent window cannot see.
+
+- id: yu2023errorbits
+  title: "Exploring Error Bits for Memory Failure Prediction: An In-Depth Correlative Study"
+  authors: [Qiao Yu, Wengui Zhang, Jorge Cardoso, Odej Kao]
+  year: 2023
+  venue: arXiv preprint
+  url: https://arxiv.org/abs/2312.02855
+  arxiv: "2312.02855"
+  retrieved_via: arxiv_api
+  retrieved: "2026-10-03"
+  takeaway: >-
+    Standard CE-to-UE prediction ignores what the error bits themselves say. Correlating the
+    spatio-temporal error-bit pattern of correctable errors with UE occurrence improves F1 by up to
+    15 percent over state-of-the-art baselines on real production data, i.e. the dq/burst/bit layout
+    of a CE is signal, not noise.
+
+- id: yu2024cpuarch
+  title: "Investigating Memory Failure Prediction Across CPU Architectures"
+  authors: [Qiao Yu, Wengui Zhang, Min Zhou, Jialiang Yu, Zhenli Sheng, Jasmin Bogatinovski,
+            Jorge Cardoso, Odej Kao]
+  year: 2024
+  venue: arXiv preprint
+  url: https://arxiv.org/abs/2406.05354
+  arxiv: "2406.05354"
+  retrieved_via: arxiv_api
+  retrieved: "2026-10-03"
+  takeaway: >-
+    Failure patterns tied to correctable errors differ between processor platforms (x86 and ARM are
+    compared) partly because ECC is applied differently, so a model trained on one architecture does
+    not transfer unchanged; platform-aware modelling on production data gains up to 15 percent F1,
+    and the paper wraps it in an MLOps loop rather than a one-off fit.
+
+- id: xie2025m2mfp
+  title: "M2-MFP: A Multi-Scale and Multi-Level Memory Failure Prediction Framework for Reliability"
+  authors: [Hongyi Xie, Min Zhou, Qiao Yu, Jialiang Yu, Zhenli Sheng, Hong Xie, Defu Lian]
+  year: 2025
+  venue: arXiv preprint
+  url: https://arxiv.org/abs/2507.07144
+  arxiv: "2507.07144"
+  retrieved_via: arxiv_api
+  retrieved: "2026-10-03"
+  takeaway: >-
+    Says hand-written rules generalise poorly and recall stays low, while automatic feature
+    extraction underperforms on this data, and proposes instead to turn CEs into multi-level binary
+    matrices (device/bank/row/column granularity) with a binary spatial feature extractor - evidence
+    that the spatial hierarchy is where the structure lives, and that representation learning is
+    paid for only after the tabular route has been exhausted.
+
+- id: userrun-huawei-a
+  title: "Anonymous run record: prior DRAM failure-prediction attempt (2026 contest line A)"
+  authors: [anonymous-run-1]
+  year: 2026
+  venue: internal run, analysed read-only in this repository
+  record: docs/runs/smartmem-existing-attempt-analysis.md
+  retrieved_via: local_record
+  retrieved: "2026-10-03"
+  evidence_class: local
+  takeaway: >-
+    A real attempt on the same raw dataset: official precomputed features only (never the 23-column
+    event stream), alarm-anchored positive rows with 200 random rows per healthy unit, soft label
+    over a 10-day window, LightGBM, random per-unit 5-fold, threshold swept on the evaluation set,
+    SN score aggregated as the mean of its top 5 rows. Its fourth ruler, 0.1925 SN-level F1 under a
+    1 percent alert budget with no answer keys consulted, is the only number fit to be quoted, and
+    it was measured under a protocol this repository deliberately replaced.

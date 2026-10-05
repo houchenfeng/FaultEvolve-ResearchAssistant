@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+*.local
+.vite/
+.vitest/
+
+# pnpm 装依赖时留下的 0 字节 store 锁文件（每次 add 都会新生成一批）。
+_tmp_*

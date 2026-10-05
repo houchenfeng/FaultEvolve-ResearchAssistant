@@ -1,0 +1,498 @@
+# Bibliography for the FaultEvolve HDD failure-prediction knowledge pack.
+# Every entry below was actually retrieved (arXiv API, publisher/USENIX/ACM page, author PDF,
+# researchr/dblp record, or Backblaze blog) during the search on 2026-09-28.
+# retrieved_via: arxiv_api | web_search | web_fetch | github_mcp
+# Fields: id, title, authors, year, venue, url, doi/arxiv, retrieved_via, takeaway
+
+- id: BENCH
+  title: "FaultEvolve benchmark/hdd_mvp (problem.md, evaluator.py, prepare_data.py, init.py, prompt.md)"
+  authors: [houchenfeng]
+  year: 2026
+  venue: GitHub repo houchenfeng/Self-evolution-optimization-agnet
+  url: https://github.com/houchenfeng/Self-evolution-optimization-agnet/tree/main/benchmark/hdd_mvp
+  retrieved_via: github_mcp
+  takeaway: >-
+    Task: at cutoff c, with <=14 daily SMART snapshots (22 raw + 9 normalized attrs, >=4TB HDDs,
+    ~44 models), predict failure in (c, c+7]. Positives' cutoff = failure_day - k, k uniform in 1..7;
+    negatives alive at c+7 and weighted ~10x. ROS = 100*(0.5*F1_p10 + 0.3*AUPRC + 0.2*Recall@FAR<=0.2%)
+    * min(1, 600/runtime). Train Q3-2024 -> val Q4-2024 -> test Q1-2025.
+
+- id: pinheiro2007
+  title: "Failure Trends in a Large Disk Drive Population"
+  authors: [Eduardo Pinheiro, Wolf-Dietrich Weber, Luiz Andre Barroso]
+  year: 2007
+  venue: USENIX FAST 2007 (pp. 17-29)
+  url: https://www.usenix.org/conference/fast-07/failure-trends-large-disk-drive-population
+  retrieved_via: web_search
+  takeaway: >-
+    After the first scan error, drives are 39x more likely to fail within 60 days; first reallocations,
+    offline reallocations and probational (pending) counts are also strongly predictive. But a large
+    fraction (~36%) of failed drives showed no SMART error signal, and temperature/activity correlate weakly.
+
+- id: schroeder2007
+  title: "Disk failures in the real world: What does an MTTF of 1,000,000 hours mean to you?"
+  authors: [Bianca Schroeder, Garth A. Gibson]
+  year: 2007
+  venue: USENIX FAST 2007
+  url: https://www.cs.toronto.edu/~bianca/papers/fast07.pdf
+  retrieved_via: web_search
+  takeaway: >-
+    Field replacement rates (2-4%, up to 13%) far exceed datasheet MTTF; failure rate grows with age
+    (early wear-out) rather than being constant, so age is a meaningful covariate.
+
+- id: hughes2002
+  title: "Improved disk-drive failure warnings"
+  authors: [Gordon F. Hughes, Joseph F. Murray, Kenneth Kreutz-Delgado, Charles Elkan]
+  year: 2002
+  venue: IEEE Transactions on Reliability 51(3)
+  url: https://cseweb.ucsd.edu/~elkan/ieeereliability.pdf
+  retrieved_via: web_search
+  takeaway: >-
+    Replacing fixed SMART thresholds with distribution-free Wilcoxon rank-sum tests of recent values
+    against a healthy reference set improves warning rate at low false-alarm rates, cheaply.
+
+- id: murray2005
+  title: "Machine Learning Methods for Predicting Failures in Hard Drives: A Multiple-Instance Application"
+  authors: [Joseph F. Murray, Gordon F. Hughes, Kenneth Kreutz-Delgado]
+  year: 2005
+  venue: Journal of Machine Learning Research 6
+  url: https://jmlr.org/papers/v6/murray05a.html
+  retrieved_via: web_search
+  takeaway: >-
+    Frames a drive's time series as a multiple-instance bag and targets the very-low-false-alarm regime;
+    SVM reached 50.6% detection at 0% FAR, rank-sum and mi-NB are cheap alternatives.
+
+- id: zhu2013
+  title: "Proactive drive failure prediction for large scale storage systems"
+  authors: [B. Zhu, G. Wang, X. Liu, D. Hu, S. Lin, J. Ma]
+  year: 2013
+  venue: IEEE MSST 2013
+  url: https://msstconference.org/MSST-history/2013/Papers/2013.Paper.08.pdf
+  doi: 10.1109/MSST.2013.6558427
+  retrieved_via: web_search
+  takeaway: >-
+    Reports results as FDR (detection) vs FAR (false alarm) operating points: SVM 68.5% FDR at 0.03% FAR,
+    80% FDR at 0.3% FAR; BP-NN >95% FDR with higher FAR; voting/AdaBoost help. Change-over-time features used.
+
+- id: li2014
+  title: "Hard Drive Failure Prediction Using Classification and Regression Trees"
+  authors: [Jing Li, Xinpu Ji, Yuhan Jia, Bingpeng Zhu, Gang Wang, Zhongwei Li, Xiaoguang Liu]
+  year: 2014
+  venue: IEEE/IFIP DSN 2014
+  url: https://researchr.org/publication/LiJJZWLL14
+  retrieved_via: web_search
+  takeaway: >-
+    Simple classification trees on SMART attributes (incl. change rates) predicted >95% of failures at
+    <0.1% FAR on a production dataset; trees are interpretable and robust.
+
+- id: li2016
+  title: "Being Accurate Is Not Enough: New Metrics for Disk Failure Prediction"
+  authors: [Jing Li, Rebecca J. Stones, Gang Wang, Zhongwei Li, Xiaoguang Liu, Kang Xiao]
+  year: 2016
+  venue: IEEE SRDS 2016
+  url: https://nbjl.nankai.edu.cn/_upload/article/files/b8/df/788a01c9442a8597ae8379cb37f1/9d09cee5-cda4-4c0f-9a9b-23405f2b9aba.pdf
+  retrieved_via: web_search
+  takeaway: >-
+    Accuracy/FDR alone is misleading operationally; proposes Migration Rate and Mismigration Rate that
+    account for lead time and wasted migrations of healthy disks.
+
+- id: botezatu2016
+  title: "Predicting Disk Replacement towards Reliable Data Centers"
+  authors: [Mirela Madalina Botezatu, Ioana Giurgiu, Jasmina Bogojeska, Dorothea Wiesmann]
+  year: 2016
+  venue: ACM SIGKDD 2016 (pp. 39-48)
+  url: https://dl.acm.org/doi/10.1145/2939672.2939699
+  doi: 10.1145/2939672.2939699
+  retrieved_via: web_search
+  takeaway: >-
+    Pipeline: changepoint detection to pick informative SMART attributes, compact time-series
+    representation, informed downsampling of healthy disks, Regularized Greedy Forest; up to 98% accuracy
+    10-15 days ahead; transfer learning for new disk models with scarce labels.
+
+- id: ma2015
+  title: "RAIDShield: Characterizing, Monitoring, and Proactively Protecting Against Disk Failures"
+  authors: [A. Ma, R. Traylor, F. Douglis, M. Chamness, G. Lu, D. Sawyer, S. Chandra, W. Hsu]
+  year: 2015
+  venue: USENIX FAST 2015 (extended in ACM TOS 11(4))
+  url: https://www.usenix.org/system/files/conference/fast15/fast15-paper-ma.pdf
+  retrieved_via: web_search
+  takeaway: >-
+    Reallocated sector count (SMART 5) is a strong single failure indicator; a simple threshold policy
+    (PLATE) on reallocations plus group-level risk (ARMOR) eliminated 88% of triple-disk errors in production.
+
+- id: mahdisoltani2017
+  title: "Proactive error prediction to improve storage system reliability"
+  authors: [Farzaneh Mahdisoltani, Ioan Stefanovici, Bianca Schroeder]
+  year: 2017
+  venue: USENIX ATC 2017 (pp. 391-402)
+  url: https://www.usenix.org/system/files/conference/atc17/atc17-mahdisoltani.pdf
+  retrieved_via: web_search
+  takeaway: >-
+    Random forests on SMART/error counters predict sector errors on HDDs and SSDs well; predictions drive
+    adaptive scrubbing (2x faster error detection with <2% accelerated time).
+
+- id: xu_c2016
+  title: "Health Status Assessment and Failure Prediction for Hard Drives with Recurrent Neural Networks"
+  authors: [Chang Xu, Gang Wang, Xiaoguang Liu, Dongdong Guo, Tie-Yan Liu]
+  year: 2016
+  venue: IEEE Transactions on Computers
+  url: https://chang-xu.github.io/public/disk_prediction.pdf
+  retrieved_via: web_search
+  takeaway: >-
+    Sequential models over SMART histories with graded health levels beat sequence-independent models;
+    reported ~96% detection at 0.04% FAR, confirming temporal information matters.
+
+- id: aussel2017
+  title: "Predictive Models of Hard Drive Failures Based on Operational Data"
+  authors: [Nicolas Aussel, Samuel Jaulin, Guillaume Gandon, Yohan Petetin, Eriza Fazli, Sophie Chabridon]
+  year: 2017
+  venue: IEEE ICMLA 2017 (pp. 619-625)
+  url: https://researchr.org/publication/AusselJGPFC17
+  retrieved_via: web_fetch
+  takeaway: >-
+    On Backblaze data, RF/GBT with imbalance handling on SMART 5,12,187,188,189,190,198,199,200 gave
+    ~95% precision and ~67% recall: high precision is achievable, recall is the hard part.
+
+- id: xu_y2018
+  title: "Improving Service Availability of Cloud Systems by Predicting Disk Error"
+  authors: [Yong Xu, Kaixin Sui, Randolph Yao, Hongyu Zhang, Qingwei Lin, Yingnong Dang, Peng Li, Keceng Jiang, Wenchi Zhang, Jian-Guang Lou, Murali Chintalapati, Dongmei Zhang]
+  year: 2018
+  venue: USENIX ATC 2018 (pp. 481-494)
+  url: https://www.usenix.org/conference/atc18/presentation/xu-yong
+  retrieved_via: web_search
+  takeaway: >-
+    Microsoft Azure CDEF: cost-sensitive *ranking* model (FastTree GBDT) over SMART + system signals ranks
+    disks by error-proneness and picks the top-r to minimise misclassification cost; deployed in production.
+
+- id: xiao2018
+  title: "Disk Failure Prediction in Data Centers via Online Learning"
+  authors: [Jiang Xiao, Zhuang Xiong, Song Wu, Yusheng Yi, Hai Jin, Kan Hu]
+  year: 2018
+  venue: ICPP 2018
+  url: https://researchr.org/publication/XiaoXWY0H18
+  retrieved_via: web_fetch
+  takeaway: >-
+    Online Random Forests with automatic online labeling and imbalance-aware online bagging counter
+    model aging as SMART distributions drift; 93-99% FDR maintained without periodic retraining.
+
+- id: zhang2019
+  title: "Transfer Learning based Failure Prediction for Minority Disks in Large Data Centers of Heterogeneous Disk Systems"
+  authors: [Ji Zhang, Ke Zhou, Ping Huang, Xubin He, Zhili Xiao, Bin Cheng, Yongguang Ji, Yinhu Wang]
+  year: 2019
+  venue: ICPP 2019
+  url: https://dl.acm.org/doi/10.1145/3337821.3337881
+  doi: 10.1145/3337821.3337881
+  retrieved_via: web_fetch
+  takeaway: >-
+    TLDFP: for disk models with few failures, pick the source model with smallest KL divergence and apply
+    TrAdaBoost-style instance reweighting; transfer beats training on the minority model alone.
+
+- id: han2019
+  title: "Robust Data Preprocessing for Machine-Learning-Based Disk Failure Prediction in Cloud Production Environments"
+  authors: [Shujie Han, Jun Wu, Erci Xu, Cheng He, Patrick P. C. Lee, Yi Qiang, Qixing Zheng, Tao Huang, Zixi Huang, Rui Li]
+  year: 2019
+  venue: arXiv
+  arxiv: "1912.09722"
+  url: https://arxiv.org/abs/1912.09722
+  retrieved_via: arxiv_api
+  takeaway: >-
+    RODMAN: failure-type filtering, spline-based filling of missing daily samples, and automated
+    pre-failure backtracking (choosing how many pre-failure days to label positive) improve accuracy
+    on Alibaba and Backblaze data.
+
+- id: han2020
+  title: "Toward Adaptive Disk Failure Prediction via Stream Mining"
+  authors: [Shujie Han, Patrick P. C. Lee, Zhirong Shen, Cheng He, Yi Liu, Tao Huang]
+  year: 2020
+  venue: IEEE ICDCS 2020
+  url: https://shenzr.github.io/publications/streamdfp-icdcs20.pdf
+  retrieved_via: web_fetch
+  takeaway: >-
+    Concept drift exists in Backblaze SMART data (KS tests: many attributes change distribution year to
+    year, p(y) oscillates). Extra positive labelling of pre-failure days, negative downsampling with
+    Poisson bagging (lambda_p > lambda_n) and drift-aware ensembles raise F1 by 27-53%.
+
+- id: lu2020
+  title: "Making Disk Failure Predictions SMARTer!"
+  authors: [Sidi Lu, Bing Luo, Tirthak Patel, Yongtao Yao, Devesh Tiwari, Weisong Shi]
+  year: 2020
+  venue: USENIX FAST 2020 (pp. 151-167)
+  url: https://www.usenix.org/conference/fast20/presentation/lu
+  retrieved_via: web_search
+  takeaway: >-
+    On 380K disks, SMART alone degrades at longer lead times; adding performance (throughput/workload)
+    and location features raises MCC to 0.95 at 10-day horizon. No single model wins everywhere;
+    CNN-LSTM is consistently near-best, GBDT/RF competitive.
+
+- id: pakdd2020
+  title: "Large-Scale Disk Failure Prediction: PAKDD 2020 Competition and Workshop, AI Ops 2020 (incl. 'First Place Solution of PAKDD Cup 2020', pp. 30-39)"
+  authors: ["(volume editors and first-place chapter authors not retrieved)"]
+  year: 2020
+  venue: Springer CCIS (revised selected papers)
+  url: https://link.springer.com/book/10.1007/978-981-15-7749-9
+  doi: 10.1007/978-981-15-7749-9
+  retrieved_via: web_search
+  takeaway: >-
+    Alibaba SMART dataset (30-day horizon, very noisy, extremely imbalanced). The winning solution
+    reframed the task as regression and ensembled LightGBM/XGBoost/CatBoost over sliding-window features
+    with greedy post-processing (F1 ~0.49, P 0.62, R 0.41), showing realistic ceilings.
+
+- id: kadekodi2019
+  title: "Cluster storage systems gotta have HeART: improving storage efficiency by exploiting disk-reliability heterogeneity"
+  authors: [Saurabh Kadekodi, K. V. Rashmi, Gregory R. Ganger]
+  year: 2019
+  venue: USENIX FAST 2019
+  url: https://www.usenix.org/conference/fast19/presentation/kadekodi
+  retrieved_via: web_search
+  takeaway: >-
+    Failure rates differ strongly across disk makes/models and life phases (infancy, useful life,
+    wear-out); per-model reliability must be learned rather than assumed uniform.
+
+- id: pinciroli2020
+  title: "The Life and Death of SSDs and HDDs: Similarities, Differences, and Prediction Models"
+  authors: [Riccardo Pinciroli, Lishan Yang, Jacob Alter, Evgenia Smirni]
+  year: 2020
+  venue: arXiv
+  arxiv: "2012.12373"
+  url: https://arxiv.org/abs/2012.12373
+  retrieved_via: arxiv_api
+  takeaway: >-
+    On 100K Backblaze HDDs, young vs old failures look similar, but time spent on head positioning
+    discriminates failures; ML models achieve high recall with low FPR.
+
+- id: pinciroli2022
+  title: "Machine Learning Models for SSD and HDD Reliability Prediction"
+  authors: [Riccardo Pinciroli, et al.]
+  year: 2022
+  venue: RAMS 2022
+  url: https://www.rpinciroli.com/files/papers/2022_RAMS_Pinciroli.pdf
+  retrieved_via: web_search
+  takeaway: >-
+    Random forests on Backblaze HDDs/Google SSDs; splitting the population by drive age or head-flying
+    hours and training separate models improves accuracy, especially for short lookahead windows.
+
+- id: grillmeyer2025
+  title: "Quantifying Data Leakage in Failure Prediction Tasks"
+  authors: [Daniel Grillmeyer, Marius Hadry, Veronika Lesch, Vanessa Borst, Robert Leppich, Andre Bauer, Samuel Kounev]
+  year: 2025
+  venue: ACM/SPEC ICPE 2025 (Best Artifact)
+  url: https://dl.acm.org/doi/10.1145/3676151.3719368
+  doi: 10.1145/3676151.3719368
+  retrieved_via: web_search
+  takeaway: >-
+    Random row-level splits of Backblaze snapshots leak (same drive / adjacent days / future data in
+    train and test) and inflate results; use drive-grouped and chronological splits, and fit
+    preprocessing/resampling only on training folds.
+
+- id: lyu2025
+  title: "Can We Recycle Our Old Models? An Empirical Evaluation of Model Selection Mechanisms for AIOps Solutions"
+  authors: [Yingzhe Lyu, Hao Li, Heng Li, Ahmed E. Hassan]
+  year: 2025
+  venue: arXiv
+  arxiv: "2505.02961"
+  url: https://arxiv.org/abs/2505.02961
+  retrieved_via: arxiv_api
+  takeaway: >-
+    On Backblaze (and Google/Alibaba traces), models trained on temporally adjacent data generalise best;
+    temporal adjacency is a strong heuristic under drift.
+
+- id: gao2023
+  title: "Disk failure prediction based on multi-layer domain adaptive learning"
+  authors: [Guangfu Gao, Peng Wu, Hussain Dawood]
+  year: 2023
+  venue: arXiv
+  arxiv: "2310.06534"
+  url: https://arxiv.org/abs/2310.06534
+  retrieved_via: arxiv_api
+  takeaway: >-
+    Uses failure-rich disk models as source domain and failure-poor models as target with domain-adaptive
+    feature learning, improving prediction on minority models.
+
+- id: yuan2023
+  title: "A Survey of Methods for Handling Disk Data Imbalance"
+  authors: [Shuangshuang Yuan, Peng Wu, Yuehui Chen, Qiang Li]
+  year: 2023
+  venue: arXiv
+  arxiv: "2310.08867"
+  url: https://arxiv.org/abs/2310.08867
+  retrieved_via: arxiv_api
+  takeaway: >-
+    Surveys data-level (resampling), algorithm-level (cost-sensitive, ensembles) and hybrid methods for
+    the severe class imbalance of Backblaze data, with trade-offs.
+
+- id: li_h2024
+  title: "Why does Prediction Accuracy Decrease over Time? Uncertain Positive Learning for Cloud Failure Prediction"
+  authors: [Haozhe Li, Minghua Ma, Yudong Liu, Pu Zhao, Lingling Zheng, Ze Li, et al.]
+  year: 2024
+  venue: arXiv
+  arxiv: "2402.00034"
+  url: https://arxiv.org/abs/2402.00034
+  retrieved_via: arxiv_api
+  takeaway: >-
+    In Azure, disk/node failure-prediction accuracy dropped ~9% after retraining because mitigated
+    positives become uncertain labels; label noise must be modelled explicitly.
+
+- id: siemroth2026
+  title: "Are There Manufacturer Differences in Hard-Drive Reliability?"
+  authors: [Christoph Siemroth, Yeomyung Park]
+  year: 2026
+  venue: IEEE Transactions on Cloud Computing 14(2); arXiv
+  arxiv: "2606.29078"
+  url: https://arxiv.org/abs/2606.29078
+  doi: 10.1109/TCC.2026.3679404
+  retrieved_via: arxiv_api
+  takeaway: >-
+    Duration regressions on Backblaze data (controlling age, capacity, temperature): HGST failure rate
+    ~41% of Seagate, WD ~52% of Seagate, Toshiba slightly above Seagate; age, capacity, temperature and
+    location also matter.
+
+- id: amram2021
+  title: "Interpretable Predictive Maintenance for Hard Drives"
+  authors: [Maxime Amram, Jack Dunn, Jeremy J. Toledano, Ying Daisy Zhuo]
+  year: 2021
+  venue: arXiv
+  arxiv: "2102.06509"
+  url: https://arxiv.org/abs/2102.06509
+  retrieved_via: arxiv_api
+  takeaway: >-
+    Interpretable tree models on Backblaze keep high predictive performance and give insights into
+    short- vs long-term drive health, even with limited history.
+
+- id: narayanan2016
+  title: "SSD Failures in Datacenters: What? When? and Why?"
+  authors: [Iyswarya Narayanan, et al.]
+  year: 2016
+  venue: ACM SYSTOR 2016
+  url: https://www.microsoft.com/en-us/research/wp-content/uploads/2016/08/a7-narayanan.pdf
+  doi: 10.1145/2928275.2928278
+  retrieved_via: web_search
+  takeaway: >-
+    On 500K+ SSDs, symptoms (data errors, reallocations, program/erase failures, SATA downshift) raise AFR
+    up to 20x but are insufficient alone; workload (writes) and drive model matter.
+
+- id: schroeder2016
+  title: "Flash Reliability in Production: The Expected and the Unexpected"
+  authors: [Bianca Schroeder, Raghav Lagisetty, Arif Merchant]
+  year: 2016
+  venue: USENIX FAST 2016
+  url: https://www.usenix.org/conference/fast16/technical-sessions/presentation/schroeder
+  retrieved_via: web_search
+  takeaway: >-
+    Six years of Google SSD data: raw bit error rate grows linearly with wear but does not predict
+    uncorrectable errors; prior errors are more informative than wear counters.
+
+- id: alter2019
+  title: "SSD Failures in the Field: Symptoms, Causes, and Prediction Models"
+  authors: [Jacob Alter, Ji Xue, Alma Dimnaku, Evgenia Smirni]
+  year: 2019
+  venue: ACM/IEEE SC 2019
+  url: https://dl.acm.org/doi/10.1145/3295500.3356172
+  doi: 10.1145/3295500.3356172
+  retrieved_via: web_search
+  takeaway: >-
+    Random forests predict SSD failures up to 30 days ahead, best at 1-3 days; age is highly predictive
+    (infant mortality), shorter horizons are much easier.
+
+- id: xu_f2021
+  title: "General Feature Selection for Failure Prediction in Large-scale SSD Deployment"
+  authors: [Fan Xu, Shujie Han, Patrick P. C. Lee, Yi Liu, Cheng He, Jiongzhou Liu]
+  year: 2021
+  venue: IEEE/IFIP DSN 2021 (pp. 263-270)
+  url: https://www.cse.cuhk.edu.hk/~pclee/www/pubs/dsn21.pdf
+  retrieved_via: web_fetch
+  takeaway: >-
+    WEFR: ensemble of feature rankers with outlier removal (Kendall tau) and automatic feature-count
+    choice; selected features should be updated by wear-out/age stage; beats static selection across models.
+
+- id: backblaze2016
+  title: "What SMART Stats Tell Us About Hard Drives"
+  authors: [Andy Klein]
+  year: 2016
+  venue: Backblaze blog (2016-10-06)
+  url: https://www.backblaze.com/blog/what-smart-stats-indicate-hard-drive-failures/
+  retrieved_via: web_fetch
+  takeaway: >-
+    Backblaze watches raw SMART 5, 187, 188, 197, 198: 76.7% of failed vs 4.2% of operational drives have
+    any >0; 197/198 are correlated, others roughly independent. All except 197 are cumulative, so the
+    *rate* matters (0->20 in a day is worse than 60 over 5 years); bursts of 189 are informative.
+    Decommissioned drives are not failures; failed drives stop being logged.
+
+- id: backblaze2024
+  title: "Hard Drive Failure Rates: The Official Backblaze Drive Stats for 2024"
+  authors: [Backblaze Drive Stats Team]
+  year: 2025
+  venue: Backblaze blog
+  url: https://www.backblaze.com/blog/backblaze-drive-stats-for-2024/
+  retrieved_via: web_search
+  takeaway: >-
+    2024 fleet AFR 1.57% over ~299K drives/27 models; per-model AFR ranges from 0.22% to 11.38%
+    (ST12000NM0007), i.e. model identity is a strong prior.
+
+- id: backblaze2025
+  title: "Are Hard Drives Getting Better? Let's Revisit the Bathtub Curve"
+  authors: [Backblaze Drive Stats Team]
+  year: 2025
+  venue: Backblaze blog (2025-10-15)
+  url: https://www.backblaze.com/blog/are-hard-drives-getting-better-lets-revisit-the-bathtub-curve/
+  retrieved_via: web_fetch
+  takeaway: >-
+    Current fleet AFR is flat (~1.3%) for most of drive life with a late spike; smart_9_raw (power-on
+    hours) is used to reconstruct drive age; bulk-purchased 'lemon' batches fail together, so
+    model/batch effects dominate age effects.
+
+- id: backblaze_data
+  title: "Hard Drive Reliability & Test Data (Drive Stats dataset documentation)"
+  authors: [Backblaze]
+  year: 2026
+  venue: Backblaze website
+  url: https://www.backblaze.com/cloud-storage/resources/hard-drive-test-data
+  retrieved_via: web_fetch
+  takeaway: >-
+    One daily snapshot per operational drive with raw+normalized SMART; schema changes quarter to
+    quarter and attribute sets vary by vendor, so code must tolerate missing columns/values.
+
+- id: ke2017
+  title: "LightGBM: A Highly Efficient Gradient Boosting Decision Tree"
+  authors: [Guolin Ke, et al.]
+  year: 2017
+  venue: NeurIPS 2017
+  url: https://proceedings.neurips.cc/paper_files/paper/2017/file/6449f44a102fde848669bdd9eb6b76fa-Paper.pdf
+  retrieved_via: web_search
+  takeaway: >-
+    Histogram GBDT with GOSS and exclusive feature bundling: up to 20x faster than classic GBDT at
+    similar accuracy; handles sparse/missing features natively, ideal under a 600 s budget.
+
+- id: saito2015
+  title: "The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets"
+  authors: [Takaya Saito, Marc Rehmsmeier]
+  year: 2015
+  venue: PLOS ONE
+  url: https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0118432
+  retrieved_via: web_search
+  takeaway: >-
+    Under heavy imbalance ROC-AUC can look similar for models with very different early-retrieval quality;
+    PR curves expose it. Optimise/select on (weighted) AUPRC, not ROC-AUC.
+
+- id: lipton2014
+  title: "Thresholding Classifiers to Maximize F1 Score"
+  authors: [Zachary C. Lipton, Charles Elkan, Balakrishnan Narayanaswamy]
+  year: 2014
+  venue: arXiv (ECML-PKDD 2014)
+  arxiv: "1402.1892"
+  url: https://arxiv.org/abs/1402.1892
+  retrieved_via: web_search
+  takeaway: >-
+    For calibrated probabilities the F1-optimal threshold equals half the maximal achievable F1;
+    thresholds depend on score distributions of both classes, so they shift with prevalence.
+
+- id: chawla2002
+  title: "SMOTE: Synthetic Minority Over-sampling Technique"
+  authors: [Nitesh V. Chawla, Kevin W. Bowyer, Lawrence O. Hall, W. Philip Kegelmeyer]
+  year: 2002
+  venue: Journal of Artificial Intelligence Research 16 (pp. 321-357)
+  url: https://www.jair.org/index.php/jair/article/view/10302
+  doi: 10.1613/jair.953
+  retrieved_via: web_search
+  takeaway: >-
+    Synthetic minority interpolation between k=5 nearest minority neighbours; must only be applied inside
+    training folds, and interpolating heavy-tailed count features can create unrealistic samples.

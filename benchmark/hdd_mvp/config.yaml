@@ -1,0 +1,13 @@
+evolve_config:
+  max_iterations: 50
+cloud_type: "hybrid"
+initial_program: "init.py"
+system_message: "prompt.md"
+evaluator: "evaluator.py"
+# Remove the `evaluator` line after `famou-ctl test` passes and before `experiment create`
+# (hybrid mode keeps evaluator.py local for the evaluator worker).
+# For the public-cloud (non-hybrid) Famou UI, drop `cloud_type` and upload
+# problem.md, evaluator.py, init.py, prompt.md and the data/ folder (without data/holdout*).
+# timeouts:
+#   heartbeat_wait_hours: 48
+#   evaluation_wait_hours: 24

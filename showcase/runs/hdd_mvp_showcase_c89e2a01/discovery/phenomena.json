@@ -1,0 +1,38 @@
+[
+  {
+    "claim_id": "C-89f4bdd1-0010",
+    "grade": "confirmed",
+    "payload": {
+      "split": "confirm",
+      "n": 9262,
+      "n_pos": 327,
+      "n_neg": 8935,
+      "effect": 0.3124,
+      "ci_low": 0.2781,
+      "ci_high": 0.3459,
+      "p": 1e-24,
+      "e": 4200000000000.0,
+      "direction_ok": true,
+      "temporal_ok": true,
+      "feature": "smart_194_normalized",
+      "window": "window_end",
+      "title": "窗口末端 smart_194_normalized 与短期 HDD 故障信号",
+      "factor_id": "HDD3_F10"
+    }
+  },
+  {
+    "claim_id": "C-showcase-0002",
+    "grade": "refuted",
+    "payload": {
+      "split": "confirm",
+      "n": 9262,
+      "effect": 0.02,
+      "ci_low": -0.01,
+      "ci_high": 0.05,
+      "p": 0.42,
+      "e": 1.2,
+      "direction_ok": false,
+      "temporal_ok": true
+    }
+  }
+]

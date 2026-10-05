@@ -1,0 +1,11 @@
+task:
+  adapter: alibaba_ssd
+
+budget:
+  max_iterations: 10
+
+knowledge:
+  enabled: false
+
+smoke_test:
+  enabled: false

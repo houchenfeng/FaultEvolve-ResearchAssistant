@@ -1,0 +1,132 @@
+# FaultEvolve configuration for Backblaze HDD variant (adapter: backblaze)
+task:
+  adapter: backblaze
+# See docs/dev/MVP开发指南.md for detailed explanations
+
+budget:
+  max_iterations: 50
+  max_tokens: 3000000
+  max_wall_hours: 6
+  stage_caps: {}
+  stagnation_window: 0
+  tokens_per_point_cap: null
+  min_iterations_before_stop: 5
+  safety_factor: 1.5
+  expand_gating: false
+  cost_window: 5
+  # Recommended for real runs:
+  # stage_caps: {reflect: 0.25, repair: 0.35, knowledge: 0.1, jev: 0.1}
+  # stagnation_window: 8
+
+selection:
+  policy: uct  # Use UCT (uniform prior); "jev_puct" for Jev-guided selection
+  c_puct: 1.2
+  kappa_noise: 1.0
+  lambda_dup: 0.1
+  value:
+    mode: scalar
+    lambda_rank: 0.3
+    lambda_noise: 1.0
+    backup: max
+    elite_m: 3
+    elite_prob: 0.2
+
+widening:
+  C: 2.0
+  alpha: 0.5
+
+operators:
+  bandit: false
+  enabled: [refine, recall_focus, threshold_calibrate, inject]
+  min_explore: 0.1
+  prior_alpha: 1.0
+  prior_beta: 1.0
+  fn_keywords: false
+  fn_keyword_groups: 3
+
+insights:
+  top_k_foreign: 3
+  top_k_negative: 3
+  summarize_every: 5
+  top_k_branch_memory: 5
+
+stop:
+  target_score: 33.7      # Used for tracking rounds_to_target; does not stop run by default
+  stop_at_target: false   # Set true to stop when target_score is reached
+  window: 15
+  improve_rate_q90: 0.05
+  continue_prob: 0.2
+
+judge:
+  provider: none  # "jev" for MiYang relay, "mock" for offline screening
+  base_url: https://miyang.cn/api/v1/decisions
+  api_key_env: MIYANG_API_KEY
+  model: miyang/jev-1.13
+  timeout_s: 5.0
+  prescreen: false
+  invalid_threshold: 0.85
+  low_value_threshold: 0.15
+  low_value_action: skip
+  defer_flush_evals: 0
+  warmup: 10
+  audit_rate: 0.1
+  prior: true
+  prior_tau: 0.5
+  max_calls: 500
+  max_consecutive_errors: 3
+  max_state_chars: 6000
+  retries: 0
+  calibration_window: 30
+  initial_trust: 0.5
+
+llm:
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  generate_model: qwen3-coder-plus
+  reason_model: qwen3-max
+  max_concurrency: 4
+  temperature: 0.7
+  max_tokens: 8000
+
+reflection:
+  design_delta_factor: 1.0
+  hypothesis_delta_factor: 2.0
+  max_repair_attempts: 1
+
+knowledge:
+  dir: knowledge  # Relative to task directory; contains cards.jsonl, sources.yaml, expert.md
+  k: 4            # Number of cards to return per retrieval
+  max_per_category: 2  # Category diversity constraint
+
+analysis:
+  enabled: false
+  top_k: 3
+  on_new_best: true
+  dev_late_fraction: 0.4
+  timeout_s: 600
+  min_group_count: 10
+
+seed: 20260926
+
+# discovery:
+#   enabled: false
+#   every_n_iterations: 5
+#   run_at_end: true
+#   max_claims_per_round: 3
+#   min_insight_z: 2.0
+#   top_k_programs: 3
+#   discover_op_every: 0
+#   alpha: 0.05
+#   bootstrap_b: 500
+#   e_calibrator_kappa: 0.5
+#   rho_max: 0.8
+#   planted_strengths: [0.2, 0.5, 1.0]
+#   neg_control_repeats: 5
+#   max_neg_control_fpr: 0.10
+#   confirmation_fraction: 0.3
+#   split_salt: fe-kd-2026
+#   sandbox_timeout_s: 120
+#   max_token_share: 0.2
+#   inject_same_run: true
+#   cards_path: null
+#   extra_card_paths: []
+#   use_jev_entailment: false

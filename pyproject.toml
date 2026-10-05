@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "faultevolve"
+version = "0.1.0"
+description = "LLM-agent system that evolves device failure-prediction algorithms"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [{name = "FaultEvolve Team"}]
+keywords = ["fault-prediction", "llm", "evolution", "agent"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    # Feather partitions (--format feather) and the real SmartMem event files are read through it.
+    "pyarrow>=15",
+    "scikit-learn>=1.5",
+    "lightgbm>=4.3",
+    "scipy>=1.13",
+    "pydantic>=2",
+    "typer>=0.12",
+    "pyyaml>=6.0",
+    "openai>=1.30",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "respx>=0.21",
+]
+web = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "pydantic-settings>=2",
+    "asyncssh>=2.14",
+]
+
+[project.scripts]
+fe = "faultevolve.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["ignore::DeprecationWarning"]

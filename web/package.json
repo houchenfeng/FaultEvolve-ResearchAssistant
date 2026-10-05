@@ -1,0 +1,57 @@
+{
+  "name": "faultevolve-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "FaultEvolve Web UI. Contract + generated client from phase 1, read-only replay API from phase 2, React application shell from phase 3.",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "generate:api": "openapi-ts",
+    "sync:contracts": "python ../scripts/export_web_contracts.py && pnpm generate:api",
+    "check:contracts": "python ../scripts/check_web_contracts.py",
+    "test:e2e": "playwright test",
+    "test:visual": "playwright test visual-regression"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@hey-api/openapi-ts": "^0.99.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/dagre": "^0.7.54",
+    "@types/node": "22",
+    "@types/react": "19",
+    "@types/react-dom": "19",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^9.38.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^16.5.0",
+    "jsdom": "^30.1.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.71.0",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.104.0",
+    "@tanstack/react-router": "^1.170.41",
+    "@xyflow/react": "^12.12.0",
+    "dagre": "^0.8.5",
+    "react": "19",
+    "react-dom": "19",
+    "zustand": "^5.0.15"
+  }
+}

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+build/
+
+# FaultEvolve runtime outputs
+.fe/
+.fe-*-mock/
+benchmark/*/build/
+benchmark/*/raw/
+benchmark/backblaze_hdd/data/
+benchmark/ssd_alibaba/data/
+benchmark/smartmem/data/
+benchmark/hdd_mvp/data/holdout/
+benchmark/hdd_mvp/data/holdout_labels/
+
+# Frontend
+web/node_modules/
+web/dist/
+web/.vite/
+web/*.tsbuildinfo
+web/test-results/
+web/playwright-report/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*密钥*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
