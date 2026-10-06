@@ -1,14 +1,6 @@
 # FaultEvolve · 自演化故障预测智能体
 
-## 宣传视频
 
-**FaultEvolve · 自演化故障预测智能体｜20 秒作品宣传片 · 1080p / 60fps**
-
-[▶ 点击观看宣传视频](docs/media/FaultEvolve-1080p60.mp4) · [下载视频](https://github.com/houchenfeng/FaultEvolve-ResearchAssistant/raw/refs/heads/main/docs/media/FaultEvolve-1080p60.mp4)
-
-视频文件随比赛提交包一同提供，解压后可直接打开 `docs/media/FaultEvolve-1080p60.mp4` 播放。
-
----
 
 ## 一、项目概览
 
@@ -28,6 +20,14 @@ Web 端一体化工作台将任务配置、进化控制、树搜索可视化、�
 
 - **主要功能**：多数据集任务管理、进化过程实时监控、交互式进化树探索、知识发现与迁移、审计追踪与报告导出。
 - **部署模式**：支持本地单机部署（竞赛演示 / 个人使用）和云端协同部署（大规模实验）两种模式。
+
+## 宣传视频
+
+**FaultEvolve · 自演化故障预测智能体｜20 秒作品宣传片 · 1080p / 60fps**
+
+[▶ 点击观看宣传视频](docs/media/FaultEvolve-1080p60.mp4) · [下载视频](https://github.com/houchenfeng/FaultEvolve-ResearchAssistant/raw/refs/heads/main/docs/media/FaultEvolve-1080p60.mp4)
+
+视频已收录在两个仓库；比赛提交包根目录中的文件名为 `宣传视频.mp4`。
 
 ### 1.3 亮点速览
 
