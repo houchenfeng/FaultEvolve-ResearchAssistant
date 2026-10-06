@@ -1,43 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1280" role="img" aria-labelledby="title desc">
   <title id="title">FaultEvolve</title>
-  <desc id="desc">由蓝绿色演化树、故障脉冲与向上箭头组成的 FaultEvolve 标志</desc>
+  <desc id="desc">按原始 PNG 比例描摹的演化树、故障脉冲与上升箭头。</desc>
   <defs>
-    <linearGradient id="blue" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0" stop-color="#1688f8"/>
-      <stop offset="1" stop-color="#0068d7"/>
+    <linearGradient id="blue" gradientUnits="userSpaceOnUse" x1="230" y1="450" x2="820" y2="690">
+      <stop stop-color="#0079df"/><stop offset=".5" stop-color="#0075dc"/><stop offset="1" stop-color="#006dd1"/>
     </linearGradient>
-    <linearGradient id="evolve" x1="0" y1="0.75" x2="1" y2="0.15">
-      <stop offset="0" stop-color="#0879e8"/>
-      <stop offset="0.52" stop-color="#08a4c5"/>
-      <stop offset="1" stop-color="#13b98f"/>
+    <linearGradient id="green" gradientUnits="userSpaceOnUse" x1="600" y1="460" x2="1075" y2="220">
+      <stop stop-color="#08aca1"/><stop offset=".55" stop-color="#0ca38f"/><stop offset="1" stop-color="#0c9e8b"/>
     </linearGradient>
-    <linearGradient id="arrow" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0" stop-color="#08a1c5"/>
-      <stop offset="1" stop-color="#19bd91"/>
-    </linearGradient>
-    <radialGradient id="port" cx="35%" cy="30%" r="75%">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="#f2f5f7"/>
+    <radialGradient id="node" gradientUnits="userSpaceOnUse" cx="885" cy="742" r="230">
+      <stop stop-color="#0bab94"/><stop offset="1" stop-color="#0c9f8e"/>
     </radialGradient>
+    <linearGradient id="white" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffffff"/><stop offset="1" stop-color="#fafbfc"/>
+    </linearGradient>
   </defs>
-
-  <!-- Left evolutionary trunk and upper/lower nodes. -->
-  <path d="M288 338h118c40 0 73 32 73 72v13c0 37-30 67-67 67h-40v164c0 34-18 65-47 83l-12 7c-30 19-49 52-49 88v19h-72v-19c0-61 31-117 83-149l12-8c8-5 13-13 13-22V489c0-20-10-39-27-50l-31-21 42-80z" fill="url(#blue)"/>
-  <circle cx="238" cy="350" r="132" fill="url(#blue)"/>
-  <circle cx="238" cy="824" r="125" fill="url(#blue)"/>
-
-  <!-- Cross-island branch and memory node. -->
-  <path d="M337 615h153c43 0 84-19 112-52l52-61c20-24 50-38 82-38h25v104h-25c-2 0-4 1-5 3l-52 61c-48 56-118 88-191 88H337z" fill="url(#evolve)"/>
-  <circle cx="760" cy="616" r="126" fill="url(#evolve)"/>
-
-  <!-- Upward evolution path. -->
-  <path d="M368 360h175c93 0 177-48 225-127l42-68-37-23c-13-8-11-28 3-34l118-52c18-8 39 5 40 25l7 129c1 16-16 26-30 18l-38-23-43 70c-68 111-188 179-318 179H368z" fill="url(#arrow)"/>
-
-  <!-- Fault pulse embedded in the search path. -->
-  <path d="M382 331h103l31-38 35 77 49-151 43 117 31-41h88" fill="none" stroke="#0878e8" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-
-  <!-- White ports keep the mark readable at small sizes. -->
-  <circle cx="238" cy="350" r="65" fill="url(#port)"/>
-  <circle cx="760" cy="616" r="62" fill="url(#port)"/>
-  <circle cx="238" cy="824" r="62" fill="url(#port)"/>
+  <!-- Pulse sits behind the growth arrow and merges into the left node. -->
+  <path d="M487 354H617L653 315L688 381L744 219L787 355L821 319H948"
+        fill="none" stroke="#0077de" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- One continuous outline avoids seams between the trunk and circular nodes. -->
+  <path fill="url(#blue)" d="M379 273
+    C432 273 473 300 507 342
+    C541 389 568 411 629 412
+    L738 412 C780 412 814 431 835 461
+    H614 C558 461 529 483 491 522
+    C472 542 451 554 434 573
+    C415 593 409 614 409 641
+    C409 680 425 700 464 700
+    H582 C645 700 680 683 718 631
+    C751 586 790 567 838 567
+    C918 567 982 633 982 713
+    C982 795 921 860 840 860
+    C795 860 760 840 725 803
+    C690 765 667 746 611 746
+    H497 C437 746 409 766 409 817
+    C409 856 421 878 453 902
+    C499 936 526 973 526 1021
+    C526 1102 461 1167 378 1167
+    C297 1167 231 1102 231 1021
+    C231 970 258 932 306 898
+    C334 878 344 855 344 820
+    V628 C344 592 334 574 306 555
+    C254 521 226 481 226 431
+    C226 344 294 273 379 273Z"/>
+  <!-- Original curved blue/green join, not a rectangular overlay. -->
+  <path fill="url(#green)" d="M738 412
+    C851 411 918 325 970 225
+    L935 218 C918 215 915 198 931 189
+    L1044 126 C1060 117 1074 124 1075 143
+    L1080 262 C1081 282 1066 290 1053 277
+    L1034 256 C975 354 918 435 835 461
+    C809 431 779 413 738 412Z"/>
+  <path fill="url(#node)" d="M507 746
+    C532 718 557 704 591 700
+    C650 698 685 674 718 631
+    C751 586 790 567 838 567
+    C918 567 982 633 982 713
+    C982 795 921 860 840 860
+    C795 860 760 840 725 803
+    C690 765 667 746 611 746Z"/>
+  <ellipse cx="379" cy="428" rx="77.5" ry="78" fill="url(#white)"/>
+  <ellipse cx="840" cy="715.5" rx="73" ry="73.5" fill="url(#white)"/>
+  <ellipse cx="376.5" cy="1019" rx="73.5" ry="73.5" fill="url(#white)"/>
 </svg>
