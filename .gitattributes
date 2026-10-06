@@ -27,3 +27,6 @@ benchmark/hdd_mvp/**/*.db-shm binary
 tests/fixtures/**/*.db binary
 tests/fixtures/**/*.db-wal binary
 tests/fixtures/**/*.db-shm binary
+
+# Do not embed a previous submission archive inside a new archive.
+/release export-ignore
