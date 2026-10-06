@@ -147,7 +147,7 @@ export function RailNav() {
   return (
     <aside className="fe-shell-nav flex w-52 shrink-0 flex-col" aria-label="主导航">
       <div className="flex items-center gap-2 px-4 py-4">
-        <img src="/assets/faultevolve-icon.png" alt="" aria-hidden className="size-8 object-contain" />
+        <img src="/assets/faultevolve-icon.svg" alt="" aria-hidden className="size-8 object-contain" />
         <span className="text-sm font-semibold tracking-tight text-fg">FaultEvolve</span>
       </div>
 

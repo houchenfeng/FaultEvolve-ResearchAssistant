@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">FaultEvolve</title>
+  <desc id="desc">由蓝绿色演化树、故障脉冲与向上箭头组成的 FaultEvolve 标志</desc>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1688f8"/>
+      <stop offset="1" stop-color="#0068d7"/>
+    </linearGradient>
+    <linearGradient id="evolve" x1="0" y1="0.75" x2="1" y2="0.15">
+      <stop offset="0" stop-color="#0879e8"/>
+      <stop offset="0.52" stop-color="#08a4c5"/>
+      <stop offset="1" stop-color="#13b98f"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#08a1c5"/>
+      <stop offset="1" stop-color="#19bd91"/>
+    </linearGradient>
+    <radialGradient id="port" cx="35%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f2f5f7"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Left evolutionary trunk and upper/lower nodes. -->
+  <path d="M288 338h118c40 0 73 32 73 72v13c0 37-30 67-67 67h-40v164c0 34-18 65-47 83l-12 7c-30 19-49 52-49 88v19h-72v-19c0-61 31-117 83-149l12-8c8-5 13-13 13-22V489c0-20-10-39-27-50l-31-21 42-80z" fill="url(#blue)"/>
+  <circle cx="238" cy="350" r="132" fill="url(#blue)"/>
+  <circle cx="238" cy="824" r="125" fill="url(#blue)"/>
+
+  <!-- Cross-island branch and memory node. -->
+  <path d="M337 615h153c43 0 84-19 112-52l52-61c20-24 50-38 82-38h25v104h-25c-2 0-4 1-5 3l-52 61c-48 56-118 88-191 88H337z" fill="url(#evolve)"/>
+  <circle cx="760" cy="616" r="126" fill="url(#evolve)"/>
+
+  <!-- Upward evolution path. -->
+  <path d="M368 360h175c93 0 177-48 225-127l42-68-37-23c-13-8-11-28 3-34l118-52c18-8 39 5 40 25l7 129c1 16-16 26-30 18l-38-23-43 70c-68 111-188 179-318 179H368z" fill="url(#arrow)"/>
+
+  <!-- Fault pulse embedded in the search path. -->
+  <path d="M382 331h103l31-38 35 77 49-151 43 117 31-41h88" fill="none" stroke="#0878e8" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- White ports keep the mark readable at small sizes. -->
+  <circle cx="238" cy="350" r="65" fill="url(#port)"/>
+  <circle cx="760" cy="616" r="62" fill="url(#port)"/>
+  <circle cx="238" cy="824" r="62" fill="url(#port)"/>
+</svg>
