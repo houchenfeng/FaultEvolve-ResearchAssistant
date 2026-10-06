@@ -1,5 +1,15 @@
 # FaultEvolve · 自演化故障预测智能体
 
+## 宣传视频
+
+**FaultEvolve · 自演化故障预测智能体｜20 秒作品宣传片 · 1080p / 60fps**
+
+[▶ 点击观看宣传视频](docs/media/FaultEvolve-1080p60.mp4) · [下载视频](https://github.com/houchenfeng/FaultEvolve-ResearchAssistant/raw/refs/heads/main/docs/media/FaultEvolve-1080p60.mp4)
+
+视频文件随比赛提交包一同提供，解压后可直接打开 `docs/media/FaultEvolve-1080p60.mp4` 播放。
+
+---
+
 ## 一、项目概览
 
 ### 1.1 一句话介绍产品
