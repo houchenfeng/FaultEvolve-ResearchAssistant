@@ -6,6 +6,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
 
 import { ApiErrorPanel } from '@/components/states/ApiErrorPanel';
 import { EmptyState } from '@/components/states/EmptyState';
@@ -160,6 +161,7 @@ function CloudSummary() {
 }
 
 export function OverviewPage() {
+  const [configExpanded, setConfigExpanded] = useState(false);
   const metaQuery = useQuery({
     queryKey: queryKeys.meta(),
     queryFn: () => unwrap(metaApiMetaGet()),
@@ -223,15 +225,12 @@ export function OverviewPage() {
         </div>
       </section>
 
-      <section className="fe-home-module-bg flex flex-col gap-3 rounded-xl border border-border-subtle p-4">
-        <div><h2 className="text-sm font-semibold text-fg">运行配置</h2><p className="mt-1 text-[11px] text-fg-muted">集中配置模型服务、执行服务器、工作目录、运行环境与额外要求。</p></div>
-        <QwenRuntimeConfig />
-        <div className="fe-card-panel p-4"><ServerProfileForm /></div>
-      </section>
-
       {/* 数据集与示例 */}
       <section className="fe-home-module-bg flex flex-col gap-3 rounded-xl border border-border-subtle p-4">
-        <h2 className="text-sm font-semibold text-fg">任务与数据</h2>
+        <div>
+          <h2 className="text-sm font-semibold text-fg">任务与数据</h2>
+          <p className="mt-1 text-[11px] text-fg-muted">选择 HDD 或 SmartMem 任务，查看数据说明与公开来源后进入运行配置。</p>
+        </div>
         {tasksQuery.isPending ? (
           <div className="fe-card-panel px-4 py-10 text-center text-xs text-fg-subtle">
             正在读取任务目录…
@@ -244,8 +243,32 @@ export function OverviewPage() {
             />
           </div>
         ) : (
-          <DatasetCardGrid tasks={tasksQuery.data.filter((task) => task.task_id === 'hdd_mvp')} />
+          <DatasetCardGrid tasks={tasksQuery.data.filter((task) => ['hdd_mvp', 'smartmem'].includes(task.task_id))} />
         )}
+      </section>
+
+      <section className="fe-home-module-bg overflow-hidden rounded-xl border border-border-subtle">
+        <button
+          type="button"
+          aria-expanded={configExpanded}
+          aria-controls="overview-run-config"
+          onClick={() => setConfigExpanded((expanded) => !expanded)}
+          className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left hover:bg-surface-muted/60"
+        >
+          <div>
+            <h2 className="text-sm font-semibold text-fg">运行配置</h2>
+            <p className="mt-1 text-[11px] text-fg-muted">集中配置模型服务、执行服务器、工作目录、运行环境与额外要求。</p>
+          </div>
+          <span className="shrink-0 rounded-full border border-border-subtle bg-white px-3 py-1.5 text-[11px] font-medium text-brand-700 shadow-sm">
+            {configExpanded ? '收起配置 ↑' : '展开配置 ↓'}
+          </span>
+        </button>
+        {configExpanded ? (
+          <div id="overview-run-config" className="flex flex-col gap-3 border-t border-border-subtle p-4">
+            <QwenRuntimeConfig />
+            <div className="fe-card-panel p-4"><ServerProfileForm /></div>
+          </div>
+        ) : null}
       </section>
 
       <RunsSection showcaseRunId={showcaseRunId} />

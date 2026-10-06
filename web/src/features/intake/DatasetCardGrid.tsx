@@ -16,6 +16,19 @@ import { toApiError, unwrap } from '@/lib/api';
 import { queryKeys } from '@/lib/query-keys';
 import { useIntakeStore } from '@/stores/intake-store';
 
+const PUBLIC_DATASET_INFO: Record<string, { description: string; href: string; linkLabel: string }> = {
+  hdd_mvp: {
+    description: 'Backblaze 数据中心硬盘 SMART 日快照；最长 14 天观测窗口，预测未来 7 天故障。',
+    href: 'https://www.backblaze.com/cloud-storage/resources/hard-drive-test-data',
+    linkLabel: 'Backblaze Drive Stats',
+  },
+  smartmem: {
+    description: '服务器内存 CE/UE 事件与工单数据；用于内存故障预测和跨器件知识迁移。',
+    href: 'https://www.codabench.org/competitions/3586/',
+    linkLabel: 'SmartMem Competition',
+  },
+};
+
 function readableSummary(raw: string | null | undefined): string {
   if (!raw) return '暂无简介。';
   const lines = raw
@@ -38,6 +51,7 @@ function DatasetCard({ task }: { task: TaskSummaryResponse }) {
 
   const card = cardQuery.data;
   const blocked = card?.blocked_reason ?? null;
+  const publicInfo = PUBLIC_DATASET_INFO[task.task_id];
 
   return (
     <div
@@ -68,6 +82,19 @@ function DatasetCard({ task }: { task: TaskSummaryResponse }) {
       ) : card ? (
         <>
           <p className="line-clamp-2 min-h-[2.5em] text-xs text-fg-muted">{readableSummary(card.summary)}</p>
+          {publicInfo ? (
+            <div className="rounded-md border border-brand-200/70 bg-brand-50/60 px-3 py-2 text-[11px] leading-5">
+              <p className="text-fg-muted">{publicInfo.description}</p>
+              <a
+                href={publicInfo.href}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 inline-flex font-medium text-brand-700 hover:underline"
+              >
+                数据来源：{publicInfo.linkLabel} ↗
+              </a>
+            </div>
+          ) : null}
           <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
             <div>
               <dt className="text-fg-subtle">主指标</dt>
