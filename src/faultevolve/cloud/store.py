@@ -14,12 +14,18 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from faultevolve.common.schemas import (
+    DELIVERY_STATUSES,
     Event,
+    ExchangeDelivery,
+    ExchangeSummary,
     Experiment,
     ExperimentConfig,
     Insight,
+    IslandState,
     LLMCall,
     Node,
+    SchedulerState,
+    SummaryApplication,
 )
 
 DDL = """
@@ -41,6 +47,7 @@ CREATE TABLE IF NOT EXISTS experiment (
 CREATE TABLE IF NOT EXISTS node (
     id TEXT PRIMARY KEY,
     experiment_id TEXT,
+    island_id TEXT NOT NULL DEFAULT '',
     parent_id TEXT,
     branch_id TEXT,
     depth INTEGER,
@@ -69,6 +76,7 @@ CREATE TABLE IF NOT EXISTS insight (
     experiment_id TEXT,
     origin_node TEXT,
     branch_id TEXT,
+    island_id TEXT NOT NULL DEFAULT '',
     polarity INTEGER,
     payload_json TEXT,
     delta REAL,
@@ -81,6 +89,7 @@ CREATE TABLE IF NOT EXISTS insight (
 CREATE TABLE IF NOT EXISTS llm_call (
     id TEXT PRIMARY KEY,
     experiment_id TEXT,
+    island_id TEXT NOT NULL DEFAULT '',
     node_id TEXT,
     purpose TEXT,
     model TEXT,
@@ -88,7 +97,14 @@ CREATE TABLE IF NOT EXISTS llm_call (
     completion_tokens INTEGER,
     latency_ms INTEGER,
     cached INTEGER DEFAULT 0,
-    created_at TEXT
+    created_at TEXT,
+    request_id TEXT NOT NULL DEFAULT '',
+    transport_attempts INTEGER NOT NULL DEFAULT 1,
+    island_attempt INTEGER,
+    stage TEXT NOT NULL DEFAULT '',
+    outcome TEXT NOT NULL DEFAULT 'ok',
+    cost_usd REAL,
+    cost_basis TEXT NOT NULL DEFAULT 'unknown'
 );
 
 CREATE TABLE IF NOT EXISTS event (
@@ -137,13 +153,14 @@ CREATE TABLE IF NOT EXISTS node_adopted_cards (
 
 CREATE TABLE IF NOT EXISTS operator_stats (
     experiment_id TEXT,
+    island_id TEXT NOT NULL DEFAULT '',
     operator TEXT,
     alpha REAL,
     beta REAL,
     n INTEGER DEFAULT 0,
     n_valid INTEGER DEFAULT 0,
     sum_delta REAL DEFAULT 0.0,
-    PRIMARY KEY (experiment_id, operator)
+    PRIMARY KEY (experiment_id, island_id, operator)
 );
 
 CREATE INDEX IF NOT EXISTS idx_node_experiment ON node(experiment_id);
@@ -243,6 +260,7 @@ CREATE INDEX IF NOT EXISTS idx_node_parents_node ON node_parents(node_id);
 CREATE TABLE IF NOT EXISTS cost_ledger (
     experiment_id TEXT NOT NULL,
     seq INTEGER NOT NULL,
+    island_id TEXT NOT NULL DEFAULT '',
     stage TEXT NOT NULL,
     fidelity TEXT NOT NULL,
     node_id TEXT,
@@ -306,7 +324,108 @@ CREATE TABLE IF NOT EXISTS explore_archive (
     created_at TEXT,
     PRIMARY KEY (experiment_id, node_id)
 );
+
+CREATE TABLE IF NOT EXISTS island_state (
+    experiment_id TEXT NOT NULL,
+    island_id TEXT NOT NULL,
+    profile TEXT NOT NULL DEFAULT 'performance',
+    root_id TEXT,
+    best_node_id TEXT,
+    best_score REAL DEFAULT 0,
+    attempts INTEGER DEFAULT 0,
+    valid_evaluations INTEGER DEFAULT 0,
+    invalid_evaluations INTEGER DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'pending',
+    stop_reason TEXT DEFAULT '',
+    last_exchange_attempt INTEGER DEFAULT 0,
+    stall_valid_evals INTEGER DEFAULT 0,
+    infra_fail_streak INTEGER DEFAULT 0,
+    consecutive_failures INTEGER DEFAULT 0,
+    shared_initial_evaluation_id TEXT,
+    created_at TEXT,
+    updated_at TEXT,
+    PRIMARY KEY (experiment_id, island_id)
+);
+
+CREATE TABLE IF NOT EXISTS exchange_summary (
+    summary_id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    source_island_id TEXT NOT NULL,
+    source_node_id TEXT DEFAULT '',
+    task_fingerprint TEXT DEFAULT '',
+    evaluator_fingerprint TEXT DEFAULT '',
+    summary_text TEXT DEFAULT '',
+    conditions TEXT DEFAULT '',
+    evidence_json TEXT DEFAULT '[]',
+    metrics_json TEXT DEFAULT '{}',
+    confidence_status TEXT DEFAULT 'single_observation',
+    content_hash TEXT NOT NULL DEFAULT '',
+    created_at TEXT
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_summary_content
+    ON exchange_summary(experiment_id, kind, content_hash);
+
+CREATE TABLE IF NOT EXISTS exchange_delivery (
+    delivery_id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL,
+    summary_id TEXT NOT NULL,
+    source_island_id TEXT NOT NULL,
+    target_island_id TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'offered',
+    reason TEXT DEFAULT '',
+    created_at TEXT,
+    updated_at TEXT
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_delivery_unique
+    ON exchange_delivery(summary_id, target_island_id);
+
+CREATE TABLE IF NOT EXISTS summary_application (
+    application_id TEXT PRIMARY KEY,
+    delivery_id TEXT NOT NULL,
+    experiment_id TEXT NOT NULL,
+    candidate_node_id TEXT NOT NULL,
+    evaluation_id TEXT DEFAULT '',
+    score REAL,
+    created_at TEXT
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_application_unique
+    ON summary_application(delivery_id, candidate_node_id);
+
+CREATE TABLE IF NOT EXISTS scheduler_state (
+    experiment_id TEXT PRIMARY KEY,
+    next_island_index INTEGER DEFAULT 0,
+    rng_state_json TEXT DEFAULT '',
+    schema_version INTEGER DEFAULT 2,
+    updated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS run_identity (
+    experiment_id TEXT PRIMARY KEY,
+    identity_json TEXT NOT NULL DEFAULT '',
+    created_at TEXT,
+    updated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS run_claim (
+    experiment_id TEXT PRIMARY KEY,
+    holder_id TEXT NOT NULL DEFAULT '',
+    holder_pid INTEGER,
+    claimed_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_node_experiment_island ON node(experiment_id, island_id);
+CREATE INDEX IF NOT EXISTS idx_llm_call_island ON llm_call(experiment_id, island_id);
+
+CREATE INDEX IF NOT EXISTS idx_cost_ledger_island ON cost_ledger(experiment_id, island_id);
 """
+
+# Bump when the island schema changes. Databases below this version are
+# migrated in place; version 0 means a pre-island (legacy single-tree) store.
+SCHEMA_VERSION = 2
 
 
 def now_iso() -> str:
@@ -314,35 +433,217 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+#: Columns the ``llm_call`` table gained after its first draft. A historical run
+#: can legitimately lack them, so both the reader and the rollup treat a missing
+#: column as "not recorded" rather than as a zero.
+_LLM_CALL_ADDED_COLUMNS = {
+    "request_id": "TEXT NOT NULL DEFAULT ''",
+    "transport_attempts": "INTEGER NOT NULL DEFAULT 1",
+    "island_attempt": "INTEGER",
+    "stage": "TEXT NOT NULL DEFAULT ''",
+    "outcome": "TEXT NOT NULL DEFAULT 'ok'",
+    "cost_usd": "REAL",
+    "cost_basis": "TEXT NOT NULL DEFAULT 'unknown'",
+}
+
+def _llm_call_from_row(row: sqlite3.Row) -> LLMCall:
+    """Read one cost row. A database written before the identity columns existed
+    reports them as "not recorded", not as a zero a reader must second-guess."""
+    data = dict(row)
+    return LLMCall(
+        id=data["id"],
+        experiment_id=data["experiment_id"],
+        island_id=data.get("island_id") or "",
+        node_id=data["node_id"],
+        purpose=data["purpose"],
+        model=data["model"],
+        prompt_tokens=data["prompt_tokens"],
+        completion_tokens=data["completion_tokens"],
+        latency_ms=data["latency_ms"],
+        cached=bool(data["cached"]),
+        created_at=data["created_at"],
+        request_id=data.get("request_id") or "",
+        transport_attempts=int(data.get("transport_attempts") or 1),
+        island_attempt=data.get("island_attempt"),
+        stage=data.get("stage") or "",
+        outcome=data.get("outcome") or "ok",
+        cost_usd=data.get("cost_usd"),
+        cost_basis=data.get("cost_basis") or "unknown",
+    )
+
+
+def _empty_cost_bucket(island_id: str) -> dict[str, Any]:
+    """One island's spend, zeroed -- so a run reports an empty island as empty."""
+    return {
+        "island_id": island_id,
+        "calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "tokens": 0,
+        "unresolved_calls": 0,
+        "retried_calls": 0,
+        # A cache hit re-uses the original call's token counts, so a reader has to
+        # be able to see how much of a bucket was re-served rather than bought.
+        "cached_calls": 0,
+        "cost_usd": None,
+        "by_stage": {},
+    }
+
+
 class Store:
     """SQLite-based store for FaultEvolve data."""
 
-    def __init__(self, db_path: Path) -> None:
+    def __init__(self, db_path: Path, read_only: bool = False) -> None:
         """Initialize the store.
 
         Args:
             db_path: Path to the SQLite database file
+            read_only: Open a historical database without creating, migrating or
+                writing anything. A resumed run must never mutate the original
+                artifacts, so readers of old runs pass this flag.
         """
         self.db_path = db_path
+        self.read_only = read_only
+        if read_only:
+            if not db_path.exists():
+                raise FileNotFoundError(f"read-only store needs an existing file: {db_path}")
+            return
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
     def _init_db(self) -> None:
-        """Initialize the database schema."""
+        """Initialize the database schema, migrating legacy stores in place."""
         with self._conn() as conn:
+            version = conn.execute("PRAGMA user_version").fetchone()[0]
+            if version < SCHEMA_VERSION:
+                # Add island_id before the shared DDL: indexes on node(island_id)
+                # would otherwise fail on a legacy database.
+                self._migrate_to_v2(conn)
+            # Columns gained after a table's first draft go on before the DDL too,
+            # for the same reason: an in-progress run's database already has the
+            # table, and DDL indexes reference those columns.
+            self._ensure_island_columns(conn)
             conn.executescript(DDL)
             conn.execute("PRAGMA journal_mode=WAL")
+            if version < SCHEMA_VERSION:
+                conn.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
+
+    #: Columns added to the island tables after their first draft, kept here so
+    #: an in-progress development database is brought forward instead of
+    #: needing a fresh run directory.
+    _ISLAND_ADDED_COLUMNS = {
+        "island_state": {"consecutive_failures": "INTEGER DEFAULT 0"},
+        "llm_call": dict(_LLM_CALL_ADDED_COLUMNS),
+        "cost_ledger": {"island_id": "TEXT NOT NULL DEFAULT ''"},
+    }
+
+    @classmethod
+    def _ensure_island_columns(cls, conn: sqlite3.Connection) -> None:
+        for table, added in cls._ISLAND_ADDED_COLUMNS.items():
+            if not cls._table_exists(conn, table):
+                continue
+            cols = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+            for name, ddl in added.items():
+                if name not in cols:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}")
+
+    @staticmethod
+    def _migrate_to_v2(conn: sqlite3.Connection) -> None:
+        """Bring a pre-island database up to the current schema."""
+        has_node = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'node'"
+        ).fetchone()
+        if not has_node:
+            return  # fresh database: the DDL creates everything current
+        for table in ("node", "insight", "llm_call"):
+            has = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", (table,)
+            ).fetchone()
+            if not has:
+                continue
+            cols = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+            if "island_id" not in cols:
+                conn.execute(
+                    f"ALTER TABLE {table} ADD COLUMN island_id TEXT NOT NULL DEFAULT ''"
+                )
+        Store._rebuild_operator_stats_key(conn)
+
+    @staticmethod
+    def _rebuild_operator_stats_key(conn: sqlite3.Connection) -> None:
+        """Move operator_stats onto a (experiment, island, operator) primary key.
+
+        The bandit posterior is per island: island A learning that ``inject``
+        pays off must not bias island C's operator choice. A pre-island table
+        cannot gain that column in its key, so it is rebuilt with every legacy
+        row landing in the implicit single island (empty string).
+        """
+        cols = {
+            row["name"] for row in conn.execute("PRAGMA table_info(operator_stats)")
+        }
+        if not cols:
+            return
+        if "island_id" not in cols:
+            conn.execute(
+                "ALTER TABLE operator_stats ADD COLUMN island_id TEXT NOT NULL DEFAULT ''"
+            )
+        pk_cols = [
+            str(row["name"])
+            for row in conn.execute("PRAGMA table_info(operator_stats)")
+            if row["pk"]
+        ]
+        if pk_cols == ["experiment_id", "island_id", "operator"]:
+            return
+        conn.executescript(
+            """
+            CREATE TABLE operator_stats_v2 (
+                experiment_id TEXT,
+                island_id TEXT NOT NULL DEFAULT '',
+                operator TEXT,
+                alpha REAL,
+                beta REAL,
+                n INTEGER DEFAULT 0,
+                n_valid INTEGER DEFAULT 0,
+                sum_delta REAL DEFAULT 0.0,
+                PRIMARY KEY (experiment_id, island_id, operator)
+            );
+            INSERT OR IGNORE INTO operator_stats_v2 (
+                experiment_id, island_id, operator, alpha, beta, n, n_valid, sum_delta
+            )
+            SELECT experiment_id, island_id, operator, alpha, beta, n, n_valid, sum_delta
+            FROM operator_stats;
+            DROP TABLE operator_stats;
+            ALTER TABLE operator_stats_v2 RENAME TO operator_stats;
+            """
+        )
 
     @contextmanager
     def _conn(self) -> Iterator[sqlite3.Connection]:
         """Context manager for database connections."""
-        conn = sqlite3.connect(str(self.db_path), timeout=30.0)
+        if self.read_only:
+            uri = self.db_path.resolve().as_uri() + "?mode=ro"
+            conn = sqlite3.connect(uri, uri=True, timeout=30.0)
+        else:
+            conn = sqlite3.connect(str(self.db_path), timeout=30.0)
         conn.row_factory = sqlite3.Row
         try:
             yield conn
             conn.commit()
         finally:
             conn.close()
+
+    @staticmethod
+    def _has_column(conn: sqlite3.Connection, table: str, column: str) -> bool:
+        """True when a table carries a column; old databases may not."""
+        if not Store._table_exists(conn, table):
+            return False
+        return column in {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+
+    @staticmethod
+    def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
+        """False on a pre-island database read without migration."""
+        return conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", (table,)
+        ).fetchone() is not None
 
     def create_experiment(self, experiment: Experiment) -> None:
         """Create a new experiment."""
@@ -442,17 +743,18 @@ class Store:
         with self._conn() as conn:
             conn.execute(
                 """
-                INSERT INTO node (id, experiment_id, parent_id, branch_id, depth, operator,
+                INSERT INTO node (id, experiment_id, island_id, parent_id, branch_id, depth, operator,
                                   artifact_json, evidence_json, status, hypothesis_status,
                                   visit_count, expand_count, children_json, insight_ids_json,
                                   card_ids_json, branch_memory_json, repair_attempted,
                                   hypothesis_fail_count, repair_count, repair_parent_id,
                                   error_class, repair_exhausted, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     node.id,
                     node.experiment_id,
+                    node.island_id,
                     node.parent_id,
                     node.branch_id,
                     node.depth,
@@ -507,6 +809,7 @@ class Store:
         return Node(
             id=row["id"],
             experiment_id=row["experiment_id"],
+            island_id=row_dict.get("island_id") or "",
             parent_id=row["parent_id"],
             branch_id=row["branch_id"],
             depth=row["depth"] or 0,
@@ -546,11 +849,15 @@ class Store:
         repair_count: int | None = None,
         error_class: str | None = None,
         repair_exhausted: bool | None = None,
+        artifact_json: str | None = None,
     ) -> None:
         """Update node fields."""
         updates = []
         params: list[Any] = []
 
+        if artifact_json is not None:
+            updates.append("artifact_json = ?")
+            params.append(artifact_json)
         if evidence_json is not None:
             updates.append("evidence_json = ?")
             params.append(evidence_json)
@@ -599,13 +906,21 @@ class Store:
         with self._conn() as conn:
             conn.execute(sql, params)
 
-    def get_nodes_by_experiment(self, experiment_id: str) -> list[Node]:
-        """Get all nodes for an experiment."""
+    def get_nodes_by_experiment(self, experiment_id: str, island_id: str | None = None) -> list[Node]:
+        """Get nodes for an experiment, optionally filtered to one island."""
         with self._conn() as conn:
-            rows = conn.execute(
-                "SELECT * FROM node WHERE experiment_id = ? ORDER BY created_at",
-                (experiment_id,),
-            ).fetchall()
+            if island_id is not None and not self._has_column(conn, "node", "island_id"):
+                island_id = None
+            if island_id is None:
+                rows = conn.execute(
+                    "SELECT * FROM node WHERE experiment_id = ? ORDER BY created_at",
+                    (experiment_id,),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM node WHERE experiment_id = ? AND island_id = ? ORDER BY created_at",
+                    (experiment_id, island_id),
+                ).fetchall()
 
         return [self._row_to_node(row) for row in rows]
 
@@ -614,15 +929,16 @@ class Store:
         with self._conn() as conn:
             conn.execute(
                 """
-                INSERT INTO insight (id, experiment_id, origin_node, branch_id, polarity,
-                                     payload_json, delta, z_score, alpha, beta, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO insight (id, experiment_id, origin_node, branch_id, island_id,
+                                     polarity, payload_json, delta, z_score, alpha, beta, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     insight.id,
                     experiment_id,
                     insight.origin_node,
                     insight.branch_id,
+                    insight.island_id,
                     insight.polarity,
                     json.dumps({
                         "change_summary": insight.change_summary,
@@ -638,21 +954,43 @@ class Store:
                 ),
             )
 
-    def get_insights_by_experiment(self, experiment_id: str) -> list[Insight]:
-        """Get all insights for an experiment."""
+    def get_insights_by_experiment(
+        self,
+        experiment_id: str,
+        island_id: str | None = None,
+    ) -> list[Insight]:
+        """Get insights for an experiment, optionally filtered to one island.
+
+        ``island_id`` is an island-scoped read: callers that build a generation
+        context must pass it, because only exchange summaries may cross islands.
+        """
         with self._conn() as conn:
-            rows = conn.execute(
-                "SELECT * FROM insight WHERE experiment_id = ? ORDER BY created_at",
-                (experiment_id,),
-            ).fetchall()
+            if island_id is not None and not self._has_column(conn, "insight", "island_id"):
+                # A read-only pre-island database has no island column: every
+                # row belongs to the implicit single island, so the filter is
+                # satisfied by reading all of them.
+                island_id = None
+            if island_id is None:
+                rows = conn.execute(
+                    "SELECT * FROM insight WHERE experiment_id = ? ORDER BY created_at",
+                    (experiment_id,),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM insight WHERE experiment_id = ? AND island_id = ?"
+                    " ORDER BY created_at",
+                    (experiment_id, island_id),
+                ).fetchall()
 
         insights = []
         for row in rows:
+            row_dict = dict(row)
             payload = json.loads(row["payload_json"]) if row["payload_json"] else {}
             insights.append(Insight(
                 id=row["id"],
                 origin_node=row["origin_node"],
                 branch_id=row["branch_id"],
+                island_id=row_dict.get("island_id") or "",
                 polarity=row["polarity"],
                 change_summary=payload.get("change_summary", ""),
                 mechanism=payload.get("mechanism", ""),
@@ -671,14 +1009,16 @@ class Store:
         with self._conn() as conn:
             conn.execute(
                 """
-                INSERT INTO llm_call (id, experiment_id, node_id, purpose, model,
+                INSERT INTO llm_call (id, experiment_id, island_id, node_id, purpose, model,
                                       prompt_tokens, completion_tokens, latency_ms,
-                                      cached, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                      cached, created_at, request_id, transport_attempts,
+                                      island_attempt, stage, outcome, cost_usd, cost_basis)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     llm_call.id,
                     llm_call.experiment_id,
+                    llm_call.island_id,
                     llm_call.node_id,
                     llm_call.purpose,
                     llm_call.model,
@@ -687,8 +1027,101 @@ class Store:
                     llm_call.latency_ms,
                     1 if llm_call.cached else 0,
                     llm_call.created_at or now_iso(),
+                    llm_call.request_id,
+                    llm_call.transport_attempts,
+                    llm_call.island_attempt,
+                    llm_call.stage,
+                    llm_call.outcome,
+                    llm_call.cost_usd,
+                    llm_call.cost_basis,
                 ),
             )
+
+    def get_cost_rollup(self, experiment_id: str) -> dict[str, Any]:
+        """Per-island spend, plus the shared spend, straight from ``llm_call``.
+
+        The requirement this answers is arithmetic, not presentational: the run
+        total has to equal every island's own cost plus the shared cost, and a
+        cost must not appear under two islands. ``island_id = ''`` is the shared
+        bucket -- a call made while no island was active -- and it is reported
+        separately instead of being quietly added to whichever island asked last.
+        Money is never estimated: ``cost_usd`` is summed only where a row already
+        carries it, and ``cost_basis`` says whether anything known was present.
+        """
+        with self._conn() as conn:
+            if not self._table_exists(conn, "llm_call"):
+                return {"total_tokens": 0, "by_island": [],
+                        "shared": _empty_cost_bucket(""), "cost_basis": "unknown",
+                        "unresolved_calls": 0, "cost_usd": None}
+            # ``SELECT *`` on purpose: a historical run written before these
+            # columns existed is read through this same path, and its rows simply
+            # have no stage/outcome keys to read out of.
+            rows = conn.execute(
+                "SELECT * FROM llm_call WHERE experiment_id = ?",
+                (experiment_id,),
+            ).fetchall()
+
+        buckets: dict[str, dict[str, Any]] = {}
+        money_known = False
+        for raw in rows:
+            row = dict(raw)
+            island_id = row.get("island_id") or ""
+            bucket = buckets.setdefault(island_id, _empty_cost_bucket(island_id))
+            prompt = int(row.get("prompt_tokens") or 0)
+            completion = int(row.get("completion_tokens") or 0)
+            bucket["calls"] += 1
+            bucket["prompt_tokens"] += prompt
+            bucket["completion_tokens"] += completion
+            bucket["tokens"] += prompt + completion
+            if (row.get("outcome") or "ok") != "ok":
+                # A request that went out and never came back spent something, but
+                # the client could not say how much: it counts as unresolved, not
+                # as free.
+                bucket["unresolved_calls"] += 1
+            if int(row.get("transport_attempts") or 1) > 1:
+                bucket["retried_calls"] += 1
+            if row.get("cached"):
+                # A cache hit re-serves the original call's token counts without
+                # sending anything, so it is counted apart from fresh spend.
+                bucket["cached_calls"] += 1
+            if row.get("cost_usd") is not None:
+                bucket["cost_usd"] = round((bucket["cost_usd"] or 0.0) + float(row["cost_usd"]), 6)
+                money_known = True
+            stage = row.get("stage") or "other"
+            bucket["by_stage"][stage] = bucket["by_stage"].get(stage, 0) + prompt + completion
+
+        shared = buckets.pop("", _empty_cost_bucket(""))
+        by_island = [buckets[key] for key in sorted(buckets)]
+        total = sum(bucket["tokens"] for bucket in buckets.values()) + shared["tokens"]
+        return {
+            "total_tokens": total,
+            "shared": shared,
+            "by_island": by_island,
+            "unresolved_calls": sum(b["unresolved_calls"] for b in buckets.values())
+            + shared["unresolved_calls"],
+            "cost_usd": (
+                round(sum(b["cost_usd"] or 0.0 for b in list(buckets.values()) + [shared]), 6)
+                if money_known
+                else None
+            ),
+            "cost_basis": "recorded" if money_known else "unknown",
+        }
+
+    def max_cost_seq(self, experiment_id: str) -> int:
+        """Highest ``seq`` already stored, so a resumed ledger keeps counting.
+
+        ``cost_ledger`` is keyed by ``(experiment_id, seq)`` and the in-memory
+        ledger starts at zero, so a resume that rebuilds the ledger without this
+        would collide with its own history on the first record.
+        """
+        with self._conn() as conn:
+            if not self._table_exists(conn, "cost_ledger"):
+                return 0
+            row = conn.execute(
+                "SELECT MAX(seq) FROM cost_ledger WHERE experiment_id = ?",
+                (experiment_id,),
+            ).fetchone()
+        return int(row[0]) if row and row[0] is not None else 0
 
     def create_event(self, event: Event) -> None:
         """Create an event."""
@@ -706,29 +1139,24 @@ class Store:
                 ),
             )
 
-    def get_llm_calls(self, experiment_id: str) -> list[LLMCall]:
-        """Get all LLM calls for an experiment."""
+    def get_llm_calls(self, experiment_id: str, island_id: str | None = None) -> list[LLMCall]:
+        """Get LLM calls for an experiment, optionally filtered to one island."""
         with self._conn() as conn:
-            rows = conn.execute(
-                "SELECT * FROM llm_call WHERE experiment_id = ? ORDER BY created_at",
-                (experiment_id,),
-            ).fetchall()
+            if island_id is not None and not self._has_column(conn, "llm_call", "island_id"):
+                island_id = None
+            if island_id is None:
+                rows = conn.execute(
+                    "SELECT * FROM llm_call WHERE experiment_id = ? ORDER BY created_at",
+                    (experiment_id,),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM llm_call WHERE experiment_id = ? AND island_id = ?"
+                    " ORDER BY created_at",
+                    (experiment_id, island_id),
+                ).fetchall()
 
-        return [
-            LLMCall(
-                id=row["id"],
-                experiment_id=row["experiment_id"],
-                node_id=row["node_id"],
-                purpose=row["purpose"],
-                model=row["model"],
-                prompt_tokens=row["prompt_tokens"],
-                completion_tokens=row["completion_tokens"],
-                latency_ms=row["latency_ms"],
-                cached=bool(row["cached"]),
-                created_at=row["created_at"],
-            )
-            for row in rows
-        ]
+        return [_llm_call_from_row(row) for row in rows]
 
     def get_events(self, experiment_id: str) -> list[Event]:
         """Get all events for an experiment."""
@@ -1141,6 +1569,7 @@ class Store:
         self,
         experiment_id: str,
         operator: str,
+        island_id: str = "",
         *,
         valid: bool,
         success: bool,
@@ -1154,9 +1583,9 @@ class Store:
                 """
                 SELECT alpha, beta, n, n_valid, sum_delta
                 FROM operator_stats
-                WHERE experiment_id = ? AND operator = ?
+                WHERE experiment_id = ? AND island_id = ? AND operator = ?
                 """,
-                (experiment_id, operator),
+                (experiment_id, island_id, operator),
             ).fetchone()
             if row is None:
                 alpha = prior_alpha + (1 if success else 0)
@@ -1166,10 +1595,10 @@ class Store:
                 conn.execute(
                     """
                     INSERT INTO operator_stats (
-                        experiment_id, operator, alpha, beta, n, n_valid, sum_delta
-                    ) VALUES (?, ?, ?, ?, 1, ?, ?)
+                        experiment_id, island_id, operator, alpha, beta, n, n_valid, sum_delta
+                    ) VALUES (?, ?, ?, ?, ?, 1, ?, ?)
                     """,
-                    (experiment_id, operator, alpha, beta, n_valid, sum_delta),
+                    (experiment_id, island_id, operator, alpha, beta, n_valid, sum_delta),
                 )
                 return
 
@@ -1182,31 +1611,52 @@ class Store:
                 """
                 UPDATE operator_stats
                 SET alpha = ?, beta = ?, n = ?, n_valid = ?, sum_delta = ?
-                WHERE experiment_id = ? AND operator = ?
+                WHERE experiment_id = ? AND island_id = ? AND operator = ?
                 """,
-                (alpha, beta, n, n_valid, sum_delta, experiment_id, operator),
+                (alpha, beta, n, n_valid, sum_delta, experiment_id, island_id, operator),
             )
 
-    def get_operator_stats(self, experiment_id: str) -> dict[str, dict[str, float]]:
-        """Return operator bandit stats keyed by operator name."""
+    def get_operator_stats(
+        self,
+        experiment_id: str,
+        island_id: str | None = None,
+    ) -> dict[str, dict[str, float]]:
+        """Operator bandit stats keyed by operator name.
+
+        ``island_id`` reads one island's posterior. Left open it merges every
+        island into one row per operator, which is what run-level reporting
+        wants; island selection must never use the merged view.
+        """
         with self._conn() as conn:
-            rows = conn.execute(
-                """
-                SELECT operator, alpha, beta, n, n_valid, sum_delta
-                FROM operator_stats
-                WHERE experiment_id = ?
-                """,
-                (experiment_id,),
-            ).fetchall()
+            if island_id is None:
+                rows = conn.execute(
+                    """
+                    SELECT operator, alpha, beta, n, n_valid, sum_delta
+                    FROM operator_stats
+                    WHERE experiment_id = ?
+                    """,
+                    (experiment_id,),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    """
+                    SELECT operator, alpha, beta, n, n_valid, sum_delta
+                    FROM operator_stats
+                    WHERE experiment_id = ? AND island_id = ?
+                    """,
+                    (experiment_id, island_id),
+                ).fetchall()
         result: dict[str, dict[str, float]] = {}
         for row in rows:
-            result[str(row["operator"])] = {
-                "alpha": float(row["alpha"]),
-                "beta": float(row["beta"]),
-                "n": float(row["n"]),
-                "n_valid": float(row["n_valid"]),
-                "sum_delta": float(row["sum_delta"]),
-            }
+            entry = result.setdefault(
+                str(row["operator"]),
+                {"alpha": 0.0, "beta": 0.0, "n": 0.0, "n_valid": 0.0, "sum_delta": 0.0},
+            )
+            entry["alpha"] += float(row["alpha"])
+            entry["beta"] += float(row["beta"])
+            entry["n"] += float(row["n"])
+            entry["n_valid"] += float(row["n_valid"])
+            entry["sum_delta"] += float(row["sum_delta"])
         return result
 
     def create_claim(self, experiment_id: str, claim: dict, round_idx: int) -> None:
@@ -1527,15 +1977,16 @@ class Store:
             conn.execute(
                 """
                 INSERT INTO cost_ledger (
-                    experiment_id, seq, stage, fidelity, node_id,
+                    experiment_id, seq, island_id, stage, fidelity, node_id,
                     prompt_tokens, completion_tokens, model_fit_count, evaluator_calls,
                     cpu_seconds, rss_peak_mb, wall_s, cache_hit, status,
                     reservation_id, meta_json, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     experiment_id,
                     rec.seq,
+                    rec.island_id,
                     rec.stage,
                     rec.fidelity,
                     rec.node_id,
@@ -1630,3 +2081,506 @@ class Store:
                 """,
                 (experiment_id, node_id, reason, parent_score, score, module, now_iso()),
             )
+
+    # ------------------------------------------------------------------
+    # Island state, exchange summaries, deliveries and applications
+    # ------------------------------------------------------------------
+
+    def upsert_island_state(self, state: IslandState) -> None:
+        """Insert or replace the persisted state of one island."""
+        now = now_iso()
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO island_state (
+                    experiment_id, island_id, profile, root_id, best_node_id, best_score,
+                    attempts, valid_evaluations, invalid_evaluations, status, stop_reason,
+                    last_exchange_attempt, stall_valid_evals, infra_fail_streak,
+                    consecutive_failures, shared_initial_evaluation_id,
+                    created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(experiment_id, island_id) DO UPDATE SET
+                    profile = excluded.profile,
+                    root_id = excluded.root_id,
+                    best_node_id = excluded.best_node_id,
+                    best_score = excluded.best_score,
+                    attempts = excluded.attempts,
+                    valid_evaluations = excluded.valid_evaluations,
+                    invalid_evaluations = excluded.invalid_evaluations,
+                    status = excluded.status,
+                    stop_reason = excluded.stop_reason,
+                    last_exchange_attempt = excluded.last_exchange_attempt,
+                    stall_valid_evals = excluded.stall_valid_evals,
+                    infra_fail_streak = excluded.infra_fail_streak,
+                    consecutive_failures = excluded.consecutive_failures,
+                    shared_initial_evaluation_id = excluded.shared_initial_evaluation_id,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    state.experiment_id,
+                    state.island_id,
+                    state.profile,
+                    state.root_id,
+                    state.best_node_id,
+                    state.best_score,
+                    state.attempts,
+                    state.valid_evaluations,
+                    state.invalid_evaluations,
+                    state.status,
+                    state.stop_reason,
+                    state.last_exchange_attempt,
+                    state.stall_valid_evals,
+                    state.infra_fail_streak,
+                    state.consecutive_failures,
+                    state.shared_initial_evaluation_id,
+                    state.created_at or now,
+                    now,
+                ),
+            )
+
+    @staticmethod
+    def _row_to_island_state(row: sqlite3.Row) -> IslandState:
+        return IslandState(
+            experiment_id=row["experiment_id"],
+            island_id=row["island_id"],
+            profile=row["profile"],
+            root_id=row["root_id"],
+            best_node_id=row["best_node_id"],
+            best_score=row["best_score"] or 0.0,
+            attempts=row["attempts"] or 0,
+            valid_evaluations=row["valid_evaluations"] or 0,
+            invalid_evaluations=row["invalid_evaluations"] or 0,
+            status=row["status"],
+            stop_reason=row["stop_reason"] or "",
+            last_exchange_attempt=row["last_exchange_attempt"] or 0,
+            stall_valid_evals=row["stall_valid_evals"] or 0,
+            infra_fail_streak=row["infra_fail_streak"] or 0,
+            consecutive_failures=row["consecutive_failures"] or 0,
+            shared_initial_evaluation_id=row["shared_initial_evaluation_id"],
+            created_at=row["created_at"] or "",
+            updated_at=row["updated_at"] or "",
+        )
+
+    def get_island_states(self, experiment_id: str) -> list[IslandState]:
+        with self._conn() as conn:
+            if not self._table_exists(conn, "island_state"):
+                return []
+            rows = conn.execute(
+                "SELECT * FROM island_state WHERE experiment_id = ? ORDER BY island_id",
+                (experiment_id,),
+            ).fetchall()
+        return [self._row_to_island_state(r) for r in rows]
+
+    def get_island_state(self, experiment_id: str, island_id: str) -> IslandState | None:
+        with self._conn() as conn:
+            if not self._table_exists(conn, "island_state"):
+                return None
+            row = conn.execute(
+                "SELECT * FROM island_state WHERE experiment_id = ? AND island_id = ?",
+                (experiment_id, island_id),
+            ).fetchone()
+        return self._row_to_island_state(row) if row is not None else None
+
+    def create_summary(self, summary: ExchangeSummary) -> bool:
+        """Persist a summary; content-hash dedup returns False when already known."""
+        with self._conn() as conn:
+            cur = conn.execute(
+                """
+                INSERT OR IGNORE INTO exchange_summary (
+                    summary_id, experiment_id, kind, source_island_id, source_node_id,
+                    task_fingerprint, evaluator_fingerprint, summary_text, conditions,
+                    evidence_json, metrics_json, confidence_status, content_hash, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    summary.summary_id,
+                    summary.experiment_id,
+                    summary.kind,
+                    summary.source_island_id,
+                    summary.source_node_id,
+                    summary.task_fingerprint,
+                    summary.evaluator_fingerprint,
+                    summary.summary_text,
+                    summary.conditions,
+                    json.dumps(summary.evidence_refs, ensure_ascii=False),
+                    json.dumps(summary.metrics, ensure_ascii=False),
+                    summary.confidence_status,
+                    summary.content_hash,
+                    summary.created_at or now_iso(),
+                ),
+            )
+            return cur.rowcount > 0
+
+    @staticmethod
+    def _row_to_summary(row: sqlite3.Row) -> ExchangeSummary:
+        return ExchangeSummary(
+            summary_id=row["summary_id"],
+            experiment_id=row["experiment_id"],
+            kind=row["kind"],
+            source_island_id=row["source_island_id"],
+            source_node_id=row["source_node_id"] or "",
+            task_fingerprint=row["task_fingerprint"] or "",
+            evaluator_fingerprint=row["evaluator_fingerprint"] or "",
+            summary_text=row["summary_text"] or "",
+            conditions=row["conditions"] or "",
+            evidence_refs=json.loads(row["evidence_json"] or "[]"),
+            metrics=json.loads(row["metrics_json"] or "{}"),
+            confidence_status=row["confidence_status"] or "single_observation",
+            content_hash=row["content_hash"] or "",
+            created_at=row["created_at"] or "",
+        )
+
+    def get_summary(self, summary_id: str) -> ExchangeSummary | None:
+        with self._conn() as conn:
+            if not self._table_exists(conn, "exchange_summary"):
+                return None
+            row = conn.execute(
+                "SELECT * FROM exchange_summary WHERE summary_id = ?",
+                (summary_id,),
+            ).fetchone()
+        return self._row_to_summary(row) if row is not None else None
+
+    def get_summary_by_content_hash(
+        self, experiment_id: str, content_hash: str
+    ) -> ExchangeSummary | None:
+        """The already-known summary for a normalized content hash."""
+        if not content_hash:
+            return None
+        with self._conn() as conn:
+            if not self._table_exists(conn, "exchange_summary"):
+                return None
+            row = conn.execute(
+                "SELECT * FROM exchange_summary WHERE experiment_id = ? AND content_hash = ?",
+                (experiment_id, content_hash),
+            ).fetchone()
+        return self._row_to_summary(row) if row is not None else None
+
+    def add_summary_evidence(
+        self,
+        summary_id: str,
+        evidence_ref: str,
+        confidence_status: str,
+        metrics: dict[str, Any] | None = None,
+    ) -> None:
+        """Attach another piece of evidence to an existing summary.
+
+        Deduplicating identical conclusions must not lose the fact that a
+        second node or island reached it, so the evidence list grows and the
+        confidence rises instead of a duplicate row being inserted. The counts
+        travel with the evidence, otherwise a reader would be told "1 occurrence"
+        about a lesson three islands have now seen.
+        """
+        with self._conn() as conn:
+            if not self._table_exists(conn, "exchange_summary"):
+                return
+            row = conn.execute(
+                "SELECT evidence_json, metrics_json FROM exchange_summary "
+                "WHERE summary_id = ?",
+                (summary_id,),
+            ).fetchone()
+            if row is None:
+                return
+            refs = json.loads(row["evidence_json"] or "[]")
+            if evidence_ref in refs:
+                return
+            refs.append(evidence_ref)
+            payload = (
+                metrics
+                if metrics is not None
+                else json.loads(row["metrics_json"] or "{}")
+            )
+            conn.execute(
+                "UPDATE exchange_summary SET evidence_json = ?, confidence_status = ?, "
+                "metrics_json = ? WHERE summary_id = ?",
+                (
+                    json.dumps(refs, ensure_ascii=False),
+                    confidence_status,
+                    json.dumps(payload, ensure_ascii=False),
+                    summary_id,
+                ),
+            )
+
+    def get_summaries_by_experiment(
+        self,
+        experiment_id: str,
+        kinds: tuple[str, ...] | None = None,
+    ) -> list[ExchangeSummary]:
+        with self._conn() as conn:
+            if not self._table_exists(conn, "exchange_summary"):
+                return []
+            if kinds:
+                marks = ",".join("?" for _ in kinds)
+                rows = conn.execute(
+                    f"SELECT * FROM exchange_summary WHERE experiment_id = ? "
+                    f"AND kind IN ({marks}) ORDER BY created_at",
+                    (experiment_id, *kinds),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM exchange_summary WHERE experiment_id = ? ORDER BY created_at",
+                    (experiment_id,),
+                ).fetchall()
+        return [self._row_to_summary(r) for r in rows]
+
+    def create_delivery(self, delivery: ExchangeDelivery) -> bool:
+        """Insert a delivery; at most one delivery per (summary, target island)."""
+        with self._conn() as conn:
+            cur = conn.execute(
+                """
+                INSERT OR IGNORE INTO exchange_delivery (
+                    delivery_id, experiment_id, summary_id, source_island_id,
+                    target_island_id, status, reason, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    delivery.delivery_id,
+                    delivery.experiment_id,
+                    delivery.summary_id,
+                    delivery.source_island_id,
+                    delivery.target_island_id,
+                    delivery.status,
+                    delivery.reason,
+                    delivery.created_at or now_iso(),
+                    now_iso(),
+                ),
+            )
+            return cur.rowcount > 0
+
+    @staticmethod
+    def _row_to_delivery(row: sqlite3.Row) -> ExchangeDelivery:
+        return ExchangeDelivery(
+            delivery_id=row["delivery_id"],
+            experiment_id=row["experiment_id"],
+            summary_id=row["summary_id"],
+            source_island_id=row["source_island_id"],
+            target_island_id=row["target_island_id"],
+            status=row["status"],
+            reason=row["reason"] or "",
+            created_at=row["created_at"] or "",
+            updated_at=row["updated_at"] or "",
+        )
+
+    def get_deliveries(
+        self,
+        experiment_id: str,
+        target_island_id: str | None = None,
+        statuses: tuple[str, ...] | None = None,
+    ) -> list[ExchangeDelivery]:
+        query = "SELECT * FROM exchange_delivery WHERE experiment_id = ?"
+        params: list[Any] = [experiment_id]
+        if target_island_id is not None:
+            query += " AND target_island_id = ?"
+            params.append(target_island_id)
+        if statuses:
+            query += " AND status IN (" + ",".join("?" for _ in statuses) + ")"
+            params.extend(statuses)
+        query += " ORDER BY created_at"
+        with self._conn() as conn:
+            if not self._table_exists(conn, "exchange_delivery"):
+                return []
+            rows = conn.execute(query, params).fetchall()
+        return [self._row_to_delivery(r) for r in rows]
+
+    def update_delivery_decision(
+        self,
+        delivery_id: str,
+        status: str,
+        reason: str = "",
+    ) -> None:
+        if status not in DELIVERY_STATUSES:
+            raise ValueError(f"invalid delivery status: {status}")
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE exchange_delivery SET status = ?, reason = ?, updated_at = ? WHERE delivery_id = ?",
+                (status, reason, now_iso(), delivery_id),
+            )
+
+    def record_application(self, application: SummaryApplication) -> bool:
+        """Record summary usage by a candidate; one row per (delivery, candidate)."""
+        with self._conn() as conn:
+            cur = conn.execute(
+                """
+                INSERT OR IGNORE INTO summary_application (
+                    application_id, delivery_id, experiment_id, candidate_node_id,
+                    evaluation_id, score, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    application.application_id,
+                    application.delivery_id,
+                    application.experiment_id,
+                    application.candidate_node_id,
+                    application.evaluation_id,
+                    application.score,
+                    application.created_at or now_iso(),
+                ),
+            )
+            return cur.rowcount > 0
+
+    def complete_application(
+        self,
+        application_id: str,
+        evaluation_id: str,
+        score: float | None,
+    ) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE summary_application SET evaluation_id = ?, score = ? WHERE application_id = ?",
+                (evaluation_id, score, application_id),
+            )
+
+    def get_applications_for_delivery(self, delivery_id: str) -> list[SummaryApplication]:
+        with self._conn() as conn:
+            if not self._table_exists(conn, "summary_application"):
+                return []
+            rows = conn.execute(
+                "SELECT * FROM summary_application WHERE delivery_id = ? ORDER BY created_at",
+                (delivery_id,),
+            ).fetchall()
+        return [
+            SummaryApplication(
+                application_id=r["application_id"],
+                delivery_id=r["delivery_id"],
+                experiment_id=r["experiment_id"],
+                candidate_node_id=r["candidate_node_id"],
+                evaluation_id=r["evaluation_id"] or "",
+                score=r["score"],
+                created_at=r["created_at"] or "",
+            )
+            for r in rows
+        ]
+
+    def get_applications_by_experiment(self, experiment_id: str) -> list[SummaryApplication]:
+        with self._conn() as conn:
+            if not self._table_exists(conn, "summary_application"):
+                return []
+            rows = conn.execute(
+                "SELECT * FROM summary_application WHERE experiment_id = ? ORDER BY created_at",
+                (experiment_id,),
+            ).fetchall()
+        return [
+            SummaryApplication(
+                application_id=r["application_id"],
+                delivery_id=r["delivery_id"],
+                experiment_id=r["experiment_id"],
+                candidate_node_id=r["candidate_node_id"],
+                evaluation_id=r["evaluation_id"] or "",
+                score=r["score"],
+                created_at=r["created_at"] or "",
+            )
+            for r in rows
+        ]
+
+    def save_scheduler_state(self, state: SchedulerState) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO scheduler_state (
+                    experiment_id, next_island_index, rng_state_json, schema_version, updated_at
+                ) VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(experiment_id) DO UPDATE SET
+                    next_island_index = excluded.next_island_index,
+                    rng_state_json = excluded.rng_state_json,
+                    schema_version = excluded.schema_version,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    state.experiment_id,
+                    state.next_island_index,
+                    state.rng_state_json,
+                    state.schema_version,
+                    now_iso(),
+                ),
+            )
+
+    def put_run_identity(self, experiment_id: str, identity_json: str) -> None:
+        """Record what this run was started with, for a later resume to check."""
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO run_identity (experiment_id, identity_json, created_at, updated_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(experiment_id) DO UPDATE SET
+                    identity_json = excluded.identity_json,
+                    updated_at = excluded.updated_at
+                """,
+                (experiment_id, identity_json, now_iso(), now_iso()),
+            )
+
+    def get_run_identity(self, experiment_id: str) -> str | None:
+        """The stored identity record, or None when this run never described itself."""
+        with self._conn() as conn:
+            if not self._table_exists(conn, "run_identity"):
+                return None
+            row = conn.execute(
+                "SELECT identity_json FROM run_identity WHERE experiment_id = ?",
+                (experiment_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return str(row["identity_json"] or "")
+
+    def get_run_claim(self, experiment_id: str) -> dict[str, Any] | None:
+        """Who currently holds this run, or None when nobody does."""
+        with self._conn() as conn:
+            if not self._table_exists(conn, "run_claim"):
+                return None
+            row = conn.execute(
+                "SELECT * FROM run_claim WHERE experiment_id = ?",
+                (experiment_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return {
+            "holder_id": str(row["holder_id"] or ""),
+            "holder_pid": row["holder_pid"],
+            "claimed_at": str(row["claimed_at"] or ""),
+        }
+
+    def take_run_claim(self, experiment_id: str, holder_id: str, pid: int) -> None:
+        """Say out loud which process is writing this run right now."""
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO run_claim (experiment_id, holder_id, holder_pid, claimed_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(experiment_id) DO UPDATE SET
+                    holder_id = excluded.holder_id,
+                    holder_pid = excluded.holder_pid,
+                    claimed_at = excluded.claimed_at
+                """,
+                (experiment_id, holder_id, pid, now_iso()),
+            )
+
+    def release_run_claim(self, experiment_id: str, holder_id: str) -> None:
+        """Drop the claim, but only the one this process wrote.
+
+        A holder that arrives after someone else took over must not delete the new
+        holder's claim on its way out -- that is how two processes end up running
+        one experiment again.
+        """
+        with self._conn() as conn:
+            if not self._table_exists(conn, "run_claim"):
+                return
+            conn.execute(
+                "DELETE FROM run_claim WHERE experiment_id = ? AND holder_id = ?",
+                (experiment_id, holder_id),
+            )
+
+    def get_scheduler_state(self, experiment_id: str) -> SchedulerState | None:
+        with self._conn() as conn:
+            if not self._table_exists(conn, "scheduler_state"):
+                return None
+            row = conn.execute(
+                "SELECT * FROM scheduler_state WHERE experiment_id = ?",
+                (experiment_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return SchedulerState(
+            experiment_id=row["experiment_id"],
+            next_island_index=row["next_island_index"] or 0,
+            rng_state_json=row["rng_state_json"] or "",
+            schema_version=row["schema_version"] or 2,
+            updated_at=row["updated_at"] or "",
+        )

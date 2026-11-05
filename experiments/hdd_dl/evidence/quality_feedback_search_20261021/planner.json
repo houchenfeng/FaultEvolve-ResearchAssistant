@@ -1,0 +1,134 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792551933.367869,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 162,
+      "prompt_tokens": 30929,
+      "total_tokens": 31091
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 2,
+        "dropout": 0.25
+      },
+      "hypothesis": "增加网络宽度至256并加深至2层，同时提高Dropout至0.25以防止过拟合。更宽的网络能捕获SMART趋势特征中更复杂的非线性交互，而增加的深度和正则化有助于在保持高AUPRC的同时提升低误报率下的召回率（recall_at_far），从而改善F1和整体预测质量。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": [
+        4
+      ]
+    },
+    "finished_at": 1792551938.675649
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792552151.0312054,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 182,
+      "prompt_tokens": 34479,
+      "total_tokens": 34661
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 1,
+        "replicas": 3
+      },
+      "hypothesis": "增加网络宽度至256并降低深度至1，结合3个副本集成。宽而浅的TCN结构旨在捕获更丰富的SMART特征非线性交互而不引入过深的梯度消失风险；多副本集成通过平均化预测方差来提升排序稳定性（AUPRC）和召回率，特别是针对低误报率区域的尾部排序能力。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-SHARED-TREE-01"
+      ],
+      "evidence_trials": [
+        0,
+        4,
+        14
+      ]
+    },
+    "finished_at": 1792552197.6353745
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "failed",
+    "created_at": 1792552450.737393,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "error_type": "WriteTimeout",
+    "finished_at": 1792552550.5442834
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792552720.6172316,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 127,
+      "prompt_tokens": 34482,
+      "total_tokens": 34609
+    },
+    "proposal": {
+      "changes": {
+        "family": "tcn",
+        "feature_set": "trends",
+        "tree_blend": 0.5
+      },
+      "hypothesis": "在MLP基线基础上引入TCN架构、趋势特征和更高的树模型混合比例，以增强时序退化模式捕捉能力并融合树模型的互补误差。",
+      "knowledge_ids": [
+        "HDD-TREND-02",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792552725.0451615
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792552840.5736623,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 117,
+      "prompt_tokens": 38022,
+      "total_tokens": 38139
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "depth": 2,
+        "dropout": 0.25
+      },
+      "hypothesis": "双分支架构结合TCN和GRU，通过增加深度和Dropout提升模型容量与正则化强度，旨在改善低误报率下的召回率和F1分数。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792552844.6041512
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "failed",
+    "created_at": 1792552990.9136384,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "error_type": "WriteTimeout",
+    "finished_at": 1792553083.5304768
+  }
+]

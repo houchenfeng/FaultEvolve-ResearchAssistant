@@ -1,0 +1,65 @@
+[
+  {
+    "claim_id": "C-38cb38cf-0001",
+    "grade": "confirmed",
+    "payload": {
+      "split": "confirm",
+      "n": 9262,
+      "n_pos": 327,
+      "n_neg": 8935,
+      "effect": 0.23293579692957467,
+      "ci_low": 0.19756426132169286,
+      "ci_high": 0.26698081556367953,
+      "p": 1e-300,
+      "e": 5e+149,
+      "direction_ok": true,
+      "temporal_ok": true,
+      "rho_max_abs": 0.46666474185029755,
+      "incr_gain": -0.0006003535608306835,
+      "incr_ci_low": -0.003712196912063259,
+      "incr_ci_high": 0.0015658792821955118
+    }
+  },
+  {
+    "claim_id": "C-38cb38cf-0002",
+    "grade": "confirmed",
+    "payload": {
+      "split": "confirm",
+      "n": 9262,
+      "n_pos": 327,
+      "n_neg": 8935,
+      "effect": 0.35797288948898687,
+      "ci_low": 0.33092721756973686,
+      "ci_high": 0.38358581762029736,
+      "p": 1e-300,
+      "e": 5e+149,
+      "direction_ok": true,
+      "temporal_ok": true,
+      "rho_max_abs": 0.8681945770848192,
+      "incr_gain": -0.0070313825242321795,
+      "incr_ci_low": -0.014933387863194064,
+      "incr_ci_high": 3.3487022763064965e-05
+    }
+  },
+  {
+    "claim_id": "C-38cb38cf-0003",
+    "grade": "confirmed",
+    "payload": {
+      "split": "confirm",
+      "n": 9262,
+      "n_pos": 327,
+      "n_neg": 8935,
+      "effect": 0.37477825751391725,
+      "ci_low": 0.34791669833094513,
+      "ci_high": 0.40003010241125553,
+      "p": 1e-300,
+      "e": 5e+149,
+      "direction_ok": true,
+      "temporal_ok": true,
+      "rho_max_abs": 0.8719905636710609,
+      "incr_gain": -0.00044821586905882346,
+      "incr_ci_low": -0.0033460715135935873,
+      "incr_ci_high": 0.0013198009887814054
+    }
+  }
+]

@@ -82,6 +82,8 @@ class FamouAdapter:
         module = importlib.util.module_from_spec(spec)
         sys.modules["evaluator"] = module
         spec.loader.exec_module(module)
+        from faultevolve.worker.aggregate_metrics import add_aggregate_metrics
+        add_aggregate_metrics(module)
         self._evaluator_cache[cache_key] = module
         return module
 

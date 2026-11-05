@@ -146,6 +146,32 @@ export type ContractWarning = {
 export type ControlAction = 'cancel' | 'pause' | 'resume';
 
 /**
+ * ConvergencePointResponse
+ */
+export type ConvergencePointResponse = {
+    /**
+     * Best So Far
+     */
+    best_so_far?: number | null;
+    /**
+     * Elapsed S
+     */
+    elapsed_s?: number | null;
+    /**
+     * Round
+     */
+    round?: number | null;
+    /**
+     * Score
+     */
+    score?: number | null;
+    /**
+     * Trial
+     */
+    trial?: number | null;
+};
+
+/**
  * DeploymentMode
  *
  * How the engine gets executed. P0 ships cloud-only modes.
@@ -255,6 +281,285 @@ export type DiscoveryResponse = {
 };
 
 /**
+ * EffectAutomationResponse
+ */
+export type EffectAutomationResponse = {
+    /**
+     * Automatic Coverage
+     */
+    automatic_coverage?: number | null;
+    /**
+     * End To End Unattended
+     */
+    end_to_end_unattended?: boolean | null;
+    /**
+     * Evolution Attempts
+     */
+    evolution_attempts?: number | null;
+    /**
+     * Hpo Trials
+     */
+    hpo_trials?: number | null;
+    /**
+     * Manual Interventions
+     */
+    manual_interventions?: number | null;
+    /**
+     * Note
+     */
+    note?: string | null;
+    /**
+     * Self Recovered Failures
+     */
+    self_recovered_failures?: number | null;
+    /**
+     * Stages
+     */
+    stages?: number | null;
+    /**
+     * Total Steps
+     */
+    total_steps?: number | null;
+    /**
+     * Unrecovered Adapter Errors
+     */
+    unrecovered_adapter_errors?: number | null;
+};
+
+/**
+ * EffectComplexityResponse
+ */
+export type EffectComplexityResponse = {
+    /**
+     * Ast Nodes
+     */
+    ast_nodes?: number | null;
+    /**
+     * Branch Points
+     */
+    branch_points?: number | null;
+    /**
+     * Ensemble Fits
+     */
+    ensemble_fits?: number | null;
+    /**
+     * Estimated Parameters
+     */
+    estimated_parameters?: number | null;
+    /**
+     * Evaluation Seconds
+     */
+    evaluation_seconds?: number | null;
+    /**
+     * Functions
+     */
+    functions?: number | null;
+    /**
+     * Model Families
+     */
+    model_families?: Array<string>;
+    /**
+     * Parameter Note
+     */
+    parameter_note?: string | null;
+    /**
+     * Source Lines
+     */
+    source_lines?: number | null;
+};
+
+/**
+ * EffectConvergenceResponse
+ */
+export type EffectConvergenceResponse = {
+    /**
+     * Evolution Curve
+     */
+    evolution_curve?: Array<ConvergencePointResponse>;
+    /**
+     * Evolution Rounds
+     */
+    evolution_rounds?: number | null;
+    /**
+     * Evolution Stop Reason
+     */
+    evolution_stop_reason?: string | null;
+    /**
+     * Hpo Best Trial
+     */
+    hpo_best_trial?: number | null;
+    /**
+     * Hpo Curve
+     */
+    hpo_curve?: Array<ConvergencePointResponse>;
+    /**
+     * Hpo Elapsed S
+     */
+    hpo_elapsed_s?: number | null;
+    /**
+     * Hpo Stop Reason
+     */
+    hpo_stop_reason?: string | null;
+    /**
+     * Hpo Trials
+     */
+    hpo_trials?: number | null;
+    /**
+     * Rounds To Target
+     */
+    rounds_to_target?: number | null;
+    /**
+     * Target Reached
+     */
+    target_reached?: boolean | null;
+    /**
+     * Target Score
+     */
+    target_score?: number | null;
+    /**
+     * Time To Target S
+     */
+    time_to_target_s?: number | null;
+    /**
+     * Tokens To Target
+     */
+    tokens_to_target?: number | null;
+};
+
+/**
+ * EffectPerformanceResponse
+ */
+export type EffectPerformanceResponse = {
+    /**
+     * Alarms Per 1K Disks
+     */
+    alarms_per_1k_disks?: number | null;
+    /**
+     * Auprc
+     */
+    auprc?: number | null;
+    /**
+     * Combined Score
+     */
+    combined_score?: number | null;
+    /**
+     * F1
+     */
+    f1?: number | null;
+    /**
+     * F1 P10
+     */
+    f1_p10?: number | null;
+    /**
+     * False Alarm Rate
+     */
+    false_alarm_rate?: number | null;
+    /**
+     * Missed Detection Rate
+     */
+    missed_detection_rate?: number | null;
+    /**
+     * Precision
+     */
+    precision?: number | null;
+    /**
+     * Recall
+     */
+    recall?: number | null;
+    /**
+     * Recall At Far
+     */
+    recall_at_far?: number | null;
+};
+
+/**
+ * EffectReportResponse
+ */
+export type EffectReportResponse = {
+    automation?: EffectAutomationResponse | null;
+    convergence?: EffectConvergenceResponse | null;
+    /**
+     * Note
+     */
+    note?: string | null;
+    /**
+     * Solutions
+     */
+    solutions?: Array<EffectSolutionResponse>;
+    token_usage?: EffectTokenUsageResponse;
+};
+
+/**
+ * EffectSolutionResponse
+ */
+export type EffectSolutionResponse = {
+    complexity?: EffectComplexityResponse;
+    /**
+     * Key
+     */
+    key: string;
+    /**
+     * Label
+     */
+    label: string;
+    performance?: EffectPerformanceResponse;
+};
+
+/**
+ * EffectTokenUsageResponse
+ */
+export type EffectTokenUsageResponse = {
+    /**
+     * Generate Tokens
+     */
+    generate_tokens?: number | null;
+    /**
+     * Hierarchical Tokens
+     */
+    hierarchical_tokens?: number | null;
+    /**
+     * Iterations Done
+     */
+    iterations_done?: number | null;
+    /**
+     * Jev Tokens
+     */
+    jev_tokens?: number | null;
+    /**
+     * Knowledge Tokens
+     */
+    knowledge_tokens?: number | null;
+    /**
+     * Reflect Tokens
+     */
+    reflect_tokens?: number | null;
+    /**
+     * Repair Tokens
+     */
+    repair_tokens?: number | null;
+    /**
+     * Tokens Per Score Gain
+     */
+    tokens_per_score_gain?: number | null;
+    /**
+     * Total Eval Time S
+     */
+    total_eval_time_s?: number | null;
+    /**
+     * Total Llm Latency Ms
+     */
+    total_llm_latency_ms?: number | null;
+    /**
+     * Total Tokens
+     */
+    total_tokens?: number | null;
+    /**
+     * Wall Time S
+     */
+    wall_time_s?: number | null;
+};
+
+/**
  * EventPageResponse
  *
  * Incremental event page for polling / SSE catch-up.
@@ -325,6 +630,139 @@ export type EventResponse = {
 };
 
 /**
+ * ExchangeDeliveryResponse
+ *
+ * One island's decision about one foreign summary.
+ */
+export type ExchangeDeliveryResponse = {
+    /**
+     * Delivery Id
+     */
+    delivery_id: string;
+    /**
+     * Reason
+     */
+    reason?: string;
+    /**
+     * Source Island Id
+     */
+    source_island_id: string;
+    /**
+     * Status
+     */
+    status?: string;
+    /**
+     * Summary Id
+     */
+    summary_id: string;
+    /**
+     * Target Island Id
+     */
+    target_island_id: string;
+};
+
+/**
+ * ExchangeSummaryResponse
+ *
+ * A published conclusion about one island, with its evidence and its fate.
+ */
+export type ExchangeSummaryResponse = {
+    /**
+     * Applications
+     */
+    applications?: Array<SummaryApplicationResponse>;
+    /**
+     * Conditions
+     */
+    conditions?: string;
+    /**
+     * Confidence Status
+     */
+    confidence_status?: string;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Deliveries
+     */
+    deliveries?: Array<ExchangeDeliveryResponse>;
+    /**
+     * Evidence
+     */
+    evidence?: Array<string>;
+    /**
+     * Kind
+     */
+    kind?: string;
+    /**
+     * Metrics
+     */
+    metrics?: {
+        [key: string]: number;
+    };
+    /**
+     * Source Island Id
+     */
+    source_island_id: string;
+    /**
+     * Source Node Id
+     */
+    source_node_id?: string;
+    /**
+     * Summary Id
+     */
+    summary_id: string;
+    /**
+     * Summary Text
+     */
+    summary_text?: string;
+};
+
+/**
+ * ExchangeViewResponse
+ *
+ * The four separate facts of the summary channel, never collapsed into one.
+ *
+ * Published -> delivered -> accepted/rejected -> applied, where
+ * ``applications`` can exceed ``accepted`` because one adopted summary may
+ * produce several candidates, and only ``evaluated_applications`` were scored by
+ * the receiving island's own evaluator.
+ */
+export type ExchangeViewResponse = {
+    /**
+     * Accepted
+     */
+    accepted?: number | null;
+    /**
+     * Applications
+     */
+    applications?: number | null;
+    /**
+     * By Kind
+     */
+    by_kind?: {
+        [key: string]: number;
+    };
+    /**
+     * Deliveries
+     */
+    deliveries?: number | null;
+    /**
+     * Evaluated Applications
+     */
+    evaluated_applications?: number | null;
+    /**
+     * Rejected
+     */
+    rejected?: number | null;
+    /**
+     * Summaries
+     */
+    summaries?: number | null;
+};
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -348,6 +786,134 @@ export type HealthResponse = {
      * Status
      */
     status: string;
+};
+
+/**
+ * HierarchicalRouteResponse
+ */
+export type HierarchicalRouteResponse = {
+    /**
+     * Best Score
+     */
+    best_score?: number | null;
+    /**
+     * Default Score
+     */
+    default_score?: number | null;
+    /**
+     * Route Id
+     */
+    route_id: string;
+    /**
+     * Source
+     */
+    source?: string | null;
+    /**
+     * Visits
+     */
+    visits?: number | null;
+};
+
+/**
+ * HierarchicalSearchResponse
+ */
+export type HierarchicalSearchResponse = {
+    /**
+     * Best Candidate Id
+     */
+    best_candidate_id?: string | null;
+    /**
+     * Best Score
+     */
+    best_score?: number | null;
+    /**
+     * Completed Trials
+     */
+    completed_trials?: number | null;
+    /**
+     * Contract Hash
+     */
+    contract_hash?: string | null;
+    /**
+     * Default Barrier Open
+     */
+    default_barrier_open?: boolean | null;
+    /**
+     * Max Trials
+     */
+    max_trials?: number | null;
+    /**
+     * Routes
+     */
+    routes?: Array<HierarchicalRouteResponse>;
+    /**
+     * Stop Reason
+     */
+    stop_reason?: string | null;
+    /**
+     * Trials
+     */
+    trials?: Array<HierarchicalTrialResponse>;
+};
+
+/**
+ * HierarchicalTrialResponse
+ */
+export type HierarchicalTrialResponse = {
+    /**
+     * Candidate Id
+     */
+    candidate_id: string;
+    /**
+     * Changed Parameter
+     */
+    changed_parameter?: string | null;
+    /**
+     * Decision
+     */
+    decision?: string | null;
+    /**
+     * Depth
+     */
+    depth?: number | null;
+    /**
+     * Duration Seconds
+     */
+    duration_seconds?: number | null;
+    /**
+     * Parameters
+     */
+    parameters?: {
+        [key: string]: number;
+    };
+    /**
+     * Parent Id
+     */
+    parent_id?: string | null;
+    /**
+     * Reason
+     */
+    reason?: string | null;
+    /**
+     * Reward
+     */
+    reward?: number | null;
+    /**
+     * Route Id
+     */
+    route_id: string;
+    /**
+     * Score
+     */
+    score?: number | null;
+    /**
+     * Status
+     */
+    status?: string | null;
+    /**
+     * Trial Number
+     */
+    trial_number: number;
 };
 
 /**
@@ -429,6 +995,83 @@ export type InsightsResponse = {
      * Warnings
      */
     warnings?: Array<ContractWarning>;
+};
+
+/**
+ * IslandCostResponse
+ *
+ * One island's share of the spend.
+ */
+export type IslandCostResponse = {
+    /**
+     * By Stage
+     */
+    by_stage?: {
+        [key: string]: number;
+    };
+    /**
+     * Cached Calls
+     */
+    cached_calls?: number | null;
+    /**
+     * Calls
+     */
+    calls?: number | null;
+    /**
+     * Tokens
+     */
+    tokens?: number | null;
+    /**
+     * Unresolved Calls
+     */
+    unresolved_calls?: number | null;
+};
+
+/**
+ * IslandViewResponse
+ *
+ * One island's own lifecycle, as the engine recorded it.
+ *
+ * Mirrors the ``islands`` block of ``run_summary.json`` field for field. Every
+ * counter stays ``None`` when the run did not record it, so the UI renders
+ * "未记录" instead of a zero that would look like an island that never worked.
+ * ``best_score`` is the best score inside *this* island's tree, not the run's
+ * global best, and ``stop_reason`` explains only why this island stopped: a run
+ * can finish while an island still has quota left.
+ */
+export type IslandViewResponse = {
+    /**
+     * Attempts
+     */
+    attempts?: number | null;
+    /**
+     * Best Score
+     */
+    best_score?: number | null;
+    /**
+     * Invalid Evaluations
+     */
+    invalid_evaluations?: number | null;
+    /**
+     * Island Id
+     */
+    island_id: string;
+    /**
+     * Profile
+     */
+    profile?: string | null;
+    /**
+     * Status
+     */
+    status?: string | null;
+    /**
+     * Stop Reason
+     */
+    stop_reason?: string | null;
+    /**
+     * Valid Evaluations
+     */
+    valid_evaluations?: number | null;
 };
 
 /**
@@ -788,7 +1431,7 @@ export type NodeStatus = 'pending' | 'evaluating' | 'done' | 'invalid' | 'abando
  *
  * Types of evolution operators.
  */
-export type OperatorType = 'init' | 'refine' | 'recall_focus' | 'threshold_calibrate' | 'inject' | 'transplant' | 'crossover' | 'repair' | 'hpo' | 'patch';
+export type OperatorType = 'init' | 'refine' | 'recall_focus' | 'threshold_calibrate' | 'inject' | 'transplant' | 'crossover' | 'summary_cross' | 'repair' | 'hpo' | 'patch';
 
 /**
  * PathProbeRequest
@@ -899,6 +1542,38 @@ export type PresetResponse = {
      * Summary Zh
      */
     summary_zh?: string;
+};
+
+/**
+ * QwenConfigRequest
+ *
+ * Runtime Qwen endpoint configuration. Secrets remain environment-only.
+ */
+export type QwenConfigRequest = {
+    /**
+     * Base Url
+     */
+    base_url: string;
+};
+
+/**
+ * QwenConfigResponse
+ *
+ * Safe Qwen configuration status for the Web UI.
+ */
+export type QwenConfigResponse = {
+    /**
+     * Base Url
+     */
+    base_url: string;
+    /**
+     * Configured
+     */
+    configured: boolean;
+    /**
+     * Reachable
+     */
+    reachable?: boolean | null;
 };
 
 /**
@@ -1216,6 +1891,7 @@ export type RunDetailResponse = {
     contract_version: string;
     data_state: RunDataState;
     discovery?: RunDiscoveryResponse | null;
+    islands?: RunIslandsResponse | null;
     judge?: RunJudgeResponse | null;
     knowledge?: RunKnowledgeResponse | null;
     operators?: RunOperatorResponse | null;
@@ -1378,6 +2054,78 @@ export type RunDiscoveryResponse = {
      * Underpowered Draws
      */
     underpowered_draws?: number | null;
+};
+
+/**
+ * RunIslandCostResponse
+ *
+ * Cost attributed per island, plus what could not be attributed.
+ *
+ * ``by_island`` tokens plus ``shared_tokens`` must equal ``total_tokens``;
+ * ``shared_tokens`` holds calls with no island context. ``cost_usd`` is a number
+ * only when ``cost_basis`` is ``recorded`` -- a model that does not quote a price
+ * never gets an invented one.
+ */
+export type RunIslandCostResponse = {
+    /**
+     * By Island
+     */
+    by_island?: {
+        [key: string]: IslandCostResponse;
+    };
+    /**
+     * Cost Basis
+     */
+    cost_basis?: string | null;
+    /**
+     * Cost Usd
+     */
+    cost_usd?: number | null;
+    /**
+     * Shared Tokens
+     */
+    shared_tokens?: number | null;
+    /**
+     * Total Tokens
+     */
+    total_tokens?: number | null;
+    /**
+     * Unresolved Calls
+     */
+    unresolved_calls?: number | null;
+};
+
+/**
+ * RunIslandsResponse
+ *
+ * The island/exchange/cost view of one run.
+ *
+ * ``state`` carries the whole story for a historical single-tree run: those runs
+ * predate the island engine and recorded nothing, so ``state`` is ``MISSING`` and
+ * the ring is empty. The UI must then show one tree, not invent three islands.
+ */
+export type RunIslandsResponse = {
+    /**
+     * Attempt Total
+     */
+    attempt_total?: number | null;
+    cost?: RunIslandCostResponse | null;
+    /**
+     * Detail
+     */
+    detail?: string;
+    exchange?: ExchangeViewResponse | null;
+    /**
+     * Islands
+     */
+    islands?: {
+        [key: string]: IslandViewResponse;
+    };
+    /**
+     * Source
+     */
+    source?: string;
+    state: ArtifactState;
 };
 
 /**
@@ -1701,6 +2449,89 @@ export type RunOutcomeResponse = {
 };
 
 /**
+ * RunProvenanceEntry
+ *
+ * Where one run was found and what the server concluded from that.
+ */
+export type RunProvenanceEntry = {
+    /**
+     * External Id
+     */
+    external_id: string;
+    /**
+     * Markers
+     */
+    markers?: Array<string>;
+    /**
+     * Origin
+     */
+    origin: string;
+    /**
+     * Relative Path
+     */
+    relative_path: string;
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Run Type
+     */
+    run_type: string;
+    /**
+     * Split Layout
+     */
+    split_layout?: boolean;
+};
+
+/**
+ * RunProvenanceResponse
+ *
+ * The source manifest of the run listing (TODO D6.2).
+ *
+ * ``scanned == len(runs) + paired`` and ``len(runs) == listed +
+ * excluded_fixtures``: a run never disappears between the scan and the list.
+ */
+export type RunProvenanceResponse = {
+    /**
+     * Contract Version
+     */
+    contract_version: string;
+    /**
+     * Errors
+     */
+    errors?: Array<ScanErrorDto>;
+    /**
+     * Errors Truncated
+     */
+    errors_truncated?: boolean;
+    /**
+     * Excluded Fixtures
+     */
+    excluded_fixtures: number;
+    /**
+     * Listed
+     */
+    listed: number;
+    /**
+     * Paired
+     */
+    paired: number;
+    /**
+     * Runs
+     */
+    runs?: Array<RunProvenanceEntry>;
+    /**
+     * Scanned
+     */
+    scanned: number;
+    /**
+     * Unverified
+     */
+    unverified: number;
+};
+
+/**
  * RunRepairResponse
  *
  * Repair / pre-check / smoke accounting (TODO §5.5).
@@ -1745,6 +2576,50 @@ export type RunRepairResponse = {
 };
 
 /**
+ * RunSummariesResponse
+ *
+ * ``GET /api/runs/{run_id}/summaries``: a run's whole exchange layer.
+ *
+ * The four counts stay four separate facts (TODO D3.1): published, delivered,
+ * applied, applied-and-evaluated. None of them is derived from another.
+ */
+export type RunSummariesResponse = {
+    /**
+     * Application Count
+     */
+    application_count?: number;
+    /**
+     * Contract Version
+     */
+    contract_version: string;
+    /**
+     * Delivery Count
+     */
+    delivery_count?: number;
+    /**
+     * Detail
+     */
+    detail?: string;
+    /**
+     * Evaluated Application Count
+     */
+    evaluated_application_count?: number;
+    /**
+     * Run Id
+     */
+    run_id: string;
+    state: ArtifactState;
+    /**
+     * Summaries
+     */
+    summaries?: Array<ExchangeSummaryResponse>;
+    /**
+     * Summary Count
+     */
+    summary_count?: number;
+};
+
+/**
  * RunSummaryResponse
  *
  * One row of the run listing (TODO §2.4).
@@ -1760,6 +2635,10 @@ export type RunSummaryResponse = {
     created_at?: string | null;
     data_state: RunDataState;
     /**
+     * External Id
+     */
+    external_id?: string;
+    /**
      * Finished At
      */
     finished_at?: string | null;
@@ -1772,9 +2651,17 @@ export type RunSummaryResponse = {
      */
     iterations_done?: number | null;
     /**
+     * Origin
+     */
+    origin?: string | null;
+    /**
      * Run Id
      */
     run_id: string;
+    /**
+     * Run Type
+     */
+    run_type?: string | null;
     /**
      * Status
      */
@@ -1791,6 +2678,22 @@ export type RunSummaryResponse = {
      * Warnings
      */
     warnings?: Array<ContractWarning>;
+};
+
+/**
+ * ScanErrorDTO
+ *
+ * One directory the run scan could not read, relative to its root.
+ */
+export type ScanErrorDto = {
+    /**
+     * Reason
+     */
+    reason: string;
+    /**
+     * Relative Path
+     */
+    relative_path: string;
 };
 
 /**
@@ -2118,6 +3021,64 @@ export type ServerProfileResponse = {
 };
 
 /**
+ * SummaryApplicationResponse
+ *
+ * One candidate that was built with one summary in its context.
+ *
+ * ``score`` is that candidate's *own* evaluator result. It is never presented as
+ * the gain the summary caused: several summaries can be applied to one candidate
+ * and the evaluator answers once (TODO D3.4).
+ */
+export type SummaryApplicationResponse = {
+    /**
+     * Application Id
+     */
+    application_id: string;
+    /**
+     * Candidate Node Id
+     */
+    candidate_node_id: string;
+    /**
+     * Delivery Id
+     */
+    delivery_id: string;
+    /**
+     * Evaluated
+     */
+    evaluated?: boolean;
+    /**
+     * Score
+     */
+    score?: number | null;
+    /**
+     * Target Island Id
+     */
+    target_island_id?: string;
+};
+
+/**
+ * SummaryDetailResponse
+ *
+ * ``GET /api/runs/{run_id}/summaries/{summary_id}``: one summary, in full.
+ */
+export type SummaryDetailResponse = {
+    /**
+     * Contract Version
+     */
+    contract_version: string;
+    /**
+     * Detail
+     */
+    detail?: string;
+    /**
+     * Run Id
+     */
+    run_id: string;
+    state: ArtifactState;
+    summary?: ExchangeSummaryResponse | null;
+};
+
+/**
  * TaskCardMetrics
  *
  * Score contract of one dataset, as shown on its overview card.
@@ -2363,7 +3324,7 @@ export type TreeEdgeDto = {
  *
  * Why two tree nodes are connected (TODO §5.1).
  */
-export type TreeEdgeKind = 'parent' | 'crossover_second_parent' | 'repair';
+export type TreeEdgeKind = 'parent' | 'crossover_second_parent' | 'repair' | 'summary_cross';
 
 /**
  * TreeNodeDTO
@@ -2416,6 +3377,10 @@ export type TreeNodeDto = {
      * Is On Best Path
      */
     is_on_best_path?: boolean;
+    /**
+     * Island Id
+     */
+    island_id?: string;
     /**
      * Noise Delta
      */
@@ -2527,6 +3492,126 @@ export type ValidationError = {
      * Error Type
      */
     type: string;
+};
+
+/**
+ * WorkflowDataResponse
+ */
+export type WorkflowDataResponse = {
+    /**
+     * Accepted Issues
+     */
+    accepted_issues?: Array<string>;
+    /**
+     * After Rows
+     */
+    after_rows?: number | null;
+    /**
+     * After Samples
+     */
+    after_samples?: number | null;
+    /**
+     * Before Rows
+     */
+    before_rows?: number | null;
+    /**
+     * Before Samples
+     */
+    before_samples?: number | null;
+    /**
+     * Derived Sha256
+     */
+    derived_sha256?: {
+        [key: string]: string;
+    };
+    /**
+     * Source Sha256
+     */
+    source_sha256?: {
+        [key: string]: string;
+    };
+    /**
+     * State
+     */
+    state?: string | null;
+    /**
+     * Transformations
+     */
+    transformations?: Array<WorkflowTransformationResponse>;
+    /**
+     * Unresolved Codes
+     */
+    unresolved_codes?: Array<string>;
+};
+
+/**
+ * WorkflowResponse
+ */
+export type WorkflowResponse = {
+    /**
+     * Best Artifact Id
+     */
+    best_artifact_id?: string | null;
+    /**
+     * Best Origin
+     */
+    best_origin?: string | null;
+    /**
+     * Contract Version
+     */
+    contract_version?: string;
+    data?: WorkflowDataResponse | null;
+    data_state?: ArtifactState;
+    effect?: EffectReportResponse | null;
+    effect_state?: ArtifactState;
+    /**
+     * Evolution Best Score
+     */
+    evolution_best_score?: number | null;
+    /**
+     * Final Best Score
+     */
+    final_best_score?: number | null;
+    /**
+     * Phase
+     */
+    phase?: string | null;
+    /**
+     * Run Id
+     */
+    run_id: string;
+    search?: HierarchicalSearchResponse | null;
+    search_state?: ArtifactState;
+    /**
+     * State
+     */
+    state?: string | null;
+    /**
+     * Warnings
+     */
+    warnings?: Array<ContractWarning>;
+};
+
+/**
+ * WorkflowTransformationResponse
+ */
+export type WorkflowTransformationResponse = {
+    /**
+     * Affected
+     */
+    affected: number;
+    /**
+     * Column
+     */
+    column?: string | null;
+    /**
+     * Reason
+     */
+    reason: string;
+    /**
+     * Rule
+     */
+    rule: string;
 };
 
 export type HealthApiHealthGetData = {
@@ -2642,6 +3727,47 @@ export type MergePresetApiPresetsNameMergePostResponses = {
 
 export type MergePresetApiPresetsNameMergePostResponse = MergePresetApiPresetsNameMergePostResponses[keyof MergePresetApiPresetsNameMergePostResponses];
 
+export type GetQwenConfigApiQwenConfigGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/qwen/config';
+};
+
+export type GetQwenConfigApiQwenConfigGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: QwenConfigResponse;
+};
+
+export type GetQwenConfigApiQwenConfigGetResponse = GetQwenConfigApiQwenConfigGetResponses[keyof GetQwenConfigApiQwenConfigGetResponses];
+
+export type UpdateQwenConfigApiQwenConfigPostData = {
+    body: QwenConfigRequest;
+    path?: never;
+    query?: never;
+    url: '/api/qwen/config';
+};
+
+export type UpdateQwenConfigApiQwenConfigPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateQwenConfigApiQwenConfigPostError = UpdateQwenConfigApiQwenConfigPostErrors[keyof UpdateQwenConfigApiQwenConfigPostErrors];
+
+export type UpdateQwenConfigApiQwenConfigPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: QwenConfigResponse;
+};
+
+export type UpdateQwenConfigApiQwenConfigPostResponse = UpdateQwenConfigApiQwenConfigPostResponses[keyof UpdateQwenConfigApiQwenConfigPostResponses];
+
 export type ListRunsApiRunsGetData = {
     body?: never;
     path?: never;
@@ -2684,6 +3810,22 @@ export type CreateRunApiRunsPostResponses = {
 };
 
 export type CreateRunApiRunsPostResponse = CreateRunApiRunsPostResponses[keyof CreateRunApiRunsPostResponses];
+
+export type GetRunProvenanceApiRunsProvenanceGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/runs/provenance';
+};
+
+export type GetRunProvenanceApiRunsProvenanceGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: RunProvenanceResponse;
+};
+
+export type GetRunProvenanceApiRunsProvenanceGetResponse = GetRunProvenanceApiRunsProvenanceGetResponses[keyof GetRunProvenanceApiRunsProvenanceGetResponses];
 
 export type GetRunApiRunsRunIdGetData = {
     body?: never;
@@ -3219,6 +4361,70 @@ export type StreamEventsApiRunsRunIdStreamGetResponses = {
     200: unknown;
 };
 
+export type GetSummariesApiRunsRunIdSummariesGetData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/runs/{run_id}/summaries';
+};
+
+export type GetSummariesApiRunsRunIdSummariesGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetSummariesApiRunsRunIdSummariesGetError = GetSummariesApiRunsRunIdSummariesGetErrors[keyof GetSummariesApiRunsRunIdSummariesGetErrors];
+
+export type GetSummariesApiRunsRunIdSummariesGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: RunSummariesResponse;
+};
+
+export type GetSummariesApiRunsRunIdSummariesGetResponse = GetSummariesApiRunsRunIdSummariesGetResponses[keyof GetSummariesApiRunsRunIdSummariesGetResponses];
+
+export type GetSummaryApiRunsRunIdSummariesSummaryIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Summary Id
+         */
+        summary_id: string;
+    };
+    query?: never;
+    url: '/api/runs/{run_id}/summaries/{summary_id}';
+};
+
+export type GetSummaryApiRunsRunIdSummariesSummaryIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetSummaryApiRunsRunIdSummariesSummaryIdGetError = GetSummaryApiRunsRunIdSummariesSummaryIdGetErrors[keyof GetSummaryApiRunsRunIdSummariesSummaryIdGetErrors];
+
+export type GetSummaryApiRunsRunIdSummariesSummaryIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: SummaryDetailResponse;
+};
+
+export type GetSummaryApiRunsRunIdSummariesSummaryIdGetResponse = GetSummaryApiRunsRunIdSummariesSummaryIdGetResponses[keyof GetSummaryApiRunsRunIdSummariesSummaryIdGetResponses];
+
 export type GetTreeApiRunsRunIdTreeGetData = {
     body?: never;
     path: {
@@ -3248,6 +4454,36 @@ export type GetTreeApiRunsRunIdTreeGetResponses = {
 };
 
 export type GetTreeApiRunsRunIdTreeGetResponse = GetTreeApiRunsRunIdTreeGetResponses[keyof GetTreeApiRunsRunIdTreeGetResponses];
+
+export type GetWorkflowApiRunsRunIdWorkflowGetData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/runs/{run_id}/workflow';
+};
+
+export type GetWorkflowApiRunsRunIdWorkflowGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetWorkflowApiRunsRunIdWorkflowGetError = GetWorkflowApiRunsRunIdWorkflowGetErrors[keyof GetWorkflowApiRunsRunIdWorkflowGetErrors];
+
+export type GetWorkflowApiRunsRunIdWorkflowGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: WorkflowResponse;
+};
+
+export type GetWorkflowApiRunsRunIdWorkflowGetResponse = GetWorkflowApiRunsRunIdWorkflowGetResponses[keyof GetWorkflowApiRunsRunIdWorkflowGetResponses];
 
 export type ListServersApiServersGetData = {
     body?: never;

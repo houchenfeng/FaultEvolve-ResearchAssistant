@@ -1,0 +1,929 @@
+[
+  {
+    "seed": 20270429,
+    "models": [
+      {
+        "seed": 20270429,
+        "epochs_completed": 19,
+        "best_epoch": 8,
+        "best_inner_objective": 0.41661699224974813,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 0,
+        "replica": 0
+      },
+      {
+        "seed": 20370432,
+        "epochs_completed": 17,
+        "best_epoch": 6,
+        "best_inner_objective": 0.4246635559999311,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 0,
+        "replica": 1
+      },
+      {
+        "seed": 20470435,
+        "epochs_completed": 19,
+        "best_epoch": 8,
+        "best_inner_objective": 0.4073285135171829,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 0,
+        "replica": 2
+      },
+      {
+        "seed": 20270430,
+        "epochs_completed": 40,
+        "best_epoch": 29,
+        "best_inner_objective": 0.44661647521277537,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 1,
+        "replica": 0
+      },
+      {
+        "seed": 20370433,
+        "epochs_completed": 39,
+        "best_epoch": 28,
+        "best_inner_objective": 0.4447009032088542,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 1,
+        "replica": 1
+      },
+      {
+        "seed": 20470436,
+        "epochs_completed": 33,
+        "best_epoch": 22,
+        "best_inner_objective": 0.4424358040970328,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 1,
+        "replica": 2
+      },
+      {
+        "seed": 20270431,
+        "epochs_completed": 38,
+        "best_epoch": 27,
+        "best_inner_objective": 0.33648894470885593,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 2,
+        "replica": 0
+      },
+      {
+        "seed": 20370434,
+        "epochs_completed": 30,
+        "best_epoch": 19,
+        "best_inner_objective": 0.33192235965864764,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 2,
+        "replica": 1
+      },
+      {
+        "seed": 20470437,
+        "epochs_completed": 34,
+        "best_epoch": 23,
+        "best_inner_objective": 0.3553502081943245,
+        "tail_batches": 0,
+        "selected_tail_stage": false,
+        "mean_tail_loss": 0.0,
+        "fold": 2,
+        "replica": 2
+      }
+    ],
+    "scope": "training_oof_only",
+    "base_threshold": 0.7892248010229579,
+    "floor_threshold": null,
+    "final_threshold": 0.7892248010229579,
+    "budget": null,
+    "floor_active": false,
+    "changed_oof_alarms": 0,
+    "base_rates": {
+      "far": 0.0008002934628166258,
+      "recall": 0.2853260934352875
+    },
+    "final_rates": {
+      "far": 0.0008002934628166258,
+      "recall": 0.2853260934352875
+    },
+    "entities": 31093,
+    "negative_weight": 295624.5625,
+    "profile_wall_seconds": 23.283918421715498,
+    "top_cumulative": [
+      {
+        "module": "_ops.py",
+        "line": 368,
+        "function": "fallthrough",
+        "calls": 25,
+        "self_seconds": 0.002854161,
+        "cumulative_seconds": 5.392169492000001
+      },
+      {
+        "module": "_set_output.py",
+        "line": 325,
+        "function": "wrapped",
+        "calls": 18,
+        "self_seconds": 4.719e-05,
+        "cumulative_seconds": 3.8678255310000003
+      },
+      {
+        "module": "_data.py",
+        "line": 3054,
+        "function": "transform",
+        "calls": 18,
+        "self_seconds": 9.065000000000001e-05,
+        "cumulative_seconds": 3.867556109
+      },
+      {
+        "module": "_data.py",
+        "line": 3023,
+        "function": "_transform",
+        "calls": 18,
+        "self_seconds": 0.15680989,
+        "cumulative_seconds": 3.835727545
+      },
+      {
+        "module": "candidate.py",
+        "line": 411,
+        "function": "fit_tree_branch",
+        "calls": 9,
+        "self_seconds": 0.018979293,
+        "cumulative_seconds": 3.698020581
+      },
+      {
+        "module": "_tensor.py",
+        "line": 576,
+        "function": "backward",
+        "calls": 11029,
+        "self_seconds": 0.020890907,
+        "cumulative_seconds": 3.6889228490000003
+      },
+      {
+        "module": "_data.py",
+        "line": 2930,
+        "function": "_transform_col",
+        "calls": 4410,
+        "self_seconds": 0.8647162380000001,
+        "cumulative_seconds": 3.678907723
+      },
+      {
+        "module": "__init__.py",
+        "line": 253,
+        "function": "backward",
+        "calls": 11029,
+        "self_seconds": 0.07650738500000001,
+        "cumulative_seconds": 3.666577369
+      },
+      {
+        "module": "sklearn.py",
+        "line": 1635,
+        "function": "fit",
+        "calls": 9,
+        "self_seconds": 0.00016046500000000002,
+        "cumulative_seconds": 3.6635783650000002
+      },
+      {
+        "module": "sklearn.py",
+        "line": 1015,
+        "function": "fit",
+        "calls": 9,
+        "self_seconds": 0.000266805,
+        "cumulative_seconds": 3.6552083380000004
+      },
+      {
+        "module": "engine.py",
+        "line": 108,
+        "function": "train",
+        "calls": 9,
+        "self_seconds": 0.004142542,
+        "cumulative_seconds": 3.6480871520000004
+      },
+      {
+        "module": "graph.py",
+        "line": 860,
+        "function": "_engine_run_backward",
+        "calls": 11029,
+        "self_seconds": 0.022431773000000002,
+        "cumulative_seconds": 3.418316276
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<method 'run_backward' of 'torch._C._EngineBase' objects>",
+        "calls": 11029,
+        "self_seconds": 3.3907588950000003,
+        "cumulative_seconds": 3.3907588950000003
+      },
+      {
+        "module": "module.py",
+        "line": 1775,
+        "function": "_wrapped_call_impl",
+        "calls": 158298,
+        "self_seconds": 0.081138583,
+        "cumulative_seconds": 2.6495788570000003
+      },
+      {
+        "module": "module.py",
+        "line": 1783,
+        "function": "_call_impl",
+        "calls": 158298,
+        "self_seconds": 0.117372238,
+        "cumulative_seconds": 2.6383912090000003
+      },
+      {
+        "module": "basic.py",
+        "line": 4198,
+        "function": "update",
+        "calls": 1350,
+        "self_seconds": 2.622750814,
+        "cumulative_seconds": 2.6231999800000003
+      },
+      {
+        "module": "candidate.py",
+        "line": 186,
+        "function": "forward",
+        "calls": 11307,
+        "self_seconds": 0.20798612300000002,
+        "cumulative_seconds": 2.6127186200000003
+      },
+      {
+        "module": "optimizer.py",
+        "line": 512,
+        "function": "wrapper",
+        "calls": 11029,
+        "self_seconds": 0.069385203,
+        "cumulative_seconds": 2.54103773
+      },
+      {
+        "module": "optimizer.py",
+        "line": 60,
+        "function": "_use_grad",
+        "calls": 11029,
+        "self_seconds": 0.035394934,
+        "cumulative_seconds": 2.2329002680000003
+      },
+      {
+        "module": "adam.py",
+        "line": 214,
+        "function": "step",
+        "calls": 11029,
+        "self_seconds": 0.039315677,
+        "cumulative_seconds": 2.180336522
+      },
+      {
+        "module": "clip_grad.py",
+        "line": 39,
+        "function": "_no_grad_wrapper",
+        "calls": 33087,
+        "self_seconds": 0.11504546,
+        "cumulative_seconds": 2.1667099480000003
+      },
+      {
+        "module": "clip_grad.py",
+        "line": 185,
+        "function": "clip_grad_norm_",
+        "calls": 11029,
+        "self_seconds": 0.071978971,
+        "cumulative_seconds": 2.080702887
+      },
+      {
+        "module": "library.py",
+        "line": 285,
+        "function": "impl",
+        "calls": 104,
+        "self_seconds": 0.001279538,
+        "cumulative_seconds": 1.8934806430000002
+      },
+      {
+        "module": "_distn_infrastructure.py",
+        "line": 2305,
+        "function": "ppf",
+        "calls": 13230,
+        "self_seconds": 0.736562628,
+        "cumulative_seconds": 1.752004474
+      },
+      {
+        "module": "optimizer.py",
+        "line": 132,
+        "function": "maybe_fallback",
+        "calls": 11029,
+        "self_seconds": 0.016692386,
+        "cumulative_seconds": 1.7389543980000002
+      },
+      {
+        "module": "adam.py",
+        "line": 903,
+        "function": "adam",
+        "calls": 11029,
+        "self_seconds": 0.088395108,
+        "cumulative_seconds": 1.7185629550000001
+      },
+      {
+        "module": "container.py",
+        "line": 248,
+        "function": "forward",
+        "calls": 22614,
+        "self_seconds": 0.059198998,
+        "cumulative_seconds": 1.5605982740000002
+      },
+      {
+        "module": "adam.py",
+        "line": 554,
+        "function": "_multi_tensor_adam",
+        "calls": 11029,
+        "self_seconds": 0.17346808200000002,
+        "cumulative_seconds": 1.4894852650000001
+      },
+      {
+        "module": "_ops.py",
+        "line": 311,
+        "function": "py_impl",
+        "calls": 22,
+        "self_seconds": 6.4955e-05,
+        "cumulative_seconds": 1.4796012010000001
+      },
+      {
+        "module": "_function_base_impl.py",
+        "line": 1550,
+        "function": "interp",
+        "calls": 8820,
+        "self_seconds": 0.008328288,
+        "cumulative_seconds": 1.014439217
+      },
+      {
+        "module": "basic.py",
+        "line": 3691,
+        "function": "__init__",
+        "calls": 9,
+        "self_seconds": 0.034123355,
+        "cumulative_seconds": 1.0013489230000001
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method numpy._core._multiarray_umath.interp>",
+        "calls": 8820,
+        "self_seconds": 1.000004729,
+        "cumulative_seconds": 1.000004729
+      },
+      {
+        "module": "_ops.py",
+        "line": 166,
+        "function": "py_functionalize_impl",
+        "calls": 3,
+        "self_seconds": 3.6913000000000004e-05,
+        "cumulative_seconds": 0.976676351
+      },
+      {
+        "module": "basic.py",
+        "line": 2497,
+        "function": "construct",
+        "calls": 9,
+        "self_seconds": 9.166e-05,
+        "cumulative_seconds": 0.9656292660000001
+      },
+      {
+        "module": "basic.py",
+        "line": 2080,
+        "function": "_lazy_init",
+        "calls": 9,
+        "self_seconds": 0.00015100900000000002,
+        "cumulative_seconds": 0.96190874
+      },
+      {
+        "module": "basic.py",
+        "line": 2286,
+        "function": "__init_from_np2d",
+        "calls": 9,
+        "self_seconds": 0.9564744530000001,
+        "cumulative_seconds": 0.9567074780000001
+      },
+      {
+        "module": "clip_grad.py",
+        "line": 49,
+        "function": "_get_total_norm",
+        "calls": 11029,
+        "self_seconds": 0.069483898,
+        "cumulative_seconds": 0.800422508
+      },
+      {
+        "module": "library.py",
+        "line": 129,
+        "function": "define",
+        "calls": 27,
+        "self_seconds": 0.000789252,
+        "cumulative_seconds": 0.711502162
+      },
+      {
+        "module": "linear.py",
+        "line": 130,
+        "function": "forward",
+        "calls": 45228,
+        "self_seconds": 0.022649224000000003,
+        "cumulative_seconds": 0.632405647
+      },
+      {
+        "module": "conv.py",
+        "line": 374,
+        "function": "forward",
+        "calls": 22614,
+        "self_seconds": 0.016534913000000002,
+        "cumulative_seconds": 0.624440501
+      },
+      {
+        "module": "candidate.py",
+        "line": 398,
+        "function": "normalize_sequences",
+        "calls": 9,
+        "self_seconds": 0.307434778,
+        "cumulative_seconds": 0.603647869
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._C._nn.linear>",
+        "calls": 45228,
+        "self_seconds": 0.597930017,
+        "cumulative_seconds": 0.597930017
+      },
+      {
+        "module": "conv.py",
+        "line": 356,
+        "function": "_conv_forward",
+        "calls": 22614,
+        "self_seconds": 0.013922730000000001,
+        "cumulative_seconds": 0.597796388
+      },
+      {
+        "module": "_distn_infrastructure.py",
+        "line": 613,
+        "function": "argsreduce",
+        "calls": 37922,
+        "self_seconds": 0.08014664,
+        "cumulative_seconds": 0.5943333120000001
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.conv1d>",
+        "calls": 22614,
+        "self_seconds": 0.583873658,
+        "cumulative_seconds": 0.583873658
+      },
+      {
+        "module": "_param_validation.py",
+        "line": 187,
+        "function": "wrapper",
+        "calls": 816,
+        "self_seconds": 0.003838142,
+        "cumulative_seconds": 0.551763617
+      },
+      {
+        "module": "candidate.py",
+        "line": 297,
+        "function": "training_loss",
+        "calls": 11029,
+        "self_seconds": 0.06958217700000001,
+        "cumulative_seconds": 0.543298884
+      },
+      {
+        "module": "clip_grad.py",
+        "line": 120,
+        "function": "_clip_grads_with_norm_",
+        "calls": 11029,
+        "self_seconds": 0.132579275,
+        "cumulative_seconds": 0.5244653180000001
+      },
+      {
+        "module": "module.py",
+        "line": 2666,
+        "function": "parameters",
+        "calls": 165570,
+        "self_seconds": 0.030886155000000002,
+        "cumulative_seconds": 0.513918152
+      },
+      {
+        "module": "base.py",
+        "line": 1381,
+        "function": "wrapper",
+        "calls": 9,
+        "self_seconds": 0.000142337,
+        "cumulative_seconds": 0.5066317100000001
+      }
+    ],
+    "top_self": [
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<method 'run_backward' of 'torch._C._EngineBase' objects>",
+        "calls": 11029,
+        "self_seconds": 3.3907588950000003,
+        "cumulative_seconds": 3.3907588950000003
+      },
+      {
+        "module": "basic.py",
+        "line": 4198,
+        "function": "update",
+        "calls": 1350,
+        "self_seconds": 2.622750814,
+        "cumulative_seconds": 2.6231999800000003
+      },
+      {
+        "module": "candidate.py",
+        "line": 450,
+        "function": "fit_one",
+        "calls": 8,
+        "self_seconds": 1.0734793120000001,
+        "cumulative_seconds": 0.0
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method numpy._core._multiarray_umath.interp>",
+        "calls": 8820,
+        "self_seconds": 1.000004729,
+        "cumulative_seconds": 1.000004729
+      },
+      {
+        "module": "basic.py",
+        "line": 2286,
+        "function": "__init_from_np2d",
+        "calls": 9,
+        "self_seconds": 0.9564744530000001,
+        "cumulative_seconds": 0.9567074780000001
+      },
+      {
+        "module": "_data.py",
+        "line": 2930,
+        "function": "_transform_col",
+        "calls": 4410,
+        "self_seconds": 0.8647162380000001,
+        "cumulative_seconds": 3.678907723
+      },
+      {
+        "module": "_distn_infrastructure.py",
+        "line": 2305,
+        "function": "ppf",
+        "calls": 13230,
+        "self_seconds": 0.736562628,
+        "cumulative_seconds": 1.752004474
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._C._nn.linear>",
+        "calls": 45228,
+        "self_seconds": 0.597930017,
+        "cumulative_seconds": 0.597930017
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.conv1d>",
+        "calls": 22614,
+        "self_seconds": 0.583873658,
+        "cumulative_seconds": 0.583873658
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+        "calls": 61988,
+        "self_seconds": 0.412624987,
+        "cumulative_seconds": 0.412624987
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.binary_cross_entropy_with_logits>",
+        "calls": 11029,
+        "self_seconds": 0.36804037500000003,
+        "cumulative_seconds": 0.36804037500000003
+      },
+      {
+        "module": "candidate.py",
+        "line": 398,
+        "function": "normalize_sequences",
+        "calls": 9,
+        "self_seconds": 0.307434778,
+        "cumulative_seconds": 0.603647869
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<method 'partition' of 'numpy.ndarray' objects>",
+        "calls": 2205,
+        "self_seconds": 0.28645128400000003,
+        "cumulative_seconds": 0.28645128400000003
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._foreach_norm>",
+        "calls": 11029,
+        "self_seconds": 0.28102506,
+        "cumulative_seconds": 0.28102506
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.relu>",
+        "calls": 56535,
+        "self_seconds": 0.27208444800000003,
+        "cumulative_seconds": 0.27208444800000003
+      },
+      {
+        "module": "candidate.py",
+        "line": 186,
+        "function": "forward",
+        "calls": 11307,
+        "self_seconds": 0.20798612300000002,
+        "cumulative_seconds": 2.6127186200000003
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._foreach_mul_>",
+        "calls": 33087,
+        "self_seconds": 0.185211652,
+        "cumulative_seconds": 0.185211652
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._foreach_sqrt>",
+        "calls": 11029,
+        "self_seconds": 0.182315273,
+        "cumulative_seconds": 0.182315273
+      },
+      {
+        "module": "adam.py",
+        "line": 139,
+        "function": "_init_group",
+        "calls": 11029,
+        "self_seconds": 0.177100466,
+        "cumulative_seconds": 0.29695976
+      },
+      {
+        "module": "adam.py",
+        "line": 554,
+        "function": "_multi_tensor_adam",
+        "calls": 11029,
+        "self_seconds": 0.17346808200000002,
+        "cumulative_seconds": 1.4894852650000001
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<method 'mean' of 'torch._C.TensorBase' objects>",
+        "calls": 22336,
+        "self_seconds": 0.171260299,
+        "cumulative_seconds": 0.171260299
+      },
+      {
+        "module": "_continuous_distns.py",
+        "line": 378,
+        "function": "_norm_ppf",
+        "calls": 11462,
+        "self_seconds": 0.166686037,
+        "cumulative_seconds": 0.166686037
+      },
+      {
+        "module": "module.py",
+        "line": 2837,
+        "function": "named_modules",
+        "calls": 651242,
+        "self_seconds": 0.165361952,
+        "cumulative_seconds": 0.19622011
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method numpy._core._multiarray_umath._place>",
+        "calls": 37922,
+        "self_seconds": 0.15878043900000002,
+        "cumulative_seconds": 0.15878043900000002
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._foreach_add_>",
+        "calls": 22058,
+        "self_seconds": 0.15833928700000002,
+        "cumulative_seconds": 0.15833928700000002
+      },
+      {
+        "module": "_data.py",
+        "line": 3023,
+        "function": "_transform",
+        "calls": 18,
+        "self_seconds": 0.15680989,
+        "cumulative_seconds": 3.835727545
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._ops.profiler._record_function_enter_new>",
+        "calls": 22058,
+        "self_seconds": 0.148386648,
+        "cumulative_seconds": 0.148386648
+      },
+      {
+        "module": "optimizer.py",
+        "line": 91,
+        "function": "_get_value",
+        "calls": 308812,
+        "self_seconds": 0.14653136900000002,
+        "cumulative_seconds": 0.294330056
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._C._group_tensors_by_device_and_dtype>",
+        "calls": 33087,
+        "self_seconds": 0.145209632,
+        "cumulative_seconds": 0.145209632
+      },
+      {
+        "module": "module.py",
+        "line": 2646,
+        "function": "_named_members",
+        "calls": 165570,
+        "self_seconds": 0.133233284,
+        "cumulative_seconds": 0.452575728
+      },
+      {
+        "module": "clip_grad.py",
+        "line": 120,
+        "function": "_clip_grads_with_norm_",
+        "calls": 11029,
+        "self_seconds": 0.132579275,
+        "cumulative_seconds": 0.5244653180000001
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.stack>",
+        "calls": 11029,
+        "self_seconds": 0.11978237000000001,
+        "cumulative_seconds": 0.11978237000000001
+      },
+      {
+        "module": "module.py",
+        "line": 1783,
+        "function": "_call_impl",
+        "calls": 158298,
+        "self_seconds": 0.117372238,
+        "cumulative_seconds": 2.6383912090000003
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.layer_norm>",
+        "calls": 11307,
+        "self_seconds": 0.115635872,
+        "cumulative_seconds": 0.115635872
+      },
+      {
+        "module": "clip_grad.py",
+        "line": 39,
+        "function": "_no_grad_wrapper",
+        "calls": 33087,
+        "self_seconds": 0.11504546,
+        "cumulative_seconds": 2.1667099480000003
+      },
+      {
+        "module": "custom_ops.py",
+        "line": 607,
+        "function": "_register_to_dispatcher",
+        "calls": 9,
+        "self_seconds": 0.10874206500000001,
+        "cumulative_seconds": 0.09575615600000001
+      },
+      {
+        "module": "optimizer.py",
+        "line": 1027,
+        "function": "zero_grad",
+        "calls": 11029,
+        "self_seconds": 0.10830288,
+        "cumulative_seconds": 0.25152587600000004
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.dropout>",
+        "calls": 11307,
+        "self_seconds": 0.106677147,
+        "cumulative_seconds": 0.106677147
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<method 'ravel' of 'numpy.ndarray' objects>",
+        "calls": 38584,
+        "self_seconds": 0.105827419,
+        "cumulative_seconds": 0.105827419
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<method 'argsort' of 'numpy.ndarray' objects>",
+        "calls": 272,
+        "self_seconds": 0.104754393,
+        "cumulative_seconds": 0.104754393
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._C._linalg.linalg_vector_norm>",
+        "calls": 11029,
+        "self_seconds": 0.095553884,
+        "cumulative_seconds": 0.095553884
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.cat>",
+        "calls": 11307,
+        "self_seconds": 0.095504429,
+        "cumulative_seconds": 0.095504429
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method builtins.isinstance>",
+        "calls": 1139473,
+        "self_seconds": 0.09127795600000001,
+        "cumulative_seconds": 0.10720164900000001
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._foreach_addcdiv_>",
+        "calls": 11029,
+        "self_seconds": 0.090613359,
+        "cumulative_seconds": 0.090613359
+      },
+      {
+        "module": "adam.py",
+        "line": 903,
+        "function": "adam",
+        "calls": 11029,
+        "self_seconds": 0.088395108,
+        "cumulative_seconds": 1.7185629550000001
+      },
+      {
+        "module": "basic.py",
+        "line": 1216,
+        "function": "__inner_predict_np2d",
+        "calls": 18,
+        "self_seconds": 0.086700886,
+        "cumulative_seconds": 0.08733335
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch.as_tensor>",
+        "calls": 54,
+        "self_seconds": 0.084347737,
+        "cumulative_seconds": 0.084347737
+      },
+      {
+        "module": "~",
+        "line": 0,
+        "function": "<built-in method torch._foreach_addcmul_>",
+        "calls": 11029,
+        "self_seconds": 0.083940003,
+        "cumulative_seconds": 0.083940003
+      },
+      {
+        "module": "module.py",
+        "line": 1775,
+        "function": "_wrapped_call_impl",
+        "calls": 158298,
+        "self_seconds": 0.081138583,
+        "cumulative_seconds": 2.6495788570000003
+      },
+      {
+        "module": "_distn_infrastructure.py",
+        "line": 613,
+        "function": "argsreduce",
+        "calls": 37922,
+        "self_seconds": 0.08014664,
+        "cumulative_seconds": 0.5943333120000001
+      }
+    ],
+    "profile_notes": "Instrumented training-only replay; CPU function times include synchronization waits, not isolated GPU kernel times. Cumulative times overlap. Query has two training rows, so full query inference and feature construction are not profiled. Not a benchmark runtime."
+  }
+]

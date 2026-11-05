@@ -103,7 +103,6 @@ export function RunLayout() {
   const outcome = run?.outcome ?? null;
   const dataState = run?.data_state ?? null;
   const normalizedPath = pathname.replace(/\/+$/, '') || '/';
-  const isJudgeCase = runId === 'hdd_mvp_showcase_c89e2a01';
   const showRunTabs =
     normalizedPath === `/runs/${runId}` ||
     normalizedPath === `/runs/${runId}/tree` ||
@@ -112,9 +111,9 @@ export function RunLayout() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className={isJudgeCase ? 'text-sm font-semibold text-fg' : 'font-mono text-sm font-semibold text-fg'}>{isJudgeCase ? 'HDD 故障预测算法自进化案例' : runId}</h1>
+        <h1 className="font-mono text-sm font-semibold text-fg">{runId}</h1>
         {dataState !== null ? (
-          <StatusBadge tone={DATA_STATE_TONE[dataState]}>{isJudgeCase ? '证据完整' : dataState}</StatusBadge>
+          <StatusBadge tone={DATA_STATE_TONE[dataState]}>{dataState}</StatusBadge>
         ) : null}
         {/* 制品还没落盘时，运行名下面这一行至少要说清进程在不在。 */}
         {dataState === null && live?.status ? (
@@ -133,19 +132,19 @@ export function RunLayout() {
             {live.status}
           </StatusBadge>
         ) : null}
-        {!isJudgeCase && outcome?.status ? (
+        {outcome?.status ? (
           <span className="text-xs text-fg-muted">状态 {outcome.status}</span>
         ) : null}
-        {!isJudgeCase ? <span className="tabular text-xs text-fg-muted">
+        <span className="tabular text-xs text-fg-muted">
           最佳分 {outcome?.best_score != null ? outcome.best_score.toFixed(2) : '未评分'}
-        </span> : <span className="text-xs text-fg-muted">KGTE · J-PUCT · PMP Discovery</span>}
-        {!isJudgeCase ? <span className="tabular text-xs text-fg-muted">
+        </span>
+        <span className="tabular text-xs text-fg-muted">
           提升 {outcome?.improvement != null ? outcome.improvement.toFixed(2) : '未记录'}
-        </span> : null}
+        </span>
       </div>
 
       {showRunTabs ? <nav className="flex items-center gap-1 border-b border-border-subtle" aria-label="运行视图">
-        {TABS.filter((tab) => !isJudgeCase || tab.label !== '代际时间轴').map((tab) => {
+        {TABS.map((tab) => {
           const target = tab.to === '/runs/$runId' ? `/runs/${runId}` : `/runs/${runId}/${tab.to.split('/').pop()}`;
           const isActive = tab.exact
             ? normalizedPath === `/runs/${runId}`
@@ -155,14 +154,14 @@ export function RunLayout() {
               key={tab.label}
               to={tab.to}
               params={{ runId }}
-              data-run-tab={isJudgeCase && tab.label === '工作台总览' ? '案例总览' : tab.label}
+              data-run-tab={tab.label}
               className={`-mb-px border-b-2 px-3 py-2 text-xs ${
                 isActive
                   ? 'border-brand-500 font-medium text-brand-600'
                   : 'border-transparent text-fg-muted hover:text-fg'
               }`}
             >
-              {isJudgeCase && tab.label === '工作台总览' ? '案例总览' : tab.label}
+              {tab.label}
             </Link>
           );
         })}

@@ -13,6 +13,9 @@ description: 为不规则事件流器件准备防泄漏样本：schema 探查、
 
 等间隔快照型数据（日级 SMART 表）不要套本 Skill，走 `skill/fe-dataset-adapters/SKILL.md` 的快照路线。
 
+文件格式由 `faultevolve.data.universal_adapter` 统一读取；先把 CSV、Parquet、Feather、Excel、JSON 或 log
+归一化成 `sn`/`LogTime` 契约，再进入本 Skill 的窗口、切分和泄漏审计。格式差异不应复制一份采样算法。
+
 ## 必需输入清单
 
 缺任何一项都应停在明确缺项，**不要用默认值掩盖不确定性**：

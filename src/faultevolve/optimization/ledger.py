@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Literal
 
 Stage = Literal[
@@ -31,6 +32,8 @@ class CostRecord:
     stage: Stage
     fidelity: Fidelity
     node_id: str | None
+    #: Which island paid for this record; "" is shared/legacy work.
+    island_id: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
     model_fit_count: int = 0
@@ -84,9 +87,12 @@ class LedgerTotals:
 class CostLedger:
     """In-memory cost ledger with optional full-eval cap."""
 
-    def __init__(self, *, full_eval_cap: int | None = None) -> None:
+    def __init__(self, *, full_eval_cap: int | None = None, start_seq: int = 0) -> None:
         self._full_eval_cap = full_eval_cap
-        self._seq = 0
+        # A resumed run has already written records under this experiment, and the
+        # ledger's rows are keyed by (experiment_id, seq): counting from zero again
+        # would collide with its own history on the first record.
+        self._seq = start_seq
         self._records: list[CostRecord] = []
         self._open: dict[str, Reservation] = {}
 
@@ -110,49 +116,50 @@ class CostLedger:
 
     def settle(self, reservation: Reservation, record: CostRecord) -> CostRecord:
         self._open.pop(reservation.id, None)
-        rec = CostRecord(
-            seq=self._next_seq(),
-            stage=record.stage,
-            fidelity=record.fidelity,
-            node_id=record.node_id,
-            prompt_tokens=record.prompt_tokens,
-            completion_tokens=record.completion_tokens,
-            model_fit_count=record.model_fit_count,
-            evaluator_calls=record.evaluator_calls,
-            cpu_seconds=record.cpu_seconds,
-            rss_peak_mb=record.rss_peak_mb,
-            wall_s=record.wall_s,
-            cache_hit=record.cache_hit,
-            status=record.status,
-            reservation_id=reservation.id,
-            meta=record.meta,
-        )
+        rec = replace(record, seq=self._next_seq(), reservation_id=reservation.id)
         self._records.append(rec)
         return rec
 
     def record(self, record: CostRecord) -> CostRecord:
-        rec = CostRecord(
-            seq=self._next_seq(),
-            stage=record.stage,
-            fidelity=record.fidelity,
-            node_id=record.node_id,
-            prompt_tokens=record.prompt_tokens,
-            completion_tokens=record.completion_tokens,
-            model_fit_count=record.model_fit_count,
-            evaluator_calls=record.evaluator_calls,
-            cpu_seconds=record.cpu_seconds,
-            rss_peak_mb=record.rss_peak_mb,
-            wall_s=record.wall_s,
-            cache_hit=record.cache_hit,
-            status=record.status,
-            reservation_id=record.reservation_id,
-            meta=record.meta,
-        )
+        rec = replace(record, seq=self._next_seq())
         self._records.append(rec)
         return rec
 
     def records(self) -> list[CostRecord]:
         return list(self._records)
+
+    def restore_rows(self, rows: list[dict[str, Any]]) -> int:
+        """Rebuild the ledger's view of the run from its persisted rows.
+
+        A restart must not forget what the run already paid for: the full-eval
+        cap is a promise about the run, and ``totals()`` describes the run, not
+        whichever process happens to be asking. Rows keep the ``seq`` they were
+        stored under; new records continue after them via ``start_seq``.
+        """
+        restored = 0
+        for row in rows:
+            self._records.append(
+                CostRecord(
+                    seq=int(row["seq"]),
+                    stage=row["stage"],
+                    fidelity=row["fidelity"],
+                    node_id=row["node_id"],
+                    island_id=row["island_id"] or "",
+                    prompt_tokens=int(row["prompt_tokens"] or 0),
+                    completion_tokens=int(row["completion_tokens"] or 0),
+                    model_fit_count=int(row["model_fit_count"] or 0),
+                    evaluator_calls=int(row["evaluator_calls"] or 0),
+                    cpu_seconds=row["cpu_seconds"],
+                    rss_peak_mb=row["rss_peak_mb"],
+                    wall_s=float(row["wall_s"] or 0.0),
+                    cache_hit=bool(row["cache_hit"]),
+                    status=row["status"] or "ok",
+                    reservation_id=row["reservation_id"],
+                    meta=json.loads(row["meta_json"]) if row["meta_json"] else {},
+                )
+            )
+            restored += 1
+        return restored
 
     def totals(self) -> LedgerTotals:
         totals = LedgerTotals()

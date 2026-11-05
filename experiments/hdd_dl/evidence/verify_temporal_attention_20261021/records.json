@@ -1,0 +1,1394 @@
+[
+  {
+    "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/temporal_attention_sources_20261021/without.py",
+    "seed": 20270518,
+    "result": {
+      "validity": 1.0,
+      "combined_score": 42.010885087798336,
+      "cost_time": 12.984047174453735,
+      "error_info": "",
+      "metric": {
+        "precision": 0.39899,
+        "recall": 0.47751,
+        "f1": 0.43473,
+        "f1_p10": 0.40495,
+        "f1_boot_std": 0.02191,
+        "auprc": 0.39741,
+        "recall_at_far": 0.49206,
+        "false_alarm_rate": 0.0018,
+        "missed_detection_rate": 0.52249,
+        "alarms_per_1k_disks": 2.988,
+        "quality": 0.42011,
+        "run_time_s": 12.98,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "/home/hcf/faultevolve-dl/code-v62/benchmark/hdd_mvp/init.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.39899,
+            "baseline": 0.19826,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.47751,
+            "baseline": 0.33598,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.43473,
+            "baseline": 0.24937,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40495,
+            "baseline": 0.22935,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.39741,
+            "baseline": 0.19546,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.27381,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.42011,
+            "baseline": 0.22807,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0018,
+            "baseline": 0.0034,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.52249,
+            "baseline": 0.66402,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.02191,
+            "baseline": 0.01652,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.98,
+            "baseline": 1.87,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 42.010885087798336,
+            "baseline": 22.807355886970594,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.39899,
+            "baseline": 0.38198,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.47751,
+            "baseline": 0.47751,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.43473,
+            "baseline": 0.42444,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40495,
+            "baseline": 0.39583,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.39741,
+            "baseline": 0.37148,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.48942,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.42011,
+            "baseline": 0.40724,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0018,
+            "baseline": 0.001933,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.52249,
+            "baseline": 0.52249,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02191,
+            "baseline": 0.02141,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.98,
+            "baseline": 6.03,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 42.010885087798336,
+            "baseline": 40.72413860816145,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.39899,
+            "baseline": 0.33178,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.47751,
+            "baseline": 0.4828,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.43473,
+            "baseline": 0.39329,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40495,
+            "baseline": 0.36672,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.39741,
+            "baseline": 0.36117,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.44841,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.42011,
+            "baseline": 0.38139,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0018,
+            "baseline": 0.002433,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.52249,
+            "baseline": 0.5172,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02191,
+            "baseline": 0.02047,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.98,
+            "baseline": 7.3,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 42.010885087798336,
+            "baseline": 38.139345971596875,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      }
+    ]
+  },
+  {
+    "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/temporal_attention_sources_20261021/with.py",
+    "seed": 20270518,
+    "result": {
+      "validity": 1.0,
+      "combined_score": 41.217678052921904,
+      "cost_time": 13.238263368606567,
+      "error_info": "",
+      "metric": {
+        "precision": 0.38394,
+        "recall": 0.48148,
+        "f1": 0.42721,
+        "f1_p10": 0.39673,
+        "f1_boot_std": 0.02207,
+        "auprc": 0.39171,
+        "recall_at_far": 0.48148,
+        "false_alarm_rate": 0.001933,
+        "missed_detection_rate": 0.51852,
+        "alarms_per_1k_disks": 3.131,
+        "quality": 0.41218,
+        "run_time_s": 13.24,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "/home/hcf/faultevolve-dl/code-v62/benchmark/hdd_mvp/init.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.38394,
+            "baseline": 0.19826,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.48148,
+            "baseline": 0.33598,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.42721,
+            "baseline": 0.24937,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.39673,
+            "baseline": 0.22935,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.39171,
+            "baseline": 0.19546,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.48148,
+            "baseline": 0.27381,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.41218,
+            "baseline": 0.22807,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001933,
+            "baseline": 0.0034,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51852,
+            "baseline": 0.66402,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.02207,
+            "baseline": 0.01652,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 13.24,
+            "baseline": 1.87,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.217678052921904,
+            "baseline": 22.807355886970594,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.38394,
+            "baseline": 0.38198,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.48148,
+            "baseline": 0.47751,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.42721,
+            "baseline": 0.42444,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.39673,
+            "baseline": 0.39583,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.39171,
+            "baseline": 0.37148,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.48148,
+            "baseline": 0.48942,
+            "better": false
+          },
+          "quality": {
+            "candidate": 0.41218,
+            "baseline": 0.40724,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001933,
+            "baseline": 0.001933,
+            "better": false
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51852,
+            "baseline": 0.52249,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.02207,
+            "baseline": 0.02141,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 13.24,
+            "baseline": 6.03,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.217678052921904,
+            "baseline": 40.72413860816145,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.38394,
+            "baseline": 0.33178,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.48148,
+            "baseline": 0.4828,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.42721,
+            "baseline": 0.39329,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.39673,
+            "baseline": 0.36672,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.39171,
+            "baseline": 0.36117,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.48148,
+            "baseline": 0.44841,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.41218,
+            "baseline": 0.38139,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001933,
+            "baseline": 0.002433,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51852,
+            "baseline": 0.5172,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02207,
+            "baseline": 0.02047,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 13.24,
+            "baseline": 7.3,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.217678052921904,
+            "baseline": 38.139345971596875,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      }
+    ]
+  },
+  {
+    "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/temporal_attention_sources_20261021/without.py",
+    "seed": 20270519,
+    "result": {
+      "validity": 1.0,
+      "combined_score": 40.446881032657714,
+      "cost_time": 11.986731767654419,
+      "error_info": "",
+      "metric": {
+        "precision": 0.35863,
+        "recall": 0.48413,
+        "f1": 0.41203,
+        "f1_p10": 0.38771,
+        "f1_boot_std": 0.01984,
+        "auprc": 0.38899,
+        "recall_at_far": 0.46958,
+        "false_alarm_rate": 0.002167,
+        "missed_detection_rate": 0.51587,
+        "alarms_per_1k_disks": 3.37,
+        "quality": 0.40447,
+        "run_time_s": 11.99,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "/home/hcf/faultevolve-dl/code-v62/benchmark/hdd_mvp/init.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.35863,
+            "baseline": 0.19826,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.48413,
+            "baseline": 0.33598,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.41203,
+            "baseline": 0.24937,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.38771,
+            "baseline": 0.22935,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38899,
+            "baseline": 0.19546,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.46958,
+            "baseline": 0.27381,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.40447,
+            "baseline": 0.22807,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.002167,
+            "baseline": 0.0034,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51587,
+            "baseline": 0.66402,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.01984,
+            "baseline": 0.01652,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 11.99,
+            "baseline": 1.87,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.446881032657714,
+            "baseline": 22.807355886970594,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.35863,
+            "baseline": 0.38198,
+            "better": false
+          },
+          "recall": {
+            "candidate": 0.48413,
+            "baseline": 0.47751,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.41203,
+            "baseline": 0.42444,
+            "better": false
+          },
+          "f1_p10": {
+            "candidate": 0.38771,
+            "baseline": 0.39583,
+            "better": false
+          },
+          "auprc": {
+            "candidate": 0.38899,
+            "baseline": 0.37148,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.46958,
+            "baseline": 0.48942,
+            "better": false
+          },
+          "quality": {
+            "candidate": 0.40447,
+            "baseline": 0.40724,
+            "better": false
+          },
+          "false_alarm_rate": {
+            "candidate": 0.002167,
+            "baseline": 0.001933,
+            "better": false
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51587,
+            "baseline": 0.52249,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.01984,
+            "baseline": 0.02141,
+            "better": true
+          },
+          "run_time_s": {
+            "candidate": 11.99,
+            "baseline": 6.07,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.446881032657714,
+            "baseline": 40.72413860816145,
+            "better": false
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.35863,
+            "baseline": 0.33178,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.48413,
+            "baseline": 0.4828,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.41203,
+            "baseline": 0.39329,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.38771,
+            "baseline": 0.36672,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38899,
+            "baseline": 0.36117,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.46958,
+            "baseline": 0.44841,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.40447,
+            "baseline": 0.38139,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.002167,
+            "baseline": 0.002433,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51587,
+            "baseline": 0.5172,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.01984,
+            "baseline": 0.02047,
+            "better": true
+          },
+          "run_time_s": {
+            "candidate": 11.99,
+            "baseline": 7.27,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.446881032657714,
+            "baseline": 38.139345971596875,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      }
+    ]
+  },
+  {
+    "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/temporal_attention_sources_20261021/with.py",
+    "seed": 20270519,
+    "result": {
+      "validity": 1.0,
+      "combined_score": 40.334187716694956,
+      "cost_time": 12.580609798431396,
+      "error_info": "",
+      "metric": {
+        "precision": 0.35575,
+        "recall": 0.48545,
+        "f1": 0.4106,
+        "f1_p10": 0.38658,
+        "f1_boot_std": 0.01988,
+        "auprc": 0.38801,
+        "recall_at_far": 0.46825,
+        "false_alarm_rate": 0.0022,
+        "missed_detection_rate": 0.51455,
+        "alarms_per_1k_disks": 3.407,
+        "quality": 0.40334,
+        "run_time_s": 12.58,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "/home/hcf/faultevolve-dl/code-v62/benchmark/hdd_mvp/init.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.35575,
+            "baseline": 0.19826,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.48545,
+            "baseline": 0.33598,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.4106,
+            "baseline": 0.24937,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.38658,
+            "baseline": 0.22935,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38801,
+            "baseline": 0.19546,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.46825,
+            "baseline": 0.27381,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.40334,
+            "baseline": 0.22807,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0022,
+            "baseline": 0.0034,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51455,
+            "baseline": 0.66402,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.01988,
+            "baseline": 0.01652,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.58,
+            "baseline": 1.87,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.334187716694956,
+            "baseline": 22.807355886970594,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.35575,
+            "baseline": 0.38198,
+            "better": false
+          },
+          "recall": {
+            "candidate": 0.48545,
+            "baseline": 0.47751,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.4106,
+            "baseline": 0.42444,
+            "better": false
+          },
+          "f1_p10": {
+            "candidate": 0.38658,
+            "baseline": 0.39583,
+            "better": false
+          },
+          "auprc": {
+            "candidate": 0.38801,
+            "baseline": 0.37148,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.46825,
+            "baseline": 0.48942,
+            "better": false
+          },
+          "quality": {
+            "candidate": 0.40334,
+            "baseline": 0.40724,
+            "better": false
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0022,
+            "baseline": 0.001933,
+            "better": false
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51455,
+            "baseline": 0.52249,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.01988,
+            "baseline": 0.02141,
+            "better": true
+          },
+          "run_time_s": {
+            "candidate": 12.58,
+            "baseline": 6.07,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.334187716694956,
+            "baseline": 40.72413860816145,
+            "better": false
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.35575,
+            "baseline": 0.33178,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.48545,
+            "baseline": 0.4828,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.4106,
+            "baseline": 0.39329,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.38658,
+            "baseline": 0.36672,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38801,
+            "baseline": 0.36117,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.46825,
+            "baseline": 0.44841,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.40334,
+            "baseline": 0.38139,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0022,
+            "baseline": 0.002433,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.51455,
+            "baseline": 0.5172,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.01988,
+            "baseline": 0.02047,
+            "better": true
+          },
+          "run_time_s": {
+            "candidate": 12.58,
+            "baseline": 7.27,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.334187716694956,
+            "baseline": 38.139345971596875,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      }
+    ]
+  },
+  {
+    "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/temporal_attention_sources_20261021/without.py",
+    "seed": 20270520,
+    "result": {
+      "validity": 1.0,
+      "combined_score": 40.66035453921168,
+      "cost_time": 12.216520071029663,
+      "error_info": "",
+      "metric": {
+        "precision": 0.45728,
+        "recall": 0.37037,
+        "f1": 0.40926,
+        "f1_p10": 0.37854,
+        "f1_boot_std": 0.02268,
+        "auprc": 0.3964,
+        "recall_at_far": 0.49206,
+        "false_alarm_rate": 0.0011,
+        "missed_detection_rate": 0.62963,
+        "alarms_per_1k_disks": 2.022,
+        "quality": 0.4066,
+        "run_time_s": 12.22,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "/home/hcf/faultevolve-dl/code-v62/benchmark/hdd_mvp/init.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.45728,
+            "baseline": 0.19826,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.37037,
+            "baseline": 0.33598,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.40926,
+            "baseline": 0.24937,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.37854,
+            "baseline": 0.22935,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.3964,
+            "baseline": 0.19546,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.27381,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.4066,
+            "baseline": 0.22807,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0011,
+            "baseline": 0.0034,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.62963,
+            "baseline": 0.66402,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.02268,
+            "baseline": 0.01652,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.22,
+            "baseline": 1.87,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.66035453921168,
+            "baseline": 22.807355886970594,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.45728,
+            "baseline": 0.38198,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.37037,
+            "baseline": 0.47751,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.40926,
+            "baseline": 0.42444,
+            "better": false
+          },
+          "f1_p10": {
+            "candidate": 0.37854,
+            "baseline": 0.39583,
+            "better": false
+          },
+          "auprc": {
+            "candidate": 0.3964,
+            "baseline": 0.37148,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.48942,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.4066,
+            "baseline": 0.40724,
+            "better": false
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0011,
+            "baseline": 0.001933,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.62963,
+            "baseline": 0.52249,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02268,
+            "baseline": 0.02141,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.22,
+            "baseline": 6.02,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.66035453921168,
+            "baseline": 40.72413860816145,
+            "better": false
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.45728,
+            "baseline": 0.33178,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.37037,
+            "baseline": 0.4828,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.40926,
+            "baseline": 0.39329,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.37854,
+            "baseline": 0.36672,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.3964,
+            "baseline": 0.36117,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.44841,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.4066,
+            "baseline": 0.38139,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.0011,
+            "baseline": 0.002433,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.62963,
+            "baseline": 0.5172,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02268,
+            "baseline": 0.02047,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.22,
+            "baseline": 7.25,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.66035453921168,
+            "baseline": 38.139345971596875,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      }
+    ]
+  },
+  {
+    "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/temporal_attention_sources_20261021/with.py",
+    "seed": 20270520,
+    "result": {
+      "validity": 1.0,
+      "combined_score": 40.62427689416001,
+      "cost_time": 12.738358974456787,
+      "error_info": "",
+      "metric": {
+        "precision": 0.46135,
+        "recall": 0.36508,
+        "f1": 0.40761,
+        "f1_p10": 0.37757,
+        "f1_boot_std": 0.02273,
+        "auprc": 0.39681,
+        "recall_at_far": 0.49206,
+        "false_alarm_rate": 0.001067,
+        "missed_detection_rate": 0.63492,
+        "alarms_per_1k_disks": 1.975,
+        "quality": 0.40624,
+        "run_time_s": 12.74,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "/home/hcf/faultevolve-dl/code-v62/benchmark/hdd_mvp/init.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.46135,
+            "baseline": 0.19826,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.36508,
+            "baseline": 0.33598,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.40761,
+            "baseline": 0.24937,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.37757,
+            "baseline": 0.22935,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.39681,
+            "baseline": 0.19546,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.27381,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.40624,
+            "baseline": 0.22807,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001067,
+            "baseline": 0.0034,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.63492,
+            "baseline": 0.66402,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.02273,
+            "baseline": 0.01652,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.74,
+            "baseline": 1.87,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.62427689416001,
+            "baseline": 22.807355886970594,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.46135,
+            "baseline": 0.38198,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.36508,
+            "baseline": 0.47751,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.40761,
+            "baseline": 0.42444,
+            "better": false
+          },
+          "f1_p10": {
+            "candidate": 0.37757,
+            "baseline": 0.39583,
+            "better": false
+          },
+          "auprc": {
+            "candidate": 0.39681,
+            "baseline": 0.37148,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.48942,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.40624,
+            "baseline": 0.40724,
+            "better": false
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001067,
+            "baseline": 0.001933,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.63492,
+            "baseline": 0.52249,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02273,
+            "baseline": 0.02141,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.74,
+            "baseline": 6.02,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.62427689416001,
+            "baseline": 40.72413860816145,
+            "better": false
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.46135,
+            "baseline": 0.33178,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.36508,
+            "baseline": 0.4828,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.40761,
+            "baseline": 0.39329,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.37757,
+            "baseline": 0.36672,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.39681,
+            "baseline": 0.36117,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.49206,
+            "baseline": 0.44841,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.40624,
+            "baseline": 0.38139,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001067,
+            "baseline": 0.002433,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.63492,
+            "baseline": 0.5172,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02273,
+            "baseline": 0.02047,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 12.74,
+            "baseline": 7.25,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 40.62427689416001,
+            "baseline": 38.139345971596875,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      }
+    ]
+  }
+]

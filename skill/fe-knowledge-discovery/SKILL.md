@@ -140,7 +140,7 @@ python skill/fe-knowledge-discovery/scripts/check_discovery_summary.py "$ART_DIR
 
 ```bash
 cp -a "$FE_RUNS_DIR/89f4bdd1" "$DST/89f4bdd1"
-SRC=/path/to/faultevolve/runs/<run-id>
+SRC=/home/hcf/nas_hcf_data/faultevolve/runs/kd_relaxed_20261005/v3_full
 fe discover replay-claim benchmark/hdd_mvp --run-id 89f4bdd1 --runs-dir "$DST" \
   --claim-id C-89f4bdd1-0010 --factor-id HDD3_F10 \
   --library src/faultevolve/discovery/factor_library/hdd_v3.jsonl \

@@ -21,6 +21,11 @@ VALID_CATEGORIES = {
     "thresholding", "labeling", "imbalance", "transfer", "ensembling",
 }
 
+#: The task's checked-in knowledge library, read-only for a run.
+ORIGIN_FROZEN = "frozen"
+#: A card file this run produced (discovered cards, configured extra paths).
+ORIGIN_RUN_NEW = "run_new"
+
 
 @dataclass
 class KnowledgeCard:
@@ -39,6 +44,11 @@ class KnowledgeCard:
     impl_hint: str = ""
     priority: int = 3
     evidence: str = "paper"
+    #: Which library this card was read from. A frozen task library and a card
+    #: file this run wrote are mixed into one search pool, so the only honest way
+    #: to tell them apart later is to tag them where they are loaded.
+    origin: str = ORIGIN_FROZEN
+
 
     @property
     def idea(self) -> str:
@@ -66,6 +76,7 @@ class KnowledgeCard:
             "impl_hint": self.impl_hint,
             "priority": self.priority,
             "evidence": self.evidence,
+            "origin": self.origin,
             "idea": self.idea,
             "source": self.source,
         }
@@ -196,7 +207,12 @@ def load_all_cards(
     knowledge_dir: Path | None,
     extra_paths: Sequence[Path] = (),
 ) -> tuple[list[KnowledgeCard], list[str]]:
-    """Load literature cards plus optional extra jsonl paths."""
+    """Load literature cards plus optional extra jsonl paths.
+
+    Cards from ``knowledge_dir`` keep ``origin='frozen'``; cards from
+    ``extra_paths`` are marked ``'run_new'`` so a run can tell a checked-in
+    library suggestion apart from one it produced itself.
+    """
     cards: list[KnowledgeCard] = []
     errors: list[str] = []
     seen: set[str] = set()
@@ -216,6 +232,7 @@ def load_all_cards(
                 errors.append(f"Duplicate card id '{c.id}' rejected from {path}")
                 continue
             seen.add(c.id)
+            c.origin = ORIGIN_RUN_NEW
             cards.append(c)
     return cards, errors
 

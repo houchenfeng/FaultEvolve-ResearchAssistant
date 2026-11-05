@@ -1,0 +1,150 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792514879.7339156,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 177,
+      "prompt_tokens": 4019,
+      "total_tokens": 4196
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "depth": 2,
+        "focal_gamma": 1.0
+      },
+      "hypothesis": "采用双分支架构（结合趋势与基础特征）并增加网络深度以捕捉更复杂的时序依赖，同时引入Focal Loss (gamma=1.0) 以缓解类别不平衡导致的梯度主导问题。该组合旨在在不显著牺牲精度的前提下提升低误报率下的召回能力（Recall at FAR），并通过更深层次的特征交互改善AUPRC。",
+      "knowledge_ids": [
+        "DL-SEQ-01",
+        "HDD-TREND-02",
+        "DL-FOCAL-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792514908.1397393
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792514998.3358455,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 115,
+      "prompt_tokens": 4807,
+      "total_tokens": 4922
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "depth": 1
+      },
+      "hypothesis": "GRU模型通过门控机制更好地捕捉SMART属性的时序依赖关系，相比TCN可能提升对早期故障信号的敏感度，从而在不增加误报率的前提下提高召回率和F1分数。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792515001.9851718
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792515079.8259635,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 168,
+      "prompt_tokens": 5604,
+      "total_tokens": 5772
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "depth": 2,
+        "ranking_weight": 0.1
+      },
+      "hypothesis": "TCN模型在捕捉长程依赖和复杂时序模式上可能不如GRU灵活，且当前配置中ranking_weight=0.3导致精确率下降。切换到GRU并增加深度至2层旨在更好地建模SMART属性的时间演变规律，同时降低ranking_weight至0.1以平衡召回率与精确率，预期能提升AUPRC和低FAR下的召回率。",
+      "knowledge_ids": [
+        "DL-SEQ-01",
+        "HDD-RANK-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792515109.8302543
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "failed",
+    "created_at": 1792515199.969037,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "error_type": "ReadTimeout",
+    "finished_at": 1792515290.7755394
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792515360.5562909,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 194,
+      "prompt_tokens": 5599,
+      "total_tokens": 5793
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "focal_gamma": 1.0,
+        "ranking_weight": 0.0
+      },
+      "hypothesis": "GRU模型结合Focal Loss（gamma=1.0）能更好地处理硬盘SMART数据中的时序依赖和类别不平衡问题。相比TCN，GRU可能更擅长捕捉长期退化趋势；而移除ranking_weight并启用focal loss旨在提高低误报率下的召回率（recall_at_far），同时保持较高的精确度，避免过拟合噪声导致的假阳性增加。",
+      "knowledge_ids": [
+        "DL-SEQ-01",
+        "AUTO-4747e5ca4a",
+        "DL-FOCAL-01"
+      ],
+      "evidence_trials": [
+        37
+      ]
+    },
+    "finished_at": 1792515374.5212703
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792515446.7062602,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 131,
+      "prompt_tokens": 5592,
+      "total_tokens": 5723
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "ranking_weight": 0.1,
+        "positive_boost": 10.0
+      },
+      "hypothesis": "Dual架构结合时序与静态特征，配合高正样本权重(10.0)和适度排序损失(0.1)，旨在提升低误报率下的召回能力。",
+      "knowledge_ids": [
+        "HDD-TREND-02",
+        "HDD-RANK-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792515451.8900802
+  }
+]

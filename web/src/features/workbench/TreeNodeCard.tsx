@@ -17,6 +17,7 @@
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 
+import type { TreeEdgeKind } from '@/generated/api';
 import { EDGE_KIND_LABELS } from '@/features/workbench/reflection';
 import {
   explainSignificance,
@@ -24,7 +25,7 @@ import {
   SIGNIFICANCE_DASHED_BORDER,
   type Significance,
 } from '@/features/workbench/significance';
-import { shortId, type TreeFlowNode } from '@/features/workbench/tree-adapter';
+import { EDGE_STYLE, shortId, type TreeFlowNode } from '@/features/workbench/tree-adapter';
 
 /** 状态 → 符号 + 颜色类。文字之外必须有符号，这是 PRD 的硬要求。 */
 const STATUS_MARKS: Record<string, { mark: string; className: string }> = {
@@ -97,6 +98,21 @@ function TreeNodeCardImpl({ data, selected = false }: CardProps) {
       {/* 首行：短 ID（左）与显著性标记、最优/双亲标记（右）。 */}
       <div className="flex items-center gap-1">
         <span className="tabular text-[12px] font-semibold text-fg">{shortId(node.id)}</span>
+        {/*
+          所属岛（TODO D6.4）。只显示字母，完整说明放 title：卡片宽 176px，
+          首行已经有 ID、最优/双亲标记和状态，写「岛 a」会把状态挤到换行。
+          历史单树运行没有岛，这里就不显示 —— 显示「未分岛」会让人以为
+          这是一个特殊的岛。
+        */}
+        {data.islandId !== '' ? (
+          <span
+            className="rounded-pill bg-surface-muted px-1 text-[9px] leading-[14px] text-fg-muted"
+            title={`所属进化岛：${data.islandLabel}`}
+            data-island={data.islandId}
+          >
+            {data.islandId}
+          </span>
+        ) : null}
         {node.is_best ? (
           <span
             className="text-[10px] font-medium text-brand-600 dark:text-brand-300"
@@ -207,19 +223,19 @@ function Sample({
 }
 
 /**
- * 边图例（三种关系 + 最优路径）。
+ * 边图例（四种关系 + 最优路径）。
+ *
+ * 种类**从 `EDGE_STYLE` 取键**而不是手写数组：D6.3 加 `summary_cross` 时
+ * 画布上多了第四种绿色长虚线，图例却还写着三种 —— 自动跟表就不会再漏。
+ * 线型也从同一张表取，图例与画布不可能各说各话。
  *
  * 「最佳路径」不进 `EDGE_KIND_LABELS` —— 它不是一种**边类型**，而是叠加在
  * 既有边上的一层高亮（见 `TreeCanvas.flowEdges`）。混进边类型表会让下游
- * 以为契约多了一个 `kind`。
+ * 以为契约多了一个 `kind`。它与外岛摘要同是绿色，靠线型区分：
+ * 最佳路径是加粗实线，外岛摘要是长虚线。
  */
 export function TreeEdgeLegend() {
-  const kinds = ['parent', 'crossover_second_parent', 'repair'] as const;
-  const kindStyle: Record<(typeof kinds)[number], { stroke: string; dash?: string }> = {
-    parent: { stroke: 'var(--color-border-strong)' },
-    crossover_second_parent: { stroke: 'var(--color-brand-500)', dash: '6 4' },
-    repair: { stroke: 'var(--color-warning-500)', dash: '2 3' },
-  };
+  const kinds = Object.keys(EDGE_STYLE) as TreeEdgeKind[];
 
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-fg-muted">
@@ -229,7 +245,7 @@ export function TreeEdgeLegend() {
       </span>
       {kinds.map((kind) => (
         <span key={kind} className="inline-flex items-center gap-1.5">
-          <Sample stroke={kindStyle[kind].stroke} dash={kindStyle[kind].dash} />
+          <Sample stroke={EDGE_STYLE[kind].stroke} dash={EDGE_STYLE[kind].dash} />
           {EDGE_KIND_LABELS[kind]}
         </span>
       ))}

@@ -37,18 +37,22 @@ _PRESET_OVERRIDES: dict[str, dict[str, Any]] = {
         "analysis": {"enabled": False},
         "discovery": {"enabled": False, "tournament": {"enabled": False}},
         "smoke_test": {"enabled": True},
+        "workflow": {"enabled": True, "reports": {"enabled": True},
+                     "hierarchical": {"max_trials": 5, "max_wall_seconds": 900}},
     },
     "standard": {
         "budget": {"max_iterations": 20, "max_wall_hours": 2.0},
         "analysis": {"enabled": True},
         "discovery": {"enabled": False, "tournament": {"enabled": False}},
         "smoke_test": {"enabled": True},
+        "workflow": {"enabled": True, "reports": {"enabled": True}},
     },
     "deep": {
         "budget": {"max_iterations": 50, "max_wall_hours": 6.0},
         "analysis": {"enabled": True},
         "discovery": {"enabled": True, "tournament": {"enabled": True}},
         "smoke_test": {"enabled": True},
+        "workflow": {"enabled": True, "reports": {"enabled": True}},
     },
 }
 
@@ -59,9 +63,9 @@ _DISPLAY_NAMES_ZH = {
 }
 
 _SUMMARIES_ZH = {
-    "quick": "证明系统能真实跑起来：少量轮次，关闭分析与知识发现。",
-    "standard": "默认强度：开启错误分析，关闭知识发现与机制辩论赛。",
-    "deep": "完整强度：开启知识发现与机制辩论赛（tournament）。",
+    "quick": "5 轮结构演化，每结构最多 5 次调优（15 分钟），独立导出报告。",
+    "standard": "错误分析、20 轮结构演化，每结构最多 24 次调优，独立导出报告。",
+    "deep": "知识发现与机制辩论赛、50 轮结构演化，每结构最多 24 次调优，独立导出报告。",
 }
 
 

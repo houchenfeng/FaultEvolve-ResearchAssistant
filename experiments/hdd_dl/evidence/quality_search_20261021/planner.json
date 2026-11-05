@@ -1,0 +1,148 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792548054.1508036,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 201,
+      "prompt_tokens": 16522,
+      "total_tokens": 16723
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.25,
+        "focal_gamma": 1.0
+      },
+      "hypothesis": "增加网络宽度至256以增强特征提取能力（HDD-CAPACITY-01显示其能提升AUPRC和F1），同时降低树模型混合权重至0.25以减少对神经网络梯度的干扰并保留更多神经分支的判别力，最后引入轻度Focal Loss (gamma=1.0) 以在保持高召回率的同时抑制易分类负样本的主导地位，从而改善整体排序质量。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01",
+        "DL-FOCAL-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792548115.6645775
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792548326.2875743,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 118,
+      "prompt_tokens": 18321,
+      "total_tokens": 18439
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "positive_boost": 10.0
+      },
+      "hypothesis": "增加网络宽度至256以增强特征提取能力，同时提高正样本权重至10.0以强化对少数类故障模式的关注。预期这种组合能在保持较高精度的前提下显著提升召回率（Recall）和F1分数，从而改善整体预测质量指标及低误报率下的召回表现。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": [
+        0
+      ]
+    },
+    "finished_at": 1792548383.7157965
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792548563.96208,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 128,
+      "prompt_tokens": 18323,
+      "total_tokens": 18451
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 1,
+        "dropout": 0.1
+      },
+      "hypothesis": "增加网络宽度至256能提升模型容量以捕捉更复杂的SMART趋势特征，预期改善AUPRC和F1。保持深度为1以避免过拟合或梯度问题，维持dropout为0.1以平衡正则化。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792548567.7461398
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792548710.7643948,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 143,
+      "prompt_tokens": 18323,
+      "total_tokens": 18466
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "depth": 1,
+        "dropout": 0.25
+      },
+      "hypothesis": "将模型家族从MLP切换为Dual(TCN+GRU)并降低深度至1、增加Dropout至0.25，旨在利用双分支架构捕捉更丰富的时序依赖（TCN局部模式与GRU长程记忆），同时通过浅层结构和更强正则化缓解过拟合，预期提升召回率(F1/Recall)及低误报率下的召回表现。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01"
+      ],
+      "evidence_trials": [
+        0,
+        28
+      ]
+    },
+    "finished_at": 1792548714.6441743
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "failed",
+    "created_at": 1792548804.6722684,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "error_type": "ConnectTimeout",
+    "finished_at": 1792548821.062533
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792548910.4809105,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 126,
+      "prompt_tokens": 18316,
+      "total_tokens": 18442
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "dropout": 0.1,
+        "lr": 0.0003
+      },
+      "hypothesis": "增加TCN宽度至256以扩大特征表示容量，同时保持低学习率和适度正则化，旨在提升模型对复杂故障模式的捕捉能力，从而改善AUPRC和F1分数。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792548920.9080913
+  }
+]

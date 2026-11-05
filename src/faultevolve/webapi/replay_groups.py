@@ -1,9 +1,10 @@
 """Map the flat ``run_summary.json`` onto the contract's response groups.
 
-``run_summary.json`` carries 116 fields in one flat object. The contract splits
-them into ``outcome`` / ``budget`` / ``repair`` / ``knowledge`` / ``discovery`` /
-``judge`` / ``operators`` so the UI can keep judge cost visually apart from
-evaluator scores (PRD §2.2).
+``run_summary.json`` is one flat object: 116 fields for a single-tree run, 119 once
+the engine records an island ring (``islands`` / ``exchange`` / ``cost``). The
+contract splits them into ``outcome`` / ``budget`` / ``repair`` / ``knowledge`` /
+``discovery`` / ``judge`` / ``operators`` / ``islands`` so the UI can keep judge cost
+visually apart from evaluator scores (PRD §2.2).
 
 The mapping is **field-by-field on purpose**: a new engine field is ignored until
 someone names it here, rather than silently appearing in the API and in the
@@ -16,9 +17,15 @@ from __future__ import annotations
 from typing import Any
 
 from faultevolve.webapi.contracts import (
+    ArtifactState,
+    ExchangeViewResponse,
+    IslandCostResponse,
+    IslandViewResponse,
     KnowledgeCardStatResponse,
     RunBudgetResponse,
     RunDiscoveryResponse,
+    RunIslandCostResponse,
+    RunIslandsResponse,
     RunJudgeResponse,
     RunKnowledgeResponse,
     RunOperatorResponse,
@@ -236,4 +243,145 @@ def operators(summary: dict[str, Any]) -> RunOperatorResponse:
         crossover_valid_rate=_get(summary, "crossover_valid_rate"),
         crossover_mean_delta=_get(summary, "crossover_mean_delta"),
         crossover_best_gain=_get(summary, "crossover_best_gain"),
+    )
+
+
+def _int(value: Any) -> int | None:
+    """An integer, or ``None`` for anything that is not one (booleans included)."""
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def _num(value: Any) -> float | None:
+    return (
+        float(value)
+        if isinstance(value, (int, float)) and not isinstance(value, bool)
+        else None
+    )
+
+
+def _int_map(raw: Any) -> dict[str, int]:
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, int] = {}
+    for key, value in raw.items():
+        if isinstance(value, int) and not isinstance(value, bool):
+            out[str(key)] = value
+    return out
+
+
+def _text(value: Any) -> str | None:
+    """A string, or ``None`` -- a non-string never reaches the UI as a coerced one."""
+    return value if isinstance(value, str) else None
+
+
+def islands(summary: dict[str, Any]) -> RunIslandsResponse:
+    """The island ring, the exchange counters and the per-island spend.
+
+    Read straight out of the three blocks ``island_report()`` projects, so the API
+    cannot disagree with the file inside the run directory. Nothing is derived or
+    back-filled here: a run that recorded nothing gets ``MISSING`` with an empty
+    ring, and a block that is present but not the shape the engine writes gets
+    ``INVALID`` rather than a plausible-looking zero.
+    """
+    raw_islands = summary.get("islands")
+    raw_exchange = summary.get("exchange")
+    raw_cost = summary.get("cost")
+
+    if raw_islands is None and raw_exchange is None and raw_cost is None:
+        return RunIslandsResponse(
+            state=ArtifactState.MISSING,
+            detail="运行未记录岛状态：单树运行早于多岛引擎，界面应按一棵树展示",
+        )
+
+    if raw_islands is None:
+        return RunIslandsResponse(
+            state=ArtifactState.INVALID,
+            detail="run_summary.json 带有 exchange/cost 块却没有 islands，无法确定岛环",
+            exchange=_exchange(raw_exchange),
+            cost=_cost(raw_cost),
+        )
+
+    if not isinstance(raw_islands, dict):
+        return RunIslandsResponse(
+            state=ArtifactState.INVALID,
+            detail="run_summary.json 的 islands 不是对象，无法读取",
+            exchange=_exchange(raw_exchange),
+            cost=_cost(raw_cost),
+        )
+
+    ring: dict[str, IslandViewResponse] = {}
+    for island_id, row in raw_islands.items():
+        if not isinstance(row, dict):
+            return RunIslandsResponse(
+                state=ArtifactState.INVALID,
+                detail=f"islands.{island_id} 不是对象，无法读取",
+                exchange=_exchange(raw_exchange),
+                cost=_cost(raw_cost),
+            )
+        ring[str(island_id)] = IslandViewResponse(
+            island_id=str(island_id),
+            status=_text(row.get("status")),
+            profile=_text(row.get("profile")),
+            attempts=_int(row.get("attempts")),
+            valid_evaluations=_int(row.get("valid_evaluations")),
+            invalid_evaluations=_int(row.get("invalid_evaluations")),
+            best_score=_num(row.get("best_score")),
+            stop_reason=_text(row.get("stop_reason")),
+        )
+
+    if not ring:
+        return RunIslandsResponse(
+            state=ArtifactState.INVALID,
+            detail="islands 是空对象，没有任何岛可展示",
+            exchange=_exchange(raw_exchange),
+            cost=_cost(raw_cost),
+        )
+
+    attempts = [row.attempts for row in ring.values() if row.attempts is not None]
+    return RunIslandsResponse(
+        state=ArtifactState.AVAILABLE,
+        source="run_summary.json",
+        islands=ring,
+        exchange=_exchange(raw_exchange),
+        cost=_cost(raw_cost),
+        attempt_total=sum(attempts) if attempts else None,
+    )
+
+
+def _exchange(raw: Any) -> ExchangeViewResponse | None:
+    if not isinstance(raw, dict):
+        return None
+    return ExchangeViewResponse(
+        summaries=_int(raw.get("summaries")),
+        by_kind=_int_map(raw.get("by_kind")),
+        deliveries=_int(raw.get("deliveries")),
+        accepted=_int(raw.get("accepted")),
+        rejected=_int(raw.get("rejected")),
+        applications=_int(raw.get("applications")),
+        evaluated_applications=_int(raw.get("evaluated_applications")),
+    )
+
+
+def _cost(raw: Any) -> RunIslandCostResponse | None:
+    if not isinstance(raw, dict):
+        return None
+    rows = raw.get("by_island")
+    by_island: dict[str, IslandCostResponse] = {}
+    if isinstance(rows, dict):
+        for island_id, row in rows.items():
+            if isinstance(row, dict):
+                by_island[str(island_id)] = IslandCostResponse(
+                    tokens=_int(row.get("tokens")),
+                    calls=_int(row.get("calls")),
+                    unresolved_calls=_int(row.get("unresolved_calls")),
+                    cached_calls=_int(row.get("cached_calls")),
+                    by_stage=_int_map(row.get("by_stage")),
+                )
+    return RunIslandCostResponse(
+        total_tokens=_int(raw.get("total_tokens")),
+        by_island=by_island,
+        shared_tokens=_int(raw.get("shared_tokens")),
+        unresolved_calls=_int(raw.get("unresolved_calls")),
+        cost_usd=_num(raw.get("cost_usd")),
+        cost_basis=raw.get("cost_basis"),
     )

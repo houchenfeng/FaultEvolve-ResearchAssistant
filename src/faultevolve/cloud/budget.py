@@ -9,6 +9,16 @@ from faultevolve.config import BudgetConfig
 STAGES = ("reflect", "repair", "knowledge", "jev", "mechanism", "crossover")
 
 
+def token_cap_exceeded(used_tokens: int, cap: int | None) -> bool:
+    """True when a token cap exists and is reached; a null cap never triggers."""
+    return cap is not None and used_tokens >= cap
+
+
+def wall_cap_exceeded(wall_hours: float, cap: float | None) -> bool:
+    """True when a wall-clock cap exists and is reached; a null cap never triggers."""
+    return cap is not None and wall_hours >= cap
+
+
 class BudgetController:
     """Tracks budget usage and recommends expand/stop decisions."""
 
@@ -20,10 +30,20 @@ class BudgetController:
         self._eval_times: deque[float] = deque(maxlen=cfg.cost_window)
 
     def stage_cap_tokens(self, stage: str) -> int | None:
+        """Token cap for one stage, or None when no cap is active.
+
+        Fractional caps are inert without a total token cap (null ``max_tokens``
+        means "no cost limit", and a percentage of nothing must not become an
+        implicit budget). Absolute caps remain effective either way.
+        """
+        absolute = self.cfg.stage_caps_absolute.get(stage)
         frac = self.cfg.stage_caps.get(stage)
-        if frac is None:
-            return None
-        return int(frac * self.cfg.max_tokens)
+        if frac is None or self.cfg.max_tokens is None:
+            return absolute
+        frac_cap = int(frac * self.cfg.max_tokens)
+        if absolute is None:
+            return frac_cap
+        return min(frac_cap, absolute)
 
     def stage_exceeded(self, stage: str, used_tokens: int) -> bool:
         cap = self.stage_cap_tokens(stage)
@@ -42,7 +62,10 @@ class BudgetController:
             return 0.0
         return sum(self._costs) / len(self._costs)
 
-    def remaining_tokens(self, used: int) -> int:
+    def remaining_tokens(self, used: int) -> int | None:
+        """Tokens left, or None when no total token cap is configured."""
+        if self.cfg.max_tokens is None:
+            return None
         return max(0, self.cfg.max_tokens - used)
 
     def should_expand(self, used_tokens: int, is_top_node: bool) -> bool:
@@ -53,6 +76,8 @@ class BudgetController:
         if not self._costs:
             return True
         remaining = self.remaining_tokens(used_tokens)
+        if remaining is None:
+            return True
         expected = self.expected_iteration_tokens() * self.cfg.safety_factor
         return remaining >= expected
 

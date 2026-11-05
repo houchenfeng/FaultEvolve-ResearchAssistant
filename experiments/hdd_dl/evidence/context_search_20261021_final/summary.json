@@ -1,0 +1,545 @@
+{
+  "trials": 48,
+  "best": {
+    "trial": 29,
+    "parent": 10,
+    "config": {
+      "family": "tcn",
+      "width": 128,
+      "depth": 1,
+      "dropout": 0.1,
+      "lr": 0.001,
+      "weight_decay": 0.001,
+      "batch_size": 1024,
+      "epochs": 60,
+      "positive_boost": 3.0,
+      "threshold_scale": 1.2,
+      "seed": 20261020,
+      "train_seconds": 240,
+      "normalization": "quantile",
+      "folds": 3,
+      "feature_set": "trends",
+      "focal_gamma": 0.0,
+      "model_identity": false,
+      "smart_subset": "all",
+      "epoch_objective": "auprc",
+      "replicas": 3,
+      "ranking_weight": 0.0,
+      "device_context": true
+    },
+    "hypothesis": null,
+    "hypothesis_applied": false,
+    "duplicate_replaced": false,
+    "knowledge_cards": [
+      "DL-SEQ-01",
+      "HDD-MISSING-01",
+      "HDD-TREND-02",
+      "HDD-CONTEXT-01",
+      "AUTO-4b15bf39ee",
+      "AUTO-1701bc6b70",
+      "AUTO-d993ab45fc",
+      "AUTO-63b6681045"
+    ],
+    "candidate_sha256": "ad2394d053edc2d624784cedec2b6ceab59fe6ea809012374df903ffdc8d0739",
+    "result": {
+      "validity": 1.0,
+      "combined_score": 41.52495714580752,
+      "cost_time": 19.81405258178711,
+      "error_info": "",
+      "metric": {
+        "precision": 0.40606,
+        "recall": 0.47354,
+        "f1": 0.43721,
+        "f1_p10": 0.40814,
+        "f1_boot_std": 0.02159,
+        "auprc": 0.38207,
+        "recall_at_far": 0.4828,
+        "false_alarm_rate": 0.001733,
+        "missed_detection_rate": 0.52646,
+        "alarms_per_1k_disks": 2.911,
+        "quality": 0.41525,
+        "run_time_s": 19.81,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "/home/hcf/faultevolve-dl/code-v10/benchmark/hdd_mvp/init.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.40606,
+            "baseline": 0.19826,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.47354,
+            "baseline": 0.33598,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.43721,
+            "baseline": 0.24937,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40814,
+            "baseline": 0.22935,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38207,
+            "baseline": 0.19546,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.4828,
+            "baseline": 0.27381,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.41525,
+            "baseline": 0.22807,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001733,
+            "baseline": 0.0034,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.52646,
+            "baseline": 0.66402,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.02159,
+            "baseline": 0.01652,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 19.81,
+            "baseline": 1.84,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.52495714580752,
+            "baseline": 22.807355886970594,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.40606,
+            "baseline": 0.38198,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.47354,
+            "baseline": 0.47751,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.43721,
+            "baseline": 0.42444,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40814,
+            "baseline": 0.39583,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38207,
+            "baseline": 0.37148,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.4828,
+            "baseline": 0.48942,
+            "better": false
+          },
+          "quality": {
+            "candidate": 0.41525,
+            "baseline": 0.40724,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001733,
+            "baseline": 0.001933,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.52646,
+            "baseline": 0.52249,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02159,
+            "baseline": 0.02141,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 19.81,
+            "baseline": 6.1,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.52495714580752,
+            "baseline": 40.72413860816145,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.40606,
+            "baseline": 0.33178,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.47354,
+            "baseline": 0.4828,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.43721,
+            "baseline": 0.39329,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40814,
+            "baseline": 0.36672,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38207,
+            "baseline": 0.36117,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.4828,
+            "baseline": 0.44841,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.41525,
+            "baseline": 0.38139,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001733,
+            "baseline": 0.002433,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.52646,
+            "baseline": 0.5172,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02159,
+            "baseline": 0.02047,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 19.81,
+            "baseline": 7.5,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.52495714580752,
+            "baseline": 38.139345971596875,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      }
+    ]
+  },
+  "balanced": {
+    "trial": 27,
+    "parent": 4,
+    "config": {
+      "family": "tcn",
+      "width": 128,
+      "depth": 1,
+      "dropout": 0.1,
+      "lr": 0.003,
+      "weight_decay": 0.001,
+      "batch_size": 1024,
+      "epochs": 60,
+      "positive_boost": 3.0,
+      "threshold_scale": 1.1,
+      "seed": 20261020,
+      "train_seconds": 240,
+      "normalization": "quantile",
+      "folds": 3,
+      "feature_set": "trends",
+      "focal_gamma": 0.0,
+      "model_identity": false,
+      "smart_subset": "all",
+      "epoch_objective": "auprc",
+      "replicas": 3,
+      "ranking_weight": 0.0,
+      "device_context": true
+    },
+    "hypothesis": null,
+    "hypothesis_applied": false,
+    "duplicate_replaced": true,
+    "knowledge_cards": [
+      "DL-SEQ-01",
+      "HDD-MISSING-01",
+      "HDD-TREND-02",
+      "HDD-CONTEXT-01",
+      "AUTO-4b15bf39ee",
+      "AUTO-1701bc6b70",
+      "AUTO-d993ab45fc",
+      "AUTO-63b6681045"
+    ],
+    "candidate_sha256": "e91c9c78fa4c39b22810c2adf617494a21d9817b77d3b823bedfa492ecc35762",
+    "result": {
+      "validity": 1.0,
+      "combined_score": 41.25509476024327,
+      "cost_time": 20.48830556869507,
+      "error_info": "",
+      "metric": {
+        "precision": 0.38459,
+        "recall": 0.4828,
+        "f1": 0.42813,
+        "f1_p10": 0.40041,
+        "f1_boot_std": 0.02144,
+        "auprc": 0.38506,
+        "recall_at_far": 0.48413,
+        "false_alarm_rate": 0.001933,
+        "missed_detection_rate": 0.5172,
+        "alarms_per_1k_disks": 3.134,
+        "quality": 0.41255,
+        "run_time_s": 20.49,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    },
+    "comparisons": [
+      {
+        "baseline": "/home/hcf/faultevolve-dl/code-v10/benchmark/hdd_mvp/init.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.38459,
+            "baseline": 0.19826,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.4828,
+            "baseline": 0.33598,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.42813,
+            "baseline": 0.24937,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40041,
+            "baseline": 0.22935,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38506,
+            "baseline": 0.19546,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.48413,
+            "baseline": 0.27381,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.41255,
+            "baseline": 0.22807,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001933,
+            "baseline": 0.0034,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.5172,
+            "baseline": 0.66402,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.02144,
+            "baseline": 0.01652,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 20.49,
+            "baseline": 1.84,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.25509476024327,
+            "baseline": 22.807355886970594,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": true,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.38459,
+            "baseline": 0.38198,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.4828,
+            "baseline": 0.47751,
+            "better": true
+          },
+          "f1": {
+            "candidate": 0.42813,
+            "baseline": 0.42444,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40041,
+            "baseline": 0.39583,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38506,
+            "baseline": 0.37148,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.48413,
+            "baseline": 0.48942,
+            "better": false
+          },
+          "quality": {
+            "candidate": 0.41255,
+            "baseline": 0.40724,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001933,
+            "baseline": 0.001933,
+            "better": false
+          },
+          "missed_detection_rate": {
+            "candidate": 0.5172,
+            "baseline": 0.52249,
+            "better": true
+          },
+          "f1_boot_std": {
+            "candidate": 0.02144,
+            "baseline": 0.02141,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 20.49,
+            "baseline": 6.1,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.25509476024327,
+            "baseline": 40.72413860816145,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      },
+      {
+        "baseline": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+        "metrics": {
+          "precision": {
+            "candidate": 0.38459,
+            "baseline": 0.33178,
+            "better": true
+          },
+          "recall": {
+            "candidate": 0.4828,
+            "baseline": 0.4828,
+            "better": false
+          },
+          "f1": {
+            "candidate": 0.42813,
+            "baseline": 0.39329,
+            "better": true
+          },
+          "f1_p10": {
+            "candidate": 0.40041,
+            "baseline": 0.36672,
+            "better": true
+          },
+          "auprc": {
+            "candidate": 0.38506,
+            "baseline": 0.36117,
+            "better": true
+          },
+          "recall_at_far": {
+            "candidate": 0.48413,
+            "baseline": 0.44841,
+            "better": true
+          },
+          "quality": {
+            "candidate": 0.41255,
+            "baseline": 0.38139,
+            "better": true
+          },
+          "false_alarm_rate": {
+            "candidate": 0.001933,
+            "baseline": 0.002433,
+            "better": true
+          },
+          "missed_detection_rate": {
+            "candidate": 0.5172,
+            "baseline": 0.5172,
+            "better": false
+          },
+          "f1_boot_std": {
+            "candidate": 0.02144,
+            "baseline": 0.02047,
+            "better": false
+          },
+          "run_time_s": {
+            "candidate": 20.49,
+            "baseline": 7.5,
+            "better": false
+          },
+          "combined_score": {
+            "candidate": 41.25509476024327,
+            "baseline": 38.139345971596875,
+            "better": true
+          }
+        },
+        "all_predictive_strictly_better": false,
+        "all_including_resources_strictly_better": false,
+        "note": "Single validation evaluation; not independent generalization or statistical proof."
+      }
+    ]
+  },
+  "all_targets_met_single_run": false,
+  "independent_replication": false
+}

@@ -1,0 +1,290 @@
+{
+  "scope": "training_only_scale_diagnostic_not_benchmark",
+  "channels": [
+    {
+      "channel": "smart_10_raw",
+      "observed_cells": 428328,
+      "scale": 11.090370178222656,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 30919,
+      "varying_windows": 0,
+      "median_nonzero_range_to_scale": null
+    },
+    {
+      "channel": "smart_12_raw",
+      "observed_cells": 428328,
+      "scale": 8.266164779663086,
+      "observed_abs_median_to_scale": 0.27855542302131653,
+      "eligible_windows": 30919,
+      "varying_windows": 1490,
+      "median_nonzero_range_to_scale": 0.011530160903930664
+    },
+    {
+      "channel": "smart_187_normalized",
+      "observed_cells": 158701,
+      "scale": 4.6151204109191895,
+      "observed_abs_median_to_scale": 1.0,
+      "eligible_windows": 11354,
+      "varying_windows": 209,
+      "median_nonzero_range_to_scale": 0.0323311947286129
+    },
+    {
+      "channel": "smart_187_raw",
+      "observed_cells": 158701,
+      "scale": 9.529520988464355,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 11354,
+      "varying_windows": 268,
+      "median_nonzero_range_to_scale": 0.05360454320907593
+    },
+    {
+      "channel": "smart_188_raw",
+      "observed_cells": 158813,
+      "scale": 27.68605613708496,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 11362,
+      "varying_windows": 99,
+      "median_nonzero_range_to_scale": 0.025035984814167023
+    },
+    {
+      "channel": "smart_190_raw",
+      "observed_cells": 158701,
+      "scale": 3.9889841079711914,
+      "observed_abs_median_to_scale": 0.891291618347168,
+      "eligible_windows": 11354,
+      "varying_windows": 10944,
+      "median_nonzero_range_to_scale": 0.013930777087807655
+    },
+    {
+      "channel": "smart_191_raw",
+      "observed_cells": 164224,
+      "scale": 17.81829071044922,
+      "observed_abs_median_to_scale": 0.12331287562847137,
+      "eligible_windows": 11880,
+      "varying_windows": 4759,
+      "median_nonzero_range_to_scale": 0.00030903724837116897
+    },
+    {
+      "channel": "smart_192_raw",
+      "observed_cells": 428328,
+      "scale": 10.580047607421875,
+      "observed_abs_median_to_scale": 0.23486724495887756,
+      "eligible_windows": 30919,
+      "varying_windows": 11451,
+      "median_nonzero_range_to_scale": 0.0009993254207074642
+    },
+    {
+      "channel": "smart_193_raw",
+      "observed_cells": 428328,
+      "scale": 12.3012056350708,
+      "observed_abs_median_to_scale": 0.5681080222129822,
+      "eligible_windows": 30919,
+      "varying_windows": 21227,
+      "median_nonzero_range_to_scale": 0.0005498207756318152
+    },
+    {
+      "channel": "smart_194_normalized",
+      "observed_cells": 428328,
+      "scale": 5.537334442138672,
+      "observed_abs_median_to_scale": 0.7453287243843079,
+      "eligible_windows": 30919,
+      "varying_windows": 20154,
+      "median_nonzero_range_to_scale": 0.008601279929280281
+    },
+    {
+      "channel": "smart_194_raw",
+      "observed_cells": 428328,
+      "scale": 4.007333278656006,
+      "observed_abs_median_to_scale": 0.887210488319397,
+      "eligible_windows": 30919,
+      "varying_windows": 29448,
+      "median_nonzero_range_to_scale": 0.012799876742064953
+    },
+    {
+      "channel": "smart_196_raw",
+      "observed_cells": 269627,
+      "scale": 8.425735473632812,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 19565,
+      "varying_windows": 164,
+      "median_nonzero_range_to_scale": 0.03993387520313263
+    },
+    {
+      "channel": "smart_197_normalized",
+      "observed_cells": 419596,
+      "scale": 4.6151204109191895,
+      "observed_abs_median_to_scale": 1.0,
+      "eligible_windows": 30295,
+      "varying_windows": 44,
+      "median_nonzero_range_to_scale": 0.004399857483804226
+    },
+    {
+      "channel": "smart_197_raw",
+      "observed_cells": 419596,
+      "scale": 12.721912384033203,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 30295,
+      "varying_windows": 579,
+      "median_nonzero_range_to_scale": 0.05410932004451752
+    },
+    {
+      "channel": "smart_198_normalized",
+      "observed_cells": 428328,
+      "scale": 4.6151204109191895,
+      "observed_abs_median_to_scale": 1.0,
+      "eligible_windows": 30919,
+      "varying_windows": 45,
+      "median_nonzero_range_to_scale": 0.004422226455062628
+    },
+    {
+      "channel": "smart_198_raw",
+      "observed_cells": 428328,
+      "scale": 12.721912384033203,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 30919,
+      "varying_windows": 261,
+      "median_nonzero_range_to_scale": 0.05990764498710632
+    },
+    {
+      "channel": "smart_199_raw",
+      "observed_cells": 428328,
+      "scale": 9.217812538146973,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 30919,
+      "varying_windows": 20,
+      "median_nonzero_range_to_scale": 0.005737888161092997
+    },
+    {
+      "channel": "smart_1_normalized",
+      "observed_cells": 428328,
+      "scale": 4.795790672302246,
+      "observed_abs_median_to_scale": 0.9623273015022278,
+      "eligible_windows": 30919,
+      "varying_windows": 11418,
+      "median_nonzero_range_to_scale": 0.034610580652952194
+    },
+    {
+      "channel": "smart_1_raw",
+      "observed_cells": 428328,
+      "scale": 20.577272415161133,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 30919,
+      "varying_windows": 11511,
+      "median_nonzero_range_to_scale": 0.1455473005771637
+    },
+    {
+      "channel": "smart_240_raw",
+      "observed_cells": 282504,
+      "scale": 11.21871566772461,
+      "observed_abs_median_to_scale": 0.8287432193756104,
+      "eligible_windows": 20346,
+      "varying_windows": 11348,
+      "median_nonzero_range_to_scale": 0.0008331579156219959
+    },
+    {
+      "channel": "smart_241_raw",
+      "observed_cells": 179129,
+      "scale": 26.577423095703125,
+      "observed_abs_median_to_scale": 0.9599560499191284,
+      "eligible_windows": 12903,
+      "varying_windows": 12894,
+      "median_nonzero_range_to_scale": 0.0002499242254998535
+    },
+    {
+      "channel": "smart_242_raw",
+      "observed_cells": 179129,
+      "scale": 31.64203643798828,
+      "observed_abs_median_to_scale": 0.8473986387252808,
+      "eligible_windows": 12903,
+      "varying_windows": 12897,
+      "median_nonzero_range_to_scale": 0.0002351481671212241
+    },
+    {
+      "channel": "smart_3_normalized",
+      "observed_cells": 428328,
+      "scale": 5.537334442138672,
+      "observed_abs_median_to_scale": 0.8280099034309387,
+      "eligible_windows": 30919,
+      "varying_windows": 250,
+      "median_nonzero_range_to_scale": 0.003213440300896764
+    },
+    {
+      "channel": "smart_3_raw",
+      "observed_cells": 428328,
+      "scale": 9.295416831970215,
+      "observed_abs_median_to_scale": 0.6264426708221436,
+      "eligible_windows": 30919,
+      "varying_windows": 493,
+      "median_nonzero_range_to_scale": 0.0005540194106288254
+    },
+    {
+      "channel": "smart_4_raw",
+      "observed_cells": 428328,
+      "scale": 8.596558570861816,
+      "observed_abs_median_to_scale": 0.2789366543292999,
+      "eligible_windows": 30919,
+      "varying_windows": 1535,
+      "median_nonzero_range_to_scale": 0.011087018996477127
+    },
+    {
+      "channel": "smart_5_normalized",
+      "observed_cells": 428328,
+      "scale": 4.6151204109191895,
+      "observed_abs_median_to_scale": 1.0,
+      "eligible_windows": 30919,
+      "varying_windows": 107,
+      "median_nonzero_range_to_scale": 0.007603571750223637
+    },
+    {
+      "channel": "smart_5_raw",
+      "observed_cells": 428328,
+      "scale": 11.090202331542969,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 30919,
+      "varying_windows": 489,
+      "median_nonzero_range_to_scale": 0.03477507084608078
+    },
+    {
+      "channel": "smart_7_normalized",
+      "observed_cells": 428328,
+      "scale": 4.6151204109191895,
+      "observed_abs_median_to_scale": 1.0,
+      "eligible_windows": 30919,
+      "varying_windows": 5953,
+      "median_nonzero_range_to_scale": 0.002534248400479555
+    },
+    {
+      "channel": "smart_7_raw",
+      "observed_cells": 428328,
+      "scale": 28.194751739501953,
+      "observed_abs_median_to_scale": 0.0,
+      "eligible_windows": 30919,
+      "varying_windows": 11368,
+      "median_nonzero_range_to_scale": 0.0033737942576408386
+    },
+    {
+      "channel": "smart_9_normalized",
+      "observed_cells": 428328,
+      "scale": 4.6151204109191895,
+      "observed_abs_median_to_scale": 0.9355093240737915,
+      "eligible_windows": 30919,
+      "varying_windows": 11269,
+      "median_nonzero_range_to_scale": 0.003641742281615734
+    },
+    {
+      "channel": "smart_9_raw",
+      "observed_cells": 428328,
+      "scale": 11.369528770446777,
+      "observed_abs_median_to_scale": 0.9006714224815369,
+      "eligible_windows": 30919,
+      "varying_windows": 30913,
+      "median_nonzero_range_to_scale": 0.0009869302157312632
+    }
+  ],
+  "data_hashes": {
+    "train_labels.csv": "64b798410d78302ff77e4312b6c930edceee60c56d820f927be1b6804d503b27",
+    "train_history.csv.gz": "f033f35b786108567351b3b5d9882bc171679c75c2e24e300f11df95e1505624"
+  },
+  "runner_sha256": "ad8b4fb371fc899e96b7a94e256fbb588a0686c8cf29e3781ca755f5820842b1",
+  "candidate_sha256": "3f01e50914964a29da2a2148b2c6b8940042162470bfac00495ac45f53b9ead3"
+}

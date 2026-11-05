@@ -1,0 +1,19 @@
+{
+  "training_entities": 31093,
+  "training_history_rows": 428921,
+  "positive_entities": 1104,
+  "positive_fraction": 0.035506384073585695,
+  "median_observations_per_entity": 14.0,
+  "model_categories": 44,
+  "independent_unit": "disk",
+  "gpu_available": true,
+  "route": "ml_and_dl",
+  "dl_families": [
+    "mlp",
+    "tcn",
+    "gru"
+  ],
+  "reason": "Use entity count and positive support, not repeated history row count; compare by pilots.",
+  "heuristic_policy": "v1:n_entities>=1000,n_positive>=50,gpu;sequence_median>=3",
+  "scope": "training_only_no_query_labels"
+}

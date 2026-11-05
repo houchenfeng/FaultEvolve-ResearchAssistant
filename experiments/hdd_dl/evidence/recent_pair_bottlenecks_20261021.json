@@ -1,0 +1,437 @@
+{
+  "scope": "descriptive_audit_of_reused_validation_pairs",
+  "independent_generalization": false,
+  "warning": "Counts are descriptive; selected campaigns share data and are not independent trials. Nonwins include ties.",
+  "campaigns": 10,
+  "treatment_evaluations": 30,
+  "strong_ml_nonwin_counts": {
+    "run_time_s": 30,
+    "recall_at_far": 26,
+    "f1_p10": 25,
+    "f1": 23,
+    "false_alarm_rate": 17,
+    "precision": 16,
+    "f1_boot_std": 15,
+    "recall": 14,
+    "missed_detection_rate": 14,
+    "quality": 14,
+    "combined_score": 14
+  },
+  "strong_ml_tie_counts": {
+    "false_alarm_rate": 1,
+    "recall_at_far": 1,
+    "f1_boot_std": 1
+  },
+  "all_seed_pairwise_gain_campaign_counts": {
+    "run_time_s": 3,
+    "auprc": 2,
+    "recall_at_far": 1,
+    "recall": 1,
+    "missed_detection_rate": 1,
+    "f1_boot_std": 1
+  },
+  "experiments": [
+    {
+      "campaign": "feasible_candidate",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/resource_search_20261021/candidate_0003.py",
+      "source_sha256": {
+        "records.json": "0d68c3960457f6908e98d351b7cdc3784d57354b2e51b8cefcf441a1b24ee949",
+        "paired.json": "fb49b558018d72d4dab397ca5bbe236ca5ec51ee127ca93f707d52db6787a94e",
+        "summary.json": "15e856b7dad4aa8a957e6381da13aa49dde8cd3133b4af1032ca82c49b89b990",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [
+        "run_time_s"
+      ],
+      "mean_paired_deltas": {
+        "combined_score": -0.21461658072356235,
+        "precision": 0.0006566666666666757,
+        "recall": -0.001763333333333339,
+        "f1": -0.0008799999999999919,
+        "f1_p10": -0.0008666666666666637,
+        "auprc": -0.0007166666666666432,
+        "recall_at_far": -0.0074999999999999884,
+        "false_alarm_rate": 7.228014483236696e-20,
+        "missed_detection_rate": 0.001763333333333339,
+        "f1_boot_std": -1.9999999999999185e-05,
+        "run_time_s": -6.486666666666667
+      },
+      "strong_ml_nonwin_counts": {
+        "recall": 2,
+        "f1": 2,
+        "f1_p10": 3,
+        "recall_at_far": 3,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3,
+        "run_time_s": 3,
+        "precision": 1,
+        "false_alarm_rate": 1
+      },
+      "strong_ml_tie_counts": {},
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "weak_ranking",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/weak_ranking_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "c6c6c56aebe78acd6dcef9a9eec698601f63e5e4113126f116bbbbb47a81ff69",
+        "paired.json": "7c267f288be5efc2ea05829dc700a86457f51ca7dba114937704a4cf2602d3a2",
+        "summary.json": "d27f15fcc352a9315ef8f59b42b85229dee537ea52b75be00aa12d4b48ff0a55",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [
+        "auprc"
+      ],
+      "mean_paired_deltas": {
+        "combined_score": -0.11582087085652877,
+        "precision": -0.002673333333333324,
+        "recall": 0.007049999999999963,
+        "f1": -0.0012966666666666682,
+        "f1_p10": -0.0019466666666666521,
+        "auprc": 0.0020266666666666766,
+        "recall_at_far": -0.003963333333333356,
+        "false_alarm_rate": 0.0001003333333333335,
+        "missed_detection_rate": -0.007050000000000019,
+        "f1_boot_std": 0.000186666666666666,
+        "run_time_s": 3.319999999999999
+      },
+      "strong_ml_nonwin_counts": {
+        "precision": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "recall_at_far": 3,
+        "quality": 2,
+        "false_alarm_rate": 3,
+        "run_time_s": 3,
+        "combined_score": 2,
+        "f1_boot_std": 1
+      },
+      "strong_ml_tie_counts": {},
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "tail_ranking",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tail_ranking_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "c6522e1bda2bbe4bc0ae2abbc10fab8fc8e455eb11dc9a1fff94ba61f8d1c7d1",
+        "paired.json": "42dd2b7a25571b103f037a2045e694f25226566f928df75df9c7d904240e30e6",
+        "summary.json": "43a0f5d99db1ed49dcd7a674a3ebceda8fb08864c7628f208a04cb03a66e3215",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [
+        "recall_at_far",
+        "run_time_s"
+      ],
+      "mean_paired_deltas": {
+        "combined_score": 0.31817218894994426,
+        "precision": 0.010389999999999991,
+        "recall": -0.00044333333333333263,
+        "f1": 0.006636666666666661,
+        "f1_p10": 0.00751666666666669,
+        "auprc": -0.0075099999999999984,
+        "recall_at_far": 0.008380000000000018,
+        "false_alarm_rate": -8.899999999999995e-05,
+        "missed_detection_rate": 0.00044333333333333263,
+        "f1_boot_std": 0.00029333333333333295,
+        "run_time_s": -2.176666666666668
+      },
+      "strong_ml_nonwin_counts": {
+        "false_alarm_rate": 3,
+        "run_time_s": 3,
+        "precision": 2,
+        "recall_at_far": 2,
+        "f1_boot_std": 1,
+        "f1": 1,
+        "f1_p10": 1,
+        "quality": 1,
+        "combined_score": 1
+      },
+      "strong_ml_tie_counts": {
+        "false_alarm_rate": 1,
+        "recall_at_far": 1
+      },
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "tail_vs_zero",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tail_vs_zero_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "a31ab3bc12700118217ded25532ae3ca9aae6458779f6ef2291a2336a7cdc616",
+        "paired.json": "7d2ea6516edd6b9683971733c15c7493a9c1c3eafb17fa3f14d11aabdfd4ea92",
+        "summary.json": "57bbe54a13ee8bedf5684538e0d9ddce4bf38816d05986aafb1ee6483b347256",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [],
+      "mean_paired_deltas": {
+        "combined_score": -0.1876089507871915,
+        "precision": 0.006816666666666656,
+        "recall": -0.007936666666666703,
+        "f1": -0.0027233333333333367,
+        "f1_p10": -0.0015233333333333394,
+        "auprc": -0.0037166666666666646,
+        "recall_at_far": -3.3333333333181634e-06,
+        "false_alarm_rate": -1.1000000000000015e-05,
+        "missed_detection_rate": 0.007936666666666628,
+        "f1_boot_std": 0.00030333333333333254,
+        "run_time_s": 2.516666666666667
+      },
+      "strong_ml_nonwin_counts": {
+        "recall": 1,
+        "recall_at_far": 3,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 2,
+        "run_time_s": 3,
+        "precision": 2,
+        "f1_p10": 2,
+        "false_alarm_rate": 2,
+        "f1": 1,
+        "quality": 1,
+        "combined_score": 1
+      },
+      "strong_ml_tie_counts": {},
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "tab_validity",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tab_validity_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "3c75868b630e1479f4553f0e557ebd889ecba7ee9cd7c2cf3ffd36ba5f1dc496",
+        "paired.json": "98e643073707357c38617db9ec9b4d90ae1e1e9c18435cb5eb0bb2975817f283",
+        "summary.json": "1a18c943d2146893a9c010943eca44bc892aaff0ea3b764f6f9bbeb734ec3709",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [],
+      "mean_paired_deltas": {
+        "combined_score": 0.030488132276860352,
+        "precision": -0.013693333333333316,
+        "recall": 0.021166666666666667,
+        "f1": -0.0018199999999999883,
+        "f1_p10": 0.000713333333333325,
+        "auprc": 0.00217666666666666,
+        "recall_at_far": -0.0035300000000000145,
+        "false_alarm_rate": 0.00022233333333333336,
+        "missed_detection_rate": -0.02116666666666663,
+        "f1_boot_std": 0.00040333333333333307,
+        "run_time_s": 8.276666666666667
+      },
+      "strong_ml_nonwin_counts": {
+        "recall": 2,
+        "f1": 3,
+        "f1_p10": 3,
+        "recall_at_far": 3,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3,
+        "run_time_s": 3,
+        "quality": 1,
+        "combined_score": 1,
+        "precision": 1,
+        "false_alarm_rate": 1
+      },
+      "strong_ml_tie_counts": {
+        "f1_boot_std": 1
+      },
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "diverse_replicas",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/diverse_replicas_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "b5ee6d920ad792a7658dfe434d254e8ba3ed9d28690f62b4f5e415bd7917ceba",
+        "paired.json": "37318a22c2c1430d12b9de72cb36233366740b9ee7ffa5f18e76a5c3139175a0",
+        "summary.json": "775e5b70cc67e32ec8fac29cff33c1130c9deef4b3a8004995d6d6858044aaf2",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [
+        "run_time_s"
+      ],
+      "mean_paired_deltas": {
+        "combined_score": -0.6324382111511184,
+        "precision": 0.0017566666666666657,
+        "recall": -0.016313333333333346,
+        "f1": -0.010366666666666672,
+        "f1_p10": -0.010376666666666664,
+        "auprc": -0.00143666666666666,
+        "recall_at_far": -0.0035299999999999962,
+        "false_alarm_rate": -2.200000000000003e-05,
+        "missed_detection_rate": 0.01631333333333333,
+        "f1_boot_std": -0.000336666666666668,
+        "run_time_s": -0.7166666666666686
+      },
+      "strong_ml_nonwin_counts": {
+        "precision": 2,
+        "f1": 3,
+        "f1_p10": 3,
+        "recall_at_far": 3,
+        "false_alarm_rate": 2,
+        "run_time_s": 3,
+        "recall": 1,
+        "quality": 1,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 1,
+        "combined_score": 1
+      },
+      "strong_ml_tie_counts": {},
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "full_quantiles",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/full_quantiles_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "223831f772df269ae7f8332d30e373fd50914896554e6e1b9caebd748e529385",
+        "paired.json": "b79c6ccf25864f48d8f7c18f20e1e9414baf206c9e63d22946309590beb5d5ae",
+        "summary.json": "a0a8524d194d625a21a9377321ec35128619d6dfb5d2a99f8645e4740b83e52e",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [
+        "recall",
+        "auprc",
+        "missed_detection_rate",
+        "f1_boot_std"
+      ],
+      "mean_paired_deltas": {
+        "combined_score": -0.20658249498598025,
+        "precision": -0.04057333333333333,
+        "recall": 0.04144666666666669,
+        "f1": -0.005549999999999999,
+        "f1_p10": -0.005686666666666673,
+        "auprc": 0.0022900000000000142,
+        "recall_at_far": 0.00043999999999997746,
+        "false_alarm_rate": 0.0004666666666666668,
+        "missed_detection_rate": -0.04144666666666669,
+        "f1_boot_std": -0.0005733333333333342,
+        "run_time_s": 0.2066666666666658
+      },
+      "strong_ml_nonwin_counts": {
+        "precision": 2,
+        "f1": 3,
+        "f1_p10": 3,
+        "recall_at_far": 3,
+        "quality": 3,
+        "false_alarm_rate": 2,
+        "run_time_s": 3,
+        "combined_score": 3,
+        "recall": 1,
+        "missed_detection_rate": 1
+      },
+      "strong_ml_tie_counts": {},
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "far_calibration",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/far_calibration_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "dd73b3b1768e5b2d5d01f5cc1468b99e43496b8523b36be6cfc4cc10ac1c8b08",
+        "paired.json": "231cfaeb17d8736da1d89e0d0eea4967a2be2fbd30371fe7a1415c9a68d23c19",
+        "summary.json": "efde254156127d7d005a16929e2c1188f148cb6a1b19fd68a35b8cbb22da8984",
+        "status.json": "b4a17eb29e69df60f10c522856ce46e39554c1c6e2bc1f0bd222a43c55a85223"
+      },
+      "all_seed_pairwise_gains": [],
+      "mean_paired_deltas": {
+        "combined_score": 0.00327406057168389,
+        "precision": 0.02835999999999998,
+        "recall": -0.02116333333333333,
+        "f1": -0.001556666666666669,
+        "f1_p10": -0.0020666666666666425,
+        "auprc": 0.0009033333333333485,
+        "recall_at_far": 0.003963333333333337,
+        "false_alarm_rate": -0.00018899999999999993,
+        "missed_detection_rate": 0.021163333333333294,
+        "f1_boot_std": -8.666666666666777e-05,
+        "run_time_s": 0.03666666666666648
+      },
+      "strong_ml_nonwin_counts": {
+        "recall": 2,
+        "f1": 3,
+        "f1_p10": 3,
+        "recall_at_far": 3,
+        "quality": 2,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 1,
+        "run_time_s": 3,
+        "combined_score": 2,
+        "precision": 1,
+        "false_alarm_rate": 1
+      },
+      "strong_ml_tie_counts": {},
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "shared_calibration",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/shared_calibration_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "6f179888b3e97ddb40c0a6aaefd216feb08563efc7c02df0639fd3c065109d93",
+        "paired.json": "728ef5d57f4f4567210e1b3d59c70d55d6255a92e98f8ebe973b02c98ecd012c",
+        "summary.json": "bd07fedab3086fa0032dee951c15ec8414fcedc36091e20c450baee9fb19d6d6",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [],
+      "mean_paired_deltas": {
+        "combined_score": -0.8937646839605833,
+        "precision": 0.01155333333333334,
+        "recall": -0.04585666666666666,
+        "f1": -0.01640000000000001,
+        "f1_p10": -0.014150000000000015,
+        "auprc": -0.004739999999999985,
+        "recall_at_far": -0.0022033333333333163,
+        "false_alarm_rate": -0.00022200000000000006,
+        "missed_detection_rate": 0.04585666666666668,
+        "f1_boot_std": -0.0006933333333333317,
+        "run_time_s": -1.7199999999999989
+      },
+      "strong_ml_nonwin_counts": {
+        "precision": 1,
+        "recall": 3,
+        "f1": 3,
+        "f1_p10": 3,
+        "recall_at_far": 1,
+        "quality": 2,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 3,
+        "run_time_s": 3,
+        "combined_score": 2,
+        "f1_boot_std": 1
+      },
+      "strong_ml_tie_counts": {},
+      "all_seed_predictive_pass": false
+    },
+    {
+      "campaign": "causal_context",
+      "treatment": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/causal_context_sources_20261021/with.py",
+      "source_sha256": {
+        "records.json": "a04ecca2cbf468362083518edbce96923c887187a0c8e74733f31215dfdfd5c5",
+        "paired.json": "85c94824418e9b0ad3791b70260f42a456d5f20de5d47ac162fa549c97aa3dcc",
+        "summary.json": "1039184fa9f63410038129ad34b6cc439f962374a39a9ca7faefd3373c188a4b",
+        "status.json": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60"
+      },
+      "all_seed_pairwise_gains": [],
+      "mean_paired_deltas": {
+        "combined_score": -0.4827433684043119,
+        "precision": 0.010133333333333328,
+        "recall": -0.017640000000000006,
+        "f1": -0.010616666666666682,
+        "f1_p10": -0.009769999999999982,
+        "auprc": -0.0018600000000000283,
+        "recall_at_far": 0.003086666666666682,
+        "false_alarm_rate": -4.433333333333329e-05,
+        "missed_detection_rate": 0.017640000000000027,
+        "f1_boot_std": -0.0005966666666666667,
+        "run_time_s": -0.5266666666666673
+      },
+      "strong_ml_nonwin_counts": {
+        "recall": 2,
+        "f1_p10": 2,
+        "recall_at_far": 2,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 2,
+        "run_time_s": 3,
+        "f1": 2,
+        "quality": 1,
+        "combined_score": 1,
+        "precision": 1,
+        "false_alarm_rate": 1
+      },
+      "strong_ml_tie_counts": {},
+      "all_seed_predictive_pass": false
+    }
+  ]
+}

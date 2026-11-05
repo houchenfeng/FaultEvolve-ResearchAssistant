@@ -1,0 +1,83 @@
+{
+  "experiment_id": "4b81c0d2",
+  "nodes": [
+    {
+      "id": "c0ffee01",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution: logistic regression on the cutoff-day SMART snapshot.",
+      "visit_count": 4,
+      "adopted_cards": []
+    },
+    {
+      "id": "fa11ed01",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "refuted",
+      "intent": "切换到 LightGBM，使用更大的树容量与更低学习率。",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "f1xed001",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "repair",
+      "score": 18.5124,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "修复 LightGBM 参数拼写错误（num_leavs -> num_leaves）。",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "fa11ed02",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "refuted",
+      "intent": "改用 raw SMART 列并做 C 的网格搜索。",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "f1xed002",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "repair",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "refuted",
+      "intent": "去掉网格搜索，直接用默认 C。",
+      "visit_count": 0,
+      "adopted_cards": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "c0ffee01",
+      "target": "fa11ed01"
+    },
+    {
+      "source": "c0ffee01",
+      "target": "fa11ed02"
+    },
+    {
+      "source": "c0ffee01",
+      "target": "f1xed001"
+    },
+    {
+      "source": "c0ffee01",
+      "target": "f1xed002"
+    }
+  ]
+}

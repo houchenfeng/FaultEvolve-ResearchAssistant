@@ -16,7 +16,6 @@ import {
   listRunsApiRunsGet,
   listServersApiServersGet,
   listTasksApiTasksGet,
-  metaApiMetaGet,
 } from '@/generated/api';
 import { toApiError, unwrap } from '@/lib/api';
 import { queryKeys } from '@/lib/query-keys';
@@ -65,7 +64,7 @@ function RunRow({ run, onOpen }: { run: RunSummaryResponse; onOpen: (runId: stri
   );
 }
 
-function RunsSection({ showcaseRunId }: { showcaseRunId: string | null }) {
+function RunsSection() {
   const navigate = useNavigate();
   const setCurrentRunId = useUiStore((state) => state.setCurrentRunId);
 
@@ -104,7 +103,7 @@ function RunsSection({ showcaseRunId }: { showcaseRunId: string | null }) {
           <EmptyState
             title="还没有可回放的运行"
             reason="后端在配置的运行目录下一层没有发现任何运行目录。"
-            nextStep="通过 CLI 产生一次进化运行，或等待阶段 7 的运行创建能力。"
+            nextStep="点击新建运行启动任务；也可先进入成果展示查看归档实验。"
           />
         </div>
       ) : (
@@ -122,7 +121,10 @@ function RunsSection({ showcaseRunId }: { showcaseRunId: string | null }) {
               </tr>
             </thead>
             <tbody>
-              {runsQuery.data.filter((run) => !showcaseRunId || run.run_id === showcaseRunId).map((run) => (
+              {/* 展示 API 返回的全部运行。**不**按 demo_run_ids 之类的固定 ID
+                  过滤：产品路径只认索引给出的来源与可读状态，fixture 是否出现
+                  由后端索引决定（D6.2），不由这个页面临时挑选。 */}
+              {runsQuery.data.map((run) => (
                 <RunRow key={run.run_id} run={run} onOpen={openRun} />
               ))}
             </tbody>
@@ -162,12 +164,6 @@ function CloudSummary() {
 
 export function OverviewPage() {
   const [configExpanded, setConfigExpanded] = useState(false);
-  const metaQuery = useQuery({
-    queryKey: queryKeys.meta(),
-    queryFn: () => unwrap(metaApiMetaGet()),
-    retry: 1,
-  });
-  const showcaseRunId = metaQuery.data?.demo_run_ids?.[0] ?? null;
 
   const tasksQuery = useQuery({
     queryKey: queryKeys.taskList(),
@@ -185,37 +181,24 @@ export function OverviewPage() {
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
-          {showcaseRunId ? (
-            <Link
-              to="/runs/$runId"
-              params={{ runId: showcaseRunId }}
-              className="fe-btn fe-btn-secondary fe-btn-sm"
-              data-showcase-run-link="true"
-            >
-              进入 HDD 案例
-            </Link>
-          ) : null}
+          <Link to="/overview/showcase" className="fe-btn fe-btn-secondary fe-btn-sm">成果展示 ↗</Link>
           <Link to="/runs/new" className="fe-btn fe-btn-primary fe-btn-sm">
             新建运行
           </Link>
         </div>
       </div>
 
-      <section className="fe-showcase-hero relative overflow-hidden rounded-xl border border-brand-200 bg-white px-5 py-5 dark:border-brand-500/30">
+      <section className="fe-home-hero relative overflow-hidden rounded-xl border border-brand-200 bg-white px-5 py-5 dark:border-brand-500/30">
         <img src="/assets/faultevolve-hero-bg.png" alt="" aria-hidden className="pointer-events-none absolute inset-0 size-full object-cover object-center opacity-55" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/20 dark:from-surface dark:via-surface/90 dark:to-surface/30" />
         <div className="relative">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold tracking-[0.18em] text-brand-700 dark:text-brand-300">FAULT EVOLVE · 演示导览</p>
-            <h2 className="mt-2 text-xl font-semibold text-fg">从候选生成到故障预测结果</h2>
-            <p className="mt-1 max-w-2xl text-xs leading-5 text-fg-muted">沿着进化树查看每轮尝试，再看知识发现与评估结果，完整理解算法如何迭代。</p>
+            <p className="text-[11px] font-semibold tracking-[0.18em] text-brand-700 dark:text-brand-300">FAULT EVOLVE · 算法自进化平台</p>
+            <h2 className="mt-2 text-xl font-semibold text-fg">三岛协作，让每一次尝试成为下一次进化的起点</h2>
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-fg-muted">性能、误漏报与效率独立探索，通过摘要交换学习经验。查看真实运行的进化树、各岛最佳方案与分层调优结果。</p>
+            <Link to="/overview/showcase" className="mt-3 inline-flex text-xs font-semibold text-brand-700 dark:text-brand-300">查看归档实验对照与机制演示 →</Link>
           </div>
-          {showcaseRunId ? (
-            <Link to="/runs/$runId/tree" params={{ runId: showcaseRunId }} className="fe-btn fe-btn-primary fe-btn-md">
-              查看进化过程 →
-            </Link>
-          ) : null}
         </div>
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
           {['01 任务与数据', '02 进化搜索', '03 结果与证据'].map((step) => (
@@ -229,7 +212,7 @@ export function OverviewPage() {
       <section className="fe-home-module-bg flex flex-col gap-3 rounded-xl border border-border-subtle p-4">
         <div>
           <h2 className="text-sm font-semibold text-fg">任务与数据</h2>
-          <p className="mt-1 text-[11px] text-fg-muted">选择 HDD 或 SmartMem 任务，查看数据说明与公开来源后进入运行配置。</p>
+          <p className="mt-1 text-[11px] text-fg-muted">选择一个任务，查看数据说明与公开来源后进入运行配置。</p>
         </div>
         {tasksQuery.isPending ? (
           <div className="fe-card-panel px-4 py-10 text-center text-xs text-fg-subtle">
@@ -243,7 +226,7 @@ export function OverviewPage() {
             />
           </div>
         ) : (
-          <DatasetCardGrid tasks={tasksQuery.data.filter((task) => ['hdd_mvp', 'smartmem'].includes(task.task_id))} />
+          <DatasetCardGrid tasks={tasksQuery.data} />
         )}
       </section>
 
@@ -271,7 +254,7 @@ export function OverviewPage() {
         ) : null}
       </section>
 
-      <RunsSection showcaseRunId={showcaseRunId} />
+      <RunsSection />
       <CloudSummary />
     </div>
   );

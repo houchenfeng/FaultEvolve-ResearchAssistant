@@ -1,0 +1,44 @@
+{
+  "trials": 48,
+  "valid": 48,
+  "unique_configs": 48,
+  "duplicate_replaced": 7,
+  "hypotheses_applied": 4,
+  "proposals": [
+    {
+      "trial": 7,
+      "applied": true,
+      "replaced": false,
+      "score": 40.207896331552654,
+      "parent_score": 40.93211572344718
+    },
+    {
+      "trial": 15,
+      "applied": true,
+      "replaced": false,
+      "score": 40.65219250601335,
+      "parent_score": 41.486540136401196
+    },
+    {
+      "trial": 23,
+      "applied": true,
+      "replaced": false,
+      "score": 39.5310875571121,
+      "parent_score": 41.486540136401196
+    },
+    {
+      "trial": 39,
+      "applied": false,
+      "replaced": true,
+      "score": 41.6459170962273,
+      "parent_score": 41.486540136401196
+    },
+    {
+      "trial": 47,
+      "applied": true,
+      "replaced": false,
+      "score": 40.78144564843106,
+      "parent_score": 41.486540136401196
+    }
+  ]
+}

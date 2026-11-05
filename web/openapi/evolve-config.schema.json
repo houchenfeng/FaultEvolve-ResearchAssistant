@@ -95,7 +95,7 @@
       "type": "object"
     },
     "BudgetConfig": {
-      "description": "Budget constraints for evolution.",
+      "description": "Budget constraints for evolution.\n\n``max_tokens`` / ``max_wall_hours`` may be set to null to express \"no cost\nlimit\"; stopping is then governed by the experiment protocol (attempt caps,\nstall and infra rules), not by a budget. ``stage_caps`` are fractions of\n``max_tokens`` and are inert when no total token cap is set; explicit\nabsolute caps can still be given through ``stage_caps_absolute``.",
       "properties": {
         "cost_window": {
           "default": 5,
@@ -114,14 +114,30 @@
           "type": "integer"
         },
         "max_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": 3000000,
-          "title": "Max Tokens",
-          "type": "integer"
+          "title": "Max Tokens"
         },
         "max_wall_hours": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": 6.0,
-          "title": "Max Wall Hours",
-          "type": "number"
+          "title": "Max Wall Hours"
         },
         "min_iterations_before_stop": {
           "default": 5,
@@ -140,6 +156,13 @@
             "type": "number"
           },
           "title": "Stage Caps",
+          "type": "object"
+        },
+        "stage_caps_absolute": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Stage Caps Absolute",
           "type": "object"
         },
         "stagnation_window": {
@@ -222,6 +245,39 @@
         }
       },
       "title": "CrossoverConfig",
+      "type": "object"
+    },
+    "DataWorkflowConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_issues": {
+          "items": {
+            "enum": [
+              "missing_feature",
+              "constant_feature"
+            ],
+            "type": "string"
+          },
+          "title": "Accepted Issues",
+          "type": "array"
+        },
+        "drop_exact_duplicates": {
+          "default": true,
+          "title": "Drop Exact Duplicates",
+          "type": "boolean"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "nonfinite_to_missing": {
+          "default": true,
+          "title": "Nonfinite To Missing",
+          "type": "boolean"
+        }
+      },
+      "title": "DataWorkflowConfig",
       "type": "object"
     },
     "DiscoveryConfig": {
@@ -387,6 +443,40 @@
       "title": "FeedbackConfig",
       "type": "object"
     },
+    "HierarchicalWorkflowConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_trials": {
+          "default": 24,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Trials",
+          "type": "integer"
+        },
+        "max_wall_seconds": {
+          "default": 43200,
+          "minimum": 1,
+          "title": "Max Wall Seconds",
+          "type": "integer"
+        },
+        "mode": {
+          "default": "per_structure",
+          "enum": [
+            "per_structure",
+            "post_evolution"
+          ],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "title": "HierarchicalWorkflowConfig",
+      "type": "object"
+    },
     "HpoConfig": {
       "properties": {
         "dev": {
@@ -508,6 +598,136 @@
         }
       },
       "title": "InsightsConfig",
+      "type": "object"
+    },
+    "IslandSpec": {
+      "description": "One island: an independent search tree with its own strategy focus.\n\n``profile`` is a soft strategy bias, not a hard restriction: every island\ncan still use any enabled operator. ``exploration_ratio`` reserves part of\noperator choices for strategies outside the island's own focus.\n\nThe exact empty ``island_id`` is reserved for the implicit single island of\na pre-island run, whose ``node`` rows carry no label; the engine builds that\nspec itself. Configured islands have to be named -- see\n``IslandsConfig._validate_islands``.",
+      "properties": {
+        "exploration_ratio": {
+          "default": 0.2,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Exploration Ratio",
+          "type": "number"
+        },
+        "focus": {
+          "default": "",
+          "title": "Focus",
+          "type": "string"
+        },
+        "island_id": {
+          "title": "Island Id",
+          "type": "string"
+        },
+        "knowledge_keywords": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Knowledge Keywords",
+          "type": "array"
+        },
+        "max_attempts": {
+          "default": 50,
+          "minimum": 1,
+          "title": "Max Attempts",
+          "type": "integer"
+        },
+        "operator_bias": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Bias",
+          "type": "array"
+        },
+        "profile": {
+          "default": "performance",
+          "pattern": "^(performance|miss_alert|efficiency|custom)$",
+          "title": "Profile",
+          "type": "string"
+        }
+      },
+      "required": [
+        "island_id"
+      ],
+      "title": "IslandSpec",
+      "type": "object"
+    },
+    "IslandsConfig": {
+      "description": "Three-island orchestration settings.\n\n``enabled=False`` (or a single explicit island) keeps the legacy one-tree\nbehavior; restored historical runs are always resolved to a single island\nby the engine, never silently upgraded to three.",
+      "properties": {
+        "early_error_share": {
+          "default": true,
+          "title": "Early Error Share",
+          "type": "boolean"
+        },
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "eval_concurrency": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Eval Concurrency",
+          "type": "integer"
+        },
+        "exchange_interval": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Exchange Interval",
+          "type": "integer"
+        },
+        "infra_fail_pause": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Infra Fail Pause",
+          "type": "integer"
+        },
+        "islands": {
+          "items": {
+            "$ref": "#/$defs/IslandSpec"
+          },
+          "title": "Islands",
+          "type": "array"
+        },
+        "max_negative_per_exchange": {
+          "default": 2,
+          "minimum": 0,
+          "title": "Max Negative Per Exchange",
+          "type": "integer"
+        },
+        "max_positive_per_exchange": {
+          "default": 1,
+          "minimum": 0,
+          "title": "Max Positive Per Exchange",
+          "type": "integer"
+        },
+        "max_summaries_in_context": {
+          "default": 3,
+          "minimum": 0,
+          "title": "Max Summaries In Context",
+          "type": "integer"
+        },
+        "min_valid_evals_before_stall": {
+          "default": 10,
+          "minimum": 0,
+          "title": "Min Valid Evals Before Stall",
+          "type": "integer"
+        },
+        "stagnation_request_evals": {
+          "default": 10,
+          "minimum": 1,
+          "title": "Stagnation Request Evals",
+          "type": "integer"
+        },
+        "stall_valid_evals": {
+          "default": 15,
+          "minimum": 1,
+          "title": "Stall Valid Evals",
+          "type": "integer"
+        }
+      },
+      "title": "IslandsConfig",
       "type": "object"
     },
     "JudgeConfig": {
@@ -692,9 +912,20 @@
           "title": "Reason Model",
           "type": "string"
         },
+        "stream": {
+          "default": false,
+          "title": "Stream",
+          "type": "boolean"
+        },
         "temperature": {
           "default": 0.7,
           "title": "Temperature",
+          "type": "number"
+        },
+        "timeout_s": {
+          "default": 600.0,
+          "exclusiveMinimum": 0,
+          "title": "Timeout S",
           "type": "number"
         }
       },
@@ -723,6 +954,36 @@
         }
       },
       "title": "LedgerConfig",
+      "type": "object"
+    },
+    "MetricTarget": {
+      "additionalProperties": false,
+      "description": "One constraint on an evaluator result; all targets apply to one candidate.",
+      "properties": {
+        "metric": {
+          "pattern": "^(combined_score|cost_time|metric\\.[A-Za-z0-9_.]+)$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "op": {
+          "default": ">=",
+          "enum": [
+            ">=",
+            "<="
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "metric",
+        "value"
+      ],
+      "title": "MetricTarget",
       "type": "object"
     },
     "OperatorsConfig": {
@@ -864,6 +1125,63 @@
         }
       },
       "title": "ReflectionConfig",
+      "type": "object"
+    },
+    "ResearchConfig": {
+      "additionalProperties": false,
+      "description": "Domain metadata and stopping goals; evaluator scores are never rewritten.",
+      "properties": {
+        "dataset_id": {
+          "minLength": 1,
+          "title": "Dataset Id",
+          "type": "string"
+        },
+        "domain": {
+          "default": "custom",
+          "minLength": 1,
+          "title": "Domain",
+          "type": "string"
+        },
+        "evaluation_split": {
+          "anyOf": [
+            {
+              "enum": [
+                "dev",
+                "val"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evaluation Split"
+        },
+        "evidence_level": {
+          "default": "unspecified",
+          "enum": [
+            "unspecified",
+            "synthetic",
+            "real"
+          ],
+          "title": "Evidence Level",
+          "type": "string"
+        },
+        "targets": {
+          "items": {
+            "$ref": "#/$defs/MetricTarget"
+          },
+          "minItems": 1,
+          "title": "Targets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "targets"
+      ],
+      "title": "ResearchConfig",
       "type": "object"
     },
     "SelectionConfig": {
@@ -1118,6 +1436,45 @@
       },
       "title": "WideningConfig",
       "type": "object"
+    },
+    "WorkflowConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_limit": {
+          "default": 4,
+          "minimum": 1,
+          "title": "Cpu Limit",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/DataWorkflowConfig"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "hierarchical": {
+          "$ref": "#/$defs/HierarchicalWorkflowConfig"
+        },
+        "reports": {
+          "$ref": "#/$defs/WorkflowReportConfig"
+        }
+      },
+      "title": "WorkflowConfig",
+      "type": "object"
+    },
+    "WorkflowReportConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "WorkflowReportConfig",
+      "type": "object"
     }
   },
   "description": "Complete evolution configuration.",
@@ -1137,6 +1494,9 @@
     "insights": {
       "$ref": "#/$defs/InsightsConfig"
     },
+    "islands": {
+      "$ref": "#/$defs/IslandsConfig"
+    },
     "judge": {
       "$ref": "#/$defs/JudgeConfig"
     },
@@ -1151,6 +1511,17 @@
     },
     "reflection": {
       "$ref": "#/$defs/ReflectionConfig"
+    },
+    "research": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResearchConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "seed": {
       "default": 20260926,
@@ -1171,6 +1542,9 @@
     },
     "widening": {
       "$ref": "#/$defs/WideningConfig"
+    },
+    "workflow": {
+      "$ref": "#/$defs/WorkflowConfig"
     }
   },
   "title": "EvolveConfig",

@@ -18,6 +18,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Iterator
 
+from pydantic_core import to_jsonable_python
+
 from faultevolve.common.schemas import (
     GENERATIVE_OPERATORS,
     HypothesisStatus,
@@ -45,12 +47,22 @@ EVENT_TYPES: frozenset[str] = frozenset(
     {
         "analysis_complete",
         "analysis_failed",
+        "all_islands_stopped",
+        "attempt_started",
         "budget_stage_cap_hit",
         "budget_stop",
         "crossover_parents",
         "crossover_reflection_skipped",
         "discovery_round_finished",
         "discovery_skipped",
+        "exchange_applied",
+        "exchange_check",
+        "exchange_delivered",
+        "exchange_delivery_backfilled",
+        "exchange_rejected",
+        "exchange_summary_failed",
+        "exchange_summary_published",
+        "exchange_summary_replicated",
         "expand_redirected_budget",
         "hpo_no_promotion",
         "hpo_promoted",
@@ -58,20 +70,30 @@ EVENT_TYPES: frozenset[str] = frozenset(
         "hpo_skipped",
         "hypothesis_refuted",
         "init_evaluated",
+        "init_evaluation_invalid",
         "insight_extracted",
         "invalid_generation",
+        "infra_failure",
+        "island_attempt_cap_hit",
+        "island_stopped",
         "iteration_complete",
+        "structure_tuning_started",
+        "structure_tuning_trial",
+        "structure_tuning_complete",
         "jev_audited",
         "jev_circuit_open",
         "jev_deferred_evaluated",
         "jev_error",
         "jev_prescreen",
         "jev_screened",
+        "knowledge_injected",
+        "llm_call_lost",
         "llm_error",
         "mechanism_refuted",
         "node_created",
         "objective_brief_failed",
         "objective_spec_failed",
+        "operator_bias_applied",
         "operator_fallback",
         "operator_selected",
         "patch_applied",
@@ -84,6 +106,8 @@ EVENT_TYPES: frozenset[str] = frozenset(
         "precheck_fix",
         "precheck_fix_repair",
         "quota_slot",
+        "research_contract",
+        "research_goal_reached",
         "reflection_design",
         "reflection_implementation",
         "reflection_mechanism",
@@ -91,7 +115,11 @@ EVENT_TYPES: frozenset[str] = frozenset(
         "repair_perf_rejected",
         "repair_smoke_failed",
         "repair_success",
+        "run_aborted_invalid_init",
         "run_finished",
+        "run_interrupted",
+        "run_resumed",
+        "run_resume_refused",
         "run_stalled",
         "selection_failed",
         "smoke_data_build_failed",
@@ -99,6 +127,8 @@ EVENT_TYPES: frozenset[str] = frozenset(
         "smoke_failed",
         "smoke_fix_success",
         "smoke_passed",
+        "summary_crossover",
+        "summary_cross_selected",
         "tournament_round_finished",
         "tournament_skipped",
         "value_mode_fallback",
@@ -163,6 +193,17 @@ class UiFieldMeta:
 #: ``advanced=True`` and its dotted name as the label, so no field can be
 #: silently promoted into the basic form.
 UI_FIELD_METADATA: dict[str, UiFieldMeta] = {
+    "workflow.enabled": UiFieldMeta("逐结构调优流程", "工作流", "通过任务适配器执行结构搜索与分层调优；数据处理与报告导出分别配置"),
+    "workflow.cpu_limit": UiFieldMeta("评估 CPU 核数", "工作流", "冒烟、完整验证与分层调参共用的 CPU 和数值库线程上限，默认 4 核", advanced=True),
+    "workflow.data.drop_exact_duplicates": UiFieldMeta("删除完全重复历史行", "工作流", "仅对运行目录中的训练副本去重", advanced=True),
+    "workflow.data.nonfinite_to_missing": UiFieldMeta("无穷特征值转缺失", "工作流", "保留记录，由候选算法处理缺失", advanced=True),
+    "workflow.data.accepted_issues": UiFieldMeta("允许保留的数据问题", "工作流", "缺失与常量可按声明保留，其余需决策问题阻断", advanced=True),
+    "workflow.data.enabled": UiFieldMeta("可选数据处理", "工作流", "默认关闭；开启时由任务适配器检查、处理并复检训练输入，不影响其他任务的核心调优"),
+    "workflow.reports.enabled": UiFieldMeta("完成后导出报告", "工作流", "默认关闭；报告只读取已存结果，可独立重建，导出失败不改变搜索完成状态"),
+    "workflow.hierarchical.enabled": UiFieldMeta("分层参数搜索", "工作流", "默认在每个新候选评分前调优，以调优后的代码与实测成绩驱动下一轮演化"),
+    "workflow.hierarchical.mode": UiFieldMeta("调优时机", "工作流", "per_structure：逐结构调优；post_evolution：兼容旧版演化结束后统一调优"),
+    "workflow.hierarchical.max_trials": UiFieldMeta("分层试验上限", "工作流", "逐结构模式下为每个候选的试验预算，包含默认参数评估"),
+    "workflow.hierarchical.max_wall_seconds": UiFieldMeta("分层搜索时限（秒）", "工作流", "达到时限后不再派发新试验，已派发试验按评估器超时结束", advanced=True),
     # task
     "task.adapter": UiFieldMeta("任务适配器", "任务", "决定加载哪个数据集适配器与评估器"),
     # budget
@@ -171,6 +212,24 @@ UI_FIELD_METADATA: dict[str, UiFieldMeta] = {
     "budget.max_wall_hours": UiFieldMeta("墙钟上限（小时）", "预算", "超时即停止"),
     "budget.min_iterations_before_stop": UiFieldMeta("最短轮次", "预算", "早停前至少跑满的轮数"),
     "budget.stage_caps": UiFieldMeta("分阶段额度", "预算", "按阶段限制 token 占比", advanced=True),
+    "budget.stage_caps_absolute": UiFieldMeta(
+        "分阶段绝对额度", "预算", "未设总 token 上限时唯一生效的阶段额度", advanced=True
+    ),
+    # islands
+    "islands.enabled": UiFieldMeta("启用三岛演化", "三岛", "关闭则回到单树行为"),
+    "islands.islands": UiFieldMeta("岛列表", "三岛", "每个岛一条独立搜索树的策略配置"),
+    "islands.exchange_interval": UiFieldMeta("交换间隔", "三岛", "每完成多少次尝试检查一次摘要交换"),
+    "islands.max_positive_per_exchange": UiFieldMeta("单次正面摘要上限", "三岛", advanced=True),
+    "islands.max_negative_per_exchange": UiFieldMeta("单次负面摘要上限", "三岛", advanced=True),
+    "islands.max_summaries_in_context": UiFieldMeta("上下文摘要条数", "三岛", advanced=True),
+    "islands.eval_concurrency": UiFieldMeta("评估并发", "三岛", "同时运行的真实评估数量"),
+    "islands.min_valid_evals_before_stall": UiFieldMeta("停滞判定门槛", "三岛", advanced=True),
+    "islands.stall_valid_evals": UiFieldMeta("停滞窗口", "三岛", "连续多少次有效评估无提升即停该岛", advanced=True),
+    "islands.infra_fail_pause": UiFieldMeta("基础设施错误熔断", "三岛", "连续多少次基础设施失败暂停该岛", advanced=True),
+    "islands.stagnation_request_evals": UiFieldMeta(
+        "停滞求助间隔（引擎未读取）", "三岛", "该字段当前没有引擎调用点；接入前配置它不会有任何效果", advanced=True
+    ),
+    "islands.early_error_share": UiFieldMeta("提前错误共享", "三岛", "重要执行错误立即跨岛通报", advanced=True),
     # selection
     "selection.policy": UiFieldMeta("选择策略", "搜索"),
     "selection.c_puct": UiFieldMeta("探索系数", "搜索", "UCT 探索项权重", advanced=True),
@@ -265,8 +324,15 @@ def _safe_default_factory(factory: Any) -> Any:
         value = factory()
     except Exception:  # pragma: no cover - defensive
         return None
-    if isinstance(value, (str, int, float, bool, list)) or value is None:
+    if isinstance(value, (str, int, float, bool)) or value is None:
         return value
+    if isinstance(value, (list, dict)):
+        # Defaults may hold nested models (e.g. the island specs); the contract
+        # files are plain JSON, so normalize before handing them to the UI.
+        try:
+            return to_jsonable_python(value)
+        except Exception:  # pragma: no cover - defensive
+            return None
     return None
 
 

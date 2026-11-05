@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from faultevolve.common.schemas import HypothesisStatus, NodeStatus, OperatorType
-from faultevolve.webapi import paths
+from faultevolve.webapi import paths, run_discovery
 from faultevolve.webapi.catalog import EVENT_TYPES
 from faultevolve.webapi.event_stream import select_after, split_page
 from faultevolve.webapi.contracts import (
@@ -37,9 +37,14 @@ from faultevolve.webapi.contracts import (
     ArtifactResponse,
     ArtifactState,
     ContractWarning,
+    RunProvenanceEntry,
+    RunProvenanceResponse,
+    ScanErrorDTO,
     DiscoveryResponse,
     EventPageResponse,
     EventResponse,
+    ExchangeDeliveryResponse,
+    ExchangeSummaryResponse,
     InsightResponse,
     InsightsResponse,
     KnowledgeCardResponse,
@@ -49,7 +54,10 @@ from faultevolve.webapi.contracts import (
     ReportFileResponse,
     ReportManifestResponse,
     RunDetailResponse,
+    RunSummariesResponse,
     RunSummaryResponse,
+    SummaryApplicationResponse,
+    SummaryDetailResponse,
     RunDataState,
     ScoreboardEntryResponse,
     ScorePointResponse,
@@ -63,11 +71,12 @@ from faultevolve.webapi.errors import (
     ArtifactMissingError,
     ArtifactNotDownloadableError,
     NodeNotFoundError,
+    RunNotFoundError,
     RunUnreadableError,
 )
 from faultevolve.webapi.sanitization import sanitize, sanitize_value, truncate_log
 from faultevolve.webapi.settings import WebSettings
-from faultevolve.webapi.sqlite_ro import connect_ro, fetch_all, has_table
+from faultevolve.webapi.sqlite_ro import connect_ro, count_rows, fetch_all, has_table
 
 #: Hard cap on the rows any single replay call will materialise. A run with a
 #: million events must not be able to exhaust the server's memory.
@@ -96,6 +105,12 @@ class RunArtifacts:
     programs_dir: Path
     logs_dir: Path
     discovery_dir: Path
+    #: How discovery reached this run (TODO D6.2): the id the UI must query with,
+    #: the evidence-backed origin, and the artifact shape it was classified from.
+    external_id: str = ""
+    origin: str = ""
+    run_type: str = ""
+    workflow_dir: Path | None = None
 
     def existing(self) -> dict[str, bool]:
         """Which artifacts are present *and carry content*.
@@ -128,21 +143,54 @@ def _has_real_file(directory: Path) -> bool:
         return False
 
 
-def artifacts_for(settings: WebSettings, run_id: str) -> RunArtifacts:
-    """Resolve every artifact path for one run, validating the id on the way."""
-    run_dir = paths.resolve_run_dir(settings, run_id)
-    child = lambda *parts: paths.resolve_run_child(run_dir, *parts)  # noqa: E731
+def _artifacts_from_location(location: run_discovery.RunLocation) -> RunArtifacts:
+    """Bind each replayable path to the directory that actually holds it.
+
+    ``run_dir`` is the report half, because the engine writes programs, logs,
+    discovery and json artifacts together. ``fe.db`` is resolved from its own
+    half, which is the other directory when the run was launched with separate
+    ``--runs-dir`` and ``--artifacts-dir`` (TODO D6.1). A half that does not exist
+    points at a path that simply is not there, so the artifact reports MISSING
+    rather than the request failing.
+    """
+    base = location.report_dir
+    if base is None:
+        raise RunNotFoundError(location.run_id)
+    db_base = location.db_dir or base
+    workflow_base = base
+    if "hyperparameters" in location.markers:
+        nested = paths.resolve_run_child(base, "evolution", location.run_id)
+        if (nested / "run_summary.json").is_file():
+            base = nested
+            db_base = workflow_base / "database"
+    child = lambda *parts: paths.resolve_run_child(base, *parts)  # noqa: E731
     return RunArtifacts(
-        run_id=run_id,
-        run_dir=run_dir,
+        run_id=location.run_id,
+        run_dir=base,
         summary_path=child("run_summary.json"),
         tree_path=child("tree.json"),
         events_path=child("events.jsonl"),
-        db_path=child("fe.db"),
+        db_path=paths.resolve_run_child(db_base, "fe.db"),
         programs_dir=child("programs"),
         logs_dir=child("logs"),
         discovery_dir=child("discovery"),
+        external_id=location.external_id,
+        origin=location.origin,
+        run_type=location.run_type,
+        workflow_dir=workflow_base,
     )
+
+
+def artifacts_for(settings: WebSettings, run_id: str) -> RunArtifacts:
+    """Resolve every artifact path for one run, validating the id on the way.
+
+    The id is looked up through discovery, so the run is one the server really
+    found -- and both halves of a split layout travel with it.
+    """
+    location = run_discovery.find(settings, run_id)
+    if location is None:
+        raise RunNotFoundError(run_id)
+    return _artifacts_from_location(location)
 
 
 # --------------------------------------------------------------------------
@@ -328,6 +376,128 @@ def _second_parents(artifacts: RunArtifacts) -> dict[str, list[str]]:
         if node_id and parent_id:
             partners.setdefault(node_id, []).append(parent_id)
     return partners
+
+
+def _exchange_rows(artifacts: RunArtifacts) -> tuple[dict[str, list[dict[str, Any]]], bool]:
+    """The three exchange tables, and whether the run has an exchange layer at all.
+
+    ``exchange_summary`` / ``exchange_delivery`` / ``summary_application`` are the
+    only place a summary's fate is recorded: publishing, delivery decisions and the
+    candidates that were actually built with a summary are three different facts and
+    stay three tables (TODO D3.1).
+
+    The second element says whether the run *had* an exchange layer. Table presence
+    is not that answer: the DDL creates every table in every database, so a
+    single-tree run has an empty ``exchange_summary`` too. The ring itself is the
+    evidence -- ``island_state`` rows, or any exchange row at all -- and without it
+    the honest reply is "this layer never existed", not "three islands exchanged
+    nothing".
+    """
+    absent = {"summaries": [], "deliveries": [], "applications": []}
+    if not artifacts.db_path.is_file():
+        return absent, False
+    try:
+        with connect_ro(artifacts.db_path, run_id=artifacts.run_id) as conn:
+            rows = {
+                "summaries": fetch_all(conn, "exchange_summary"),
+                "deliveries": fetch_all(conn, "exchange_delivery"),
+                "applications": fetch_all(conn, "summary_application"),
+            }
+            had_ring = bool(
+                count_rows(conn, "island_state")
+                or rows["summaries"]
+                or rows["deliveries"]
+                or rows["applications"]
+            )
+            return rows, had_ring
+    except RunUnreadableError:
+        return absent, False
+
+
+def _number_map(row: dict[str, Any], column: str) -> dict[str, float]:
+    """A ``*_json`` column as a flat number map; non-numbers are dropped."""
+    parsed = _json_field(row, column)
+    return {
+        str(key): float(value)
+        for key, value in parsed.items()
+        if isinstance(value, (int, float)) and not isinstance(value, bool)
+    }
+
+
+def _exchange_summaries(rows: dict[str, list[dict[str, Any]]]) -> list[ExchangeSummaryResponse]:
+    """Summary rows with their deliveries and applications joined on.
+
+    Only ids and the evaluator's numbers are carried out; no path, no source text
+    beyond the summary the engine already sanitized when it published it.
+    """
+    deliveries_by_summary: dict[str, list[ExchangeDeliveryResponse]] = {}
+    for row in rows["deliveries"]:
+        summary_id = str(row.get("summary_id") or "")
+        if not summary_id:
+            continue
+        deliveries_by_summary.setdefault(summary_id, []).append(
+            ExchangeDeliveryResponse(
+                delivery_id=str(row.get("delivery_id") or ""),
+                summary_id=summary_id,
+                source_island_id=str(row.get("source_island_id") or ""),
+                target_island_id=str(row.get("target_island_id") or ""),
+                status=str(row.get("status") or ""),
+                reason=str(row.get("reason") or ""),
+            )
+        )
+
+    delivery_island = {
+        str(row.get("delivery_id") or ""): str(row.get("target_island_id") or "")
+        for row in rows["deliveries"]
+    }
+    # An application row names the *delivery* it came out of, not the summary, so
+    # the summary has to be looked up through the delivery. Keying this by the
+    # target island instead files every application under ``"b"`` / ``"c"`` and
+    # leaves ``summary.applications`` empty -- which the counts then contradict
+    # (``application_count`` reads the table directly).
+    delivery_summary = {
+        str(row.get("delivery_id") or ""): str(row.get("summary_id") or "")
+        for row in rows["deliveries"]
+    }
+    applications_by_summary: dict[str, list[SummaryApplicationResponse]] = {}
+    for row in rows["applications"]:
+        delivery_id = str(row.get("delivery_id") or "")
+        summary_id = delivery_summary.get(delivery_id, "")
+        if not summary_id:
+            continue
+        applications_by_summary.setdefault(summary_id, []).append(
+            SummaryApplicationResponse(
+                application_id=str(row.get("application_id") or ""),
+                delivery_id=delivery_id,
+                candidate_node_id=str(row.get("candidate_node_id") or ""),
+                target_island_id=delivery_island.get(delivery_id, ""),
+                score=_optional_float(row.get("score")),
+                evaluated=bool(row.get("evaluation_id")),
+            )
+        )
+
+    out: list[ExchangeSummaryResponse] = []
+    for row in sorted(rows["summaries"], key=lambda r: str(r.get("created_at") or "")):
+        summary_id = str(row.get("summary_id") or "")
+        if not summary_id:
+            continue
+        out.append(
+            ExchangeSummaryResponse(
+                summary_id=summary_id,
+                kind=str(row.get("kind") or ""),
+                source_island_id=str(row.get("source_island_id") or ""),
+                source_node_id=str(row.get("source_node_id") or ""),
+                summary_text=str(row.get("summary_text") or ""),
+                conditions=str(row.get("conditions") or ""),
+                evidence=_list_field(row, "evidence_json"),
+                metrics=_number_map(row, "metrics_json"),
+                confidence_status=str(row.get("confidence_status") or ""),
+                created_at=str(row.get("created_at")) if row.get("created_at") else None,
+                deliveries=deliveries_by_summary.get(summary_id, []),
+                applications=applications_by_summary.get(summary_id, []),
+            )
+        )
+    return out
 
 
 def _mechanism_payloads(artifacts: RunArtifacts) -> list[dict[str, Any]]:
@@ -561,6 +731,13 @@ def _text_or_none(value: Any) -> str | None:
 # --------------------------------------------------------------------------
 
 
+def _workflow_state(artifacts: RunArtifacts) -> dict[str, Any]:
+    try:
+        return _read_json(paths.resolve_run_child(artifacts.run_dir, "workflow.json"), "workflow.json") or {}
+    except ArtifactInvalidJsonError:
+        return {}
+
+
 def _data_state(artifacts: RunArtifacts) -> RunDataState:
     """Which artifact backs this run (TODO §2.4).
 
@@ -573,17 +750,62 @@ def _data_state(artifacts: RunArtifacts) -> RunDataState:
         summary = None
     if summary is not None:
         return RunDataState.COMPLETE
+    if _workflow_state(artifacts):
+        return RunDataState.LIVE
     return RunDataState.LIVE if artifacts.db_path.is_file() else RunDataState.UNREADABLE
 
 
 def list_runs(settings: WebSettings) -> list[RunSummaryResponse]:
-    """One row per run directory found directly under each configured root."""
+    """One row per run the discovery scan found outside the fixture roots.
+
+    The scan happens once for the whole listing: resolving each row through
+    ``artifacts_for`` would re-walk every root per run.
+    """
     task_ids = _registry_task_ids(settings)
     rows: list[RunSummaryResponse] = []
-    for run_id in paths.list_run_ids(settings):
-        artifacts = artifacts_for(settings, run_id)
-        rows.append(_summary_row(artifacts, task_id=task_ids.get(run_id)))
+    for location in run_discovery.listed_locations(settings):
+        artifacts = _artifacts_from_location(location)
+        rows.append(_summary_row(artifacts, task_id=task_ids.get(artifacts.run_id)))
+    rows.sort(key=lambda row: (row.run_id, row.external_id))
     return rows
+
+
+def discovery_manifest(
+    settings: WebSettings,
+) -> RunProvenanceResponse:
+    """The provenance list (TODO D6.2): what was scanned and how it was judged.
+
+    Paths are reported relative to the configured root, never as a host path, and
+    a directory the scan could not enter appears in ``errors`` instead of
+    silently shrinking the listing.
+    """
+    outcome = run_discovery.scan(settings)
+    return RunProvenanceResponse(
+        contract_version=CONTRACT_VERSION,
+        scanned=outcome.scanned,
+        paired=outcome.paired,
+        listed=outcome.listed,
+        excluded_fixtures=outcome.excluded_fixtures,
+        unverified=outcome.unverified,
+        errors=[
+            ScanErrorDTO(relative_path=error.relative_path, reason=error.reason)
+            for error in outcome.errors
+        ],
+        errors_truncated=outcome.errors_truncated,
+        runs=[
+            RunProvenanceEntry(
+                external_id=location.external_id,
+                run_id=location.run_id,
+                origin=location.origin,
+                run_type=location.run_type,
+                relative_path=location.relative_path,
+                markers=list(location.markers),
+                split_layout=bool(location.db_dir and location.artifacts_dir)
+                and location.db_dir != location.artifacts_dir,
+            )
+            for location in outcome.locations
+        ],
+    )
 
 
 def _registry_task_ids(settings: WebSettings) -> dict[str, str]:
@@ -614,6 +836,20 @@ def _registry_task_ids(settings: WebSettings) -> dict[str, str]:
 def _summary_row(
     artifacts: RunArtifacts, task_id: str | None = None
 ) -> RunSummaryResponse:
+    """One listing row, plus how discovery reached this run (TODO D6.2)."""
+    row = _summary_fields(artifacts, task_id=task_id)
+    return row.model_copy(
+        update={
+            "external_id": artifacts.external_id or artifacts.run_id,
+            "origin": artifacts.origin or None,
+            "run_type": artifacts.run_type or None,
+        }
+    )
+
+
+def _summary_fields(
+    artifacts: RunArtifacts, task_id: str | None = None
+) -> RunSummaryResponse:
     warnings: list[ContractWarning] = []
     state = _data_state(artifacts)
     if state is RunDataState.UNREADABLE:
@@ -639,6 +875,10 @@ def _summary_row(
         # A live run has no summary yet; the database row is the honest source.
         live = _experiment_row(artifacts)
         if live is None:
+            workflow = _workflow_state(artifacts)
+            if workflow:
+                return RunSummaryResponse(run_id=artifacts.run_id, data_state=state,
+                    task_id=task_id, status=workflow.get("state"), warnings=warnings)
             return RunSummaryResponse(
                 run_id=artifacts.run_id,
                 data_state=RunDataState.UNREADABLE,
@@ -661,11 +901,12 @@ def _summary_row(
             warnings=warnings,
         )
 
+    workflow = _workflow_state(artifacts)
     return RunSummaryResponse(
         run_id=artifacts.run_id,
         data_state=state,
         task_id=task_id,
-        status=summary.get("status"),
+        status=workflow.get("state", summary.get("status")),
         iterations_done=summary.get("iterations_done"),
         best_score=summary.get("best_score"),
         improvement=summary.get("improvement"),
@@ -700,6 +941,9 @@ def run_detail(settings: WebSettings, run_id: str) -> RunDetailResponse:
 
     if state is RunDataState.UNREADABLE and not summary:
         raise RunUnreadableError(run_id)
+    workflow_summary = _workflow_state(artifacts)
+    if workflow_summary:
+        summary = {**summary, "status": workflow_summary.get("state", summary.get("status"))}
 
     artifact_states = {
         name: (ArtifactState.AVAILABLE if present else ArtifactState.MISSING)
@@ -717,6 +961,7 @@ def run_detail(settings: WebSettings, run_id: str) -> RunDetailResponse:
         discovery=replay_groups.discovery_counters(summary) if summary else None,
         judge=replay_groups.judge(summary) if summary else None,
         operators=replay_groups.operators(summary) if summary else None,
+        islands=replay_groups.islands(summary) if summary else None,
         artifact_states=artifact_states,
         warnings=warnings,
     )
@@ -795,6 +1040,7 @@ def _build_tree(artifacts: RunArtifacts) -> tuple[
                 parent_id=parents.get(node_id),
                 second_parent_ids=second_parents.get(node_id, []),
                 branch_id=branch_id,
+                island_id=str(item.get("island_id") or ""),
                 depth=int(item.get("depth") or 0),
                 operator=_enum_or_fail(OperatorType, item.get("operator"), artifacts.run_id, "operator"),
                 score=_optional_float(item.get("score")),
@@ -824,6 +1070,7 @@ def _build_tree(artifacts: RunArtifacts) -> tuple[
         )
 
     edges = _build_edges(nodes, raw_edges, warnings)
+    edges.extend(_summary_cross_edges(artifacts, nodes, warnings))
     return nodes, edges, warnings
 
 
@@ -888,6 +1135,61 @@ def _build_edges(
                 add(node.repair_parent_id, node.id, TreeEdgeKind.REPAIR)
 
     return edges
+
+
+def _summary_cross_edges(
+    artifacts: RunArtifacts,
+    nodes: list[TreeNodeDTO],
+    warnings: list[ContractWarning],
+) -> list[TreeEdgeDTO]:
+    """Graft links: the foreign summary's source node -> the candidate it fed.
+
+    These are not parenthood. The source lives in another island's tree, so a layout
+    that folds the edge into the parent chain would invent a family the engine never
+    recorded (TODO D6.3). Both ends must exist as exported nodes; a summary whose
+    source node is not in the tree is reported, not drawn.
+    """
+    rows, _present = _exchange_rows(artifacts)
+    if not rows["applications"]:
+        return []
+    summaries = {
+        str(row.get("summary_id") or ""): row
+        for row in rows["summaries"]
+        if row.get("summary_id")
+    }
+    deliveries = {
+        str(row.get("delivery_id") or ""): row
+        for row in rows["deliveries"]
+        if row.get("delivery_id")
+    }
+    known = {node.id for node in nodes}
+    seen: set[tuple[str, str]] = set()
+    out: list[TreeEdgeDTO] = []
+    for application in rows["applications"]:
+        target = str(application.get("candidate_node_id") or "")
+        delivery = deliveries.get(str(application.get("delivery_id") or ""), {})
+        summary = summaries.get(str(delivery.get("summary_id") or ""), {})
+        source = str(summary.get("source_node_id") or "")
+        if not source or not target:
+            continue
+        if source not in known or target not in known:
+            warnings.append(
+                ContractWarning(
+                    field=f"tree.edges.{target or source}",
+                    reason=(
+                        "摘要交换的某一端（"
+                        f"{source} -> {target}）不在导出的节点里，边已省略而不是连到虚构节点"
+                    ),
+                )
+            )
+            continue
+        if source == target or (source, target) in seen:
+            continue
+        seen.add((source, target))
+        out.append(
+            TreeEdgeDTO(source=source, target=target, kind=TreeEdgeKind.SUMMARY_CROSS)
+        )
+    return out
 
 
 def _reconcile_parents(
@@ -972,6 +1274,59 @@ def tree(settings: WebSettings, run_id: str) -> TreeResponse:
         best_path=best_path,
         warnings=warnings,
     )
+
+
+def summaries(settings: WebSettings, run_id: str) -> RunSummariesResponse:
+    """The run's exchange layer: what each island published, and what became of it."""
+    artifacts = artifacts_for(settings, run_id)
+    rows, present = _exchange_rows(artifacts)
+    base = {"contract_version": CONTRACT_VERSION, "run_id": run_id}
+    if not present:
+        return RunSummariesResponse(
+            **base,
+            state=ArtifactState.MISSING,
+            detail="该运行没有摘要交换层：单树运行早于多岛引擎，界面不必展示交换视图",
+        )
+    built = _exchange_summaries(rows)
+    evaluated = sum(
+        1
+        for summary in built
+        for application in summary.applications
+        if application.evaluated
+    )
+    return RunSummariesResponse(
+        **base,
+        state=ArtifactState.AVAILABLE,
+        summaries=built,
+        summary_count=len(built),
+        delivery_count=len(rows["deliveries"]),
+        application_count=len(rows["applications"]),
+        evaluated_application_count=evaluated,
+    )
+
+
+def summary_detail(settings: WebSettings, run_id: str, summary_id: str) -> SummaryDetailResponse:
+    """One summary, with its deliveries and the candidates that used it."""
+    paths.validate_id(summary_id, kind="summary_id", field="summary_id")
+    artifacts = artifacts_for(settings, run_id)
+    rows, present = _exchange_rows(artifacts)
+    base = {"contract_version": CONTRACT_VERSION, "run_id": run_id}
+    if not present:
+        return SummaryDetailResponse(
+            **base,
+            state=ArtifactState.MISSING,
+            detail="该运行没有摘要交换层：单树运行早于多岛引擎",
+        )
+    match = next(
+        (item for item in _exchange_summaries(rows) if item.summary_id == summary_id), None
+    )
+    if match is None:
+        return SummaryDetailResponse(
+            **base,
+            state=ArtifactState.MISSING,
+            detail="这条摘要不属于该运行，或从未发布",
+        )
+    return SummaryDetailResponse(**base, state=ArtifactState.AVAILABLE, summary=match)
 
 
 def node_detail(settings: WebSettings, run_id: str, node_id: str) -> NodeDetailResponse:
@@ -1769,6 +2124,9 @@ def _artifact_entries(artifacts: RunArtifacts) -> list[ArtifactEntry]:
     add("tree", artifacts.tree_path, "tree")
     add("events", artifacts.events_path, "events")
     add("database", artifacts.db_path, "database")
+    add("workflow-best", paths.resolve_run_child(artifacts.run_dir, "workflow-best.py"), "program")
+    if artifacts.workflow_dir is not None:
+        add("campaign-best", paths.resolve_run_child(artifacts.workflow_dir, "results", "best.py"), "program")
     for stem in _safe_stems(artifacts.programs_dir, ".py"):
         add(
             f"program-{stem}",

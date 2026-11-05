@@ -9,6 +9,7 @@ import { useState } from 'react';
 
 import type { EventResponse, NodeDetailResponse, TreeNodeDto } from '@/generated/api';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { islandTitle, LEGACY_ISLAND } from '@/features/islands/island-view';
 import { explainSignificance } from '@/features/workbench/significance';
 import { shortId } from '@/features/workbench/tree-adapter';
 import {
@@ -81,6 +82,7 @@ export function NodeDrawer({
 }: NodeDrawerProps) {
   const [tab, setTab] = useState<TabId>('overview');
   const { node, evaluation, artifact } = detail;
+  const islandId = node.island_id ?? LEGACY_ISLAND;
   // 修复记账在被修的那一侧，见 NodeDrawerProps.nodeById 的说明。
   const repairSource = node.repair_parent_id
     ? (nodeById?.get(node.repair_parent_id) ?? null)
@@ -117,6 +119,13 @@ export function NodeDrawer({
           <div className="tabular truncate text-[11px] text-fg-subtle" title={node.id}>
             {node.id}
           </div>
+          {/* 所属岛（TODO D6.4）。历史单树运行没有岛标（空串），这里整行不渲染 ——
+              写「未分岛」会让人以为那是一个特殊的岛。规则与节点卡上的岛徽标一致。 */}
+          {islandId !== LEGACY_ISLAND ? (
+            <div className="text-[11px] text-fg-subtle" data-island={islandId}>
+              所属进化岛：{islandTitle(islandId)}
+            </div>
+          ) : null}
         </div>
         <button
           type="button"

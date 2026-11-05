@@ -1,0 +1,4 @@
+smoke_failed: ... [truncated]
+<path> line 1200, in __getitem__
+    return self._getitem_tuple(key)
+           ^^^^

@@ -18,6 +18,7 @@ import type {
   TreeNodeDto,
 } from '@/generated/api';
 import { classifySignificance } from '@/features/workbench/significance';
+import { islandTitle, LEGACY_ISLAND } from '@/features/islands/island-view';
 
 /** 节点卡上显示的派生信息，与 DTO 分开存放避免污染原始数据。 */
 export interface TreeNodeData extends Record<string, unknown> {
@@ -49,6 +50,13 @@ export interface TreeNodeData extends Record<string, unknown> {
   operatorLabel: string;
   statusLabel: string;
   depth: number;
+  /**
+   * 所属进化岛。历史单树运行是空串（`LEGACY_ISLAND`）而不是 null ——
+   * 契约就是这么定的，读成 null 会让"没有岛"变成"岛未知"。
+   */
+  islandId: string;
+  /** 「岛 a」/「未分岛（历史单树）」，节点卡与筛选条共用同一个来源。 */
+  islandLabel: string;
 
   // ------------------------------------------------------------------------
   // 以下几项由 `TreeCanvas` 在渲染时补上（不属于后端数据）。
@@ -80,24 +88,31 @@ export interface TreeEdgeInput {
 }
 
 /**
- * 三种边各自的线型（PRD §9.8：不同关系必须一眼可分）。
+ * 四种边各自的线型（PRD §9.8：不同关系必须一眼可分）。
  *
  * 颜色全部引用项目真实存在的 CSS 变量（见 `styles/theme.css`）。这里曾写过
  * `--color-line-strong` / `--color-accent` / `--color-warn` —— 三个都不存在，
  * 而 React Flow 拿到的 stroke 是内联样式，解析失败会**静默变成黑色**，
  * 深色主题下三种边就全糊在一起。变量名对不上时不要凭直觉起。
+ *
+ * **导出**是给 `TreeEdgeLegend` 用的：图例和画布读同一张表，改线型只改这里。
+ * 图例自己抄一份颜色表的话，两边迟早各说各话（显著性图例同样是与卡片共享
+ * `significanceAccent`，不是一个巧合）。
  */
-const EDGE_STYLE: Record<TreeEdgeKind, { stroke: string; dash?: string; label: string }> = {
+export const EDGE_STYLE: Record<TreeEdgeKind, { stroke: string; dash?: string; label: string }> = {
   parent: { stroke: 'var(--color-border-strong)', label: '' },
   crossover_second_parent: { stroke: 'var(--color-brand-500)', dash: '6 4', label: '交叉' },
   repair: { stroke: 'var(--color-warning-500)', dash: '2 3', label: '修复' },
+  // 外岛摘要嫁接：来源节点属于另一棵岛树，它不是父边（TODO D6.3）。
+  summary_cross: { stroke: 'var(--color-success-500)', dash: '10 4', label: '外岛摘要' },
 };
 
 /**
  * 算子的中文标签。
  *
- * 取值必须与契约的 `OperatorType` 一致（实测 10 个：init / refine / recall_focus /
- * threshold_calibrate / inject / transplant / crossover / repair / hpo / patch）。
+ * 取值必须与契约的 `OperatorType` 一致（实测 11 个：init / refine / recall_focus /
+ * threshold_calibrate / inject / transplant / crossover / summary_cross / repair /
+ * hpo / patch）。
  * 表里没有的算子直接显示原文 —— 引擎加了新算子时前端不该显示空白。
  */
 const OPERATOR_LABELS: Record<OperatorType, string> = {
@@ -108,6 +123,7 @@ const OPERATOR_LABELS: Record<OperatorType, string> = {
   inject: '注入',
   transplant: '移植',
   crossover: '交叉',
+  summary_cross: '摘要交叉',
   repair: '修复',
   hpo: '超参搜索',
   patch: '热补丁',
@@ -165,6 +181,8 @@ export function toTreeNodeData(node: TreeNodeDto): TreeNodeData {
     operatorLabel: OPERATOR_LABELS[node.operator] ?? node.operator,
     statusLabel: STATUS_LABELS[node.status] ?? node.status,
     depth: node.depth,
+    islandId: node.island_id ?? LEGACY_ISLAND,
+    islandLabel: islandTitle(node.island_id ?? LEGACY_ISLAND),
   };
 }
 
@@ -249,6 +267,8 @@ export function layoutTree(
     graph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
   }
   for (const edge of edges) {
+    // 摘要嫁接边跨岛：参与排序会把两棵本不相干的岛树绑成一代，布局只认层级边。
+    if (edge.data?.kind === 'summary_cross') continue;
     // dagre 遇到未知节点会抛错，而边的端点来自后端、未必都在节点列表里。
     if (graph.hasNode(edge.source) && graph.hasNode(edge.target)) {
       graph.setEdge(edge.source, edge.target);
@@ -362,6 +382,14 @@ export interface TreeFilter {
   hiddenStatuses: NodeStatus[];
   /** 只看这些 operator；空数组表示不过滤。 */
   operators: string[];
+  /**
+   * 只看这些岛的节点（「岛切换」）；空数组表示看并列的全部岛。
+   *
+   * 多选而不是单选：三岛的价值恰恰在**对比**（PRD 要求并列树），
+   * 一次只能看一岛就得来回切，而"a+b 对 c"这种组合也是真实需求。
+   * 空串是合法的岛 id（历史单树），所以这里不能用 falsy 判断"未选"。
+   */
+  islands: string[];
   /** 关键词，匹配短 ID 或 intent。 */
   keyword: string;
 }
@@ -372,8 +400,34 @@ export const EMPTY_TREE_FILTER: TreeFilter = {
   scoredOnly: false,
   hiddenStatuses: [],
   operators: [],
+  islands: [],
   keyword: '',
 };
+
+/** 筛选条上要列出的岛：来自这棵树里真实出现过的岛，不是配置里的岛。 */
+export interface IslandOption {
+  id: string;
+  label: string;
+  count: number;
+}
+
+/**
+ * 按岛分组计数。
+ *
+ * 用树里的实际取值而不是 `run_summary` 的岛列表：运行跑到一半时某个岛可能
+ * 一个节点都还没产出，配置里有它、树里没有它，筛选条上摆一个点不动的芯片
+ * 只会让人以为筛选坏了。
+ */
+export function islandOptions(nodes: TreeNodeDto[]): IslandOption[] {
+  const counts = new Map<string, number>();
+  for (const node of nodes) {
+    const id = node.island_id ?? LEGACY_ISLAND;
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort(([a], [b]) => (a === b ? 0 : a === LEGACY_ISLAND ? 1 : b === LEGACY_ISLAND ? -1 : a < b ? -1 : 1))
+    .map(([id, count]) => ({ id, label: islandTitle(id), count }));
+}
 
 /** 节点是否通过过滤。纯谓词，便于单测。 */
 export function passesFilter(node: TreeNodeDto, filter: TreeFilter, bestPath: string[]): boolean {
@@ -382,6 +436,10 @@ export function passesFilter(node: TreeNodeDto, filter: TreeFilter, bestPath: st
   if (filter.scoredOnly && (node.score === null || node.score === undefined)) return false;
   if (filter.hiddenStatuses.includes(node.status)) return false;
   if (filter.operators.length > 0 && !filter.operators.includes(node.operator)) return false;
+  // 空串是一个真实的岛 id（历史单树），所以判"是否过滤"只能看数组长度。
+  if (filter.islands.length > 0 && !filter.islands.includes(node.island_id ?? LEGACY_ISLAND)) {
+    return false;
+  }
   const keyword = filter.keyword.trim().toLowerCase();
   if (keyword) {
     const haystack = `${shortId(node.id)} ${node.intent ?? ''}`.toLowerCase();

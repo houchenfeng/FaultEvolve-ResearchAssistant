@@ -10,9 +10,11 @@ import asyncio
 import hashlib
 import os
 import time
+import uuid
 from typing import Any, Protocol
 
 from faultevolve.common.metering import CallMetrics, Timer
+from faultevolve.common.llm_progress import CallProgress, start_progress
 from faultevolve.common.schemas import LLMCall
 from faultevolve.config import EvolveConfig
 
@@ -36,8 +38,16 @@ class LLMClient(Protocol):
 
 
 class LLMTransientError(Exception):
-    """Transient LLM error that was not recoverable after retries."""
-    pass
+    """Transient LLM error that was not recoverable after retries.
+
+    Carries the request it failed on: a request that went out and never came back
+    is a spend the run has to record as unresolved, not as if nothing was sent.
+    """
+
+    def __init__(self, message: str, *, request_id: str = "", attempts: int = 1) -> None:
+        super().__init__(message)
+        self.request_id = request_id
+        self.attempts = attempts
 
 
 class DashScopeLLM:
@@ -65,11 +75,60 @@ class DashScopeLLM:
     def _get_client(self) -> Any:
         """Get or create the OpenAI client."""
         if self._client is None:
+            import httpx
             from openai import OpenAI
 
             api_key = os.environ.get("DASHSCOPE_API_KEY", "")
-            self._client = OpenAI(api_key=api_key, base_url=self.base_url)
+            # The read timeout is a run-level knob: the SDK default (600s) kills a
+            # slow reasoning generation mid-flight, and the retry re-sends the same
+            # prompt, so the run can never make progress on a slow model.
+            timeout = httpx.Timeout(self.config.llm.timeout_s, connect=15.0)
+            self._client = OpenAI(api_key=api_key, base_url=self.base_url, timeout=timeout)
         return self._client
+
+    def _stream_chat(
+        self,
+        client: Any,
+        model: str,
+        messages: list[dict[str, str]],
+        temperature: float,
+        max_tokens: int,
+        progress: CallProgress | None = None,
+        extra_body: dict[str, Any] | None = None,
+    ) -> tuple[str, Any]:
+        """Run one streaming request, joining content deltas as they arrive.
+
+        Streaming keeps the socket alive while the model generates, so a long
+        generation is not killed by the read timeout; the token usage rides the
+        final chunk via stream_options.include_usage.
+        """
+        stream = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stream=True,
+            stream_options={"include_usage": True},
+            extra_body=extra_body or None,
+        )
+        parts: list[str] = []
+        usage: Any = None
+        try:
+            for chunk in stream:
+                if progress is not None:
+                    progress.chunk(chunk)
+                if getattr(chunk, "usage", None):
+                    usage = chunk.usage
+                for choice in (chunk.choices or []):
+                    delta = getattr(choice, "delta", None)
+                    content = getattr(delta, "content", None) if delta is not None else None
+                    if content:
+                        parts.append(content)
+        finally:
+            close = getattr(stream, "close", None)
+            if close is not None:
+                close()
+        return "".join(parts), usage
 
     def _cache_key(self, model: str, messages: list[dict[str, str]], temperature: float) -> str:
         """Generate cache key for a request."""
@@ -97,6 +156,7 @@ class DashScopeLLM:
         temperature: float | None = None,
         max_tokens: int | None = None,
         raise_on_transient: bool = True,
+        thinking: bool | None = None,
     ) -> tuple[str, CallMetrics]:
         """Send a chat completion request with retry logic.
 
@@ -108,6 +168,8 @@ class DashScopeLLM:
             raise_on_transient: If False, raises LLMTransientError instead of
                                the original error when all retries fail on
                                transient errors
+            thinking: False disables the model's reasoning stage (DashScope
+                      ``enable_thinking``); None keeps the endpoint default
 
         Returns:
             Tuple of (response_text, call_metrics)
@@ -120,11 +182,17 @@ class DashScopeLLM:
         model = model or self.model
         temperature = temperature if temperature is not None else self.temperature
         max_tokens = max_tokens or self.max_tokens
+        # Short structured calls (reflection, cards) must not spend their whole
+        # budget on a reasoning model's thinking stage and return no content.
+        extra_body = {"enable_thinking": thinking} if thinking is not None else None
 
         if temperature == 0:
             cache_key = self._cache_key(model, messages, temperature)
             if cache_key in self._cache:
                 text, metrics = self._cache[cache_key]
+                # A cache hit sent no request, so it gets no request id; its token
+                # counts are the original call's, which the rollup can tell apart
+                # from fresh spend through the cached flag.
                 return text, CallMetrics(
                     prompt_tokens=metrics.prompt_tokens,
                     completion_tokens=metrics.completion_tokens,
@@ -133,26 +201,40 @@ class DashScopeLLM:
                 )
 
         client = self._get_client()
+        request_id = uuid.uuid4().hex[:12]
         last_error: Exception | None = None
         was_transient = False
 
         for attempt, delay in enumerate(self.RETRY_DELAYS + [0]):
+            progress = start_progress(request_id, attempt + 1, model, max_tokens, self.config.llm.stream)
             try:
                 with Timer() as timer:
-                    response = client.chat.completions.create(
-                        model=model,
-                        messages=messages,
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                    )
+                    if self.config.llm.stream:
+                        text, usage = self._stream_chat(
+                            client, model, messages, temperature, max_tokens,
+                            progress=progress, extra_body=extra_body,
+                        )
+                    else:
+                        response = client.chat.completions.create(
+                            model=model,
+                            messages=messages,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            extra_body=extra_body,
+                        )
+                        text = response.choices[0].message.content or ""
+                        usage = response.usage
 
-                text = response.choices[0].message.content or ""
                 metrics = CallMetrics(
-                    prompt_tokens=response.usage.prompt_tokens if response.usage else 0,
-                    completion_tokens=response.usage.completion_tokens if response.usage else 0,
+                    prompt_tokens=usage.prompt_tokens if usage else 0,
+                    completion_tokens=usage.completion_tokens if usage else 0,
                     latency_ms=timer.elapsed_ms,
                     cached=False,
+                    request_id=request_id,
+                    attempts=attempt + 1,
                 )
+                if progress is not None:
+                    progress.finish("completed", usage=usage)
 
                 if temperature == 0:
                     cache_key = self._cache_key(model, messages, temperature)
@@ -163,6 +245,8 @@ class DashScopeLLM:
             except Exception as e:
                 last_error = e
                 is_transient = self._is_transient_error(e)
+                if progress is not None:
+                    progress.finish("retry_wait" if is_transient and attempt < len(self.RETRY_DELAYS) else "failed", error=e)
 
                 if is_transient:
                     was_transient = True
@@ -174,7 +258,13 @@ class DashScopeLLM:
                     raise
 
         if was_transient:
-            raise LLMTransientError(f"LLM call failed after {len(self.RETRY_DELAYS)} retries: {last_error}")
+            # The caller can still see which request died and how many sends it
+            # used, so the spend can be written down as unresolved.
+            raise LLMTransientError(
+                f"LLM call failed after {len(self.RETRY_DELAYS)} retries: {last_error}",
+                request_id=request_id,
+                attempts=len(self.RETRY_DELAYS) + 1,
+            )
 
         raise last_error or Exception("LLM call failed")
 
@@ -183,12 +273,18 @@ class DashScopeLLM:
         messages: list[dict[str, str]],
         temperature: float = 0.2,
     ) -> tuple[str, CallMetrics]:
-        """Chat using the reasoning model (for insight extraction, etc.)."""
+        """Chat using the reasoning model (for insight extraction, etc.).
+
+        Thinking is disabled: these calls expect a short JSON answer, and a
+        reasoning model would otherwise exhaust ``max_tokens`` before emitting
+        any content.
+        """
         return self.chat(
             messages=messages,
             model=self.reason_model,
             temperature=temperature,
             max_tokens=2000,
+            thinking=False,
         )
 
 
@@ -255,6 +351,7 @@ class MockLLM:
             completion_tokens=200,
             latency_ms=50,
             cached=False,
+            request_id=f"mock-req-{self._call_count}",
         )
 
     def chat_for_reasoning(
@@ -280,6 +377,7 @@ class MockLLM:
             completion_tokens=100,
             latency_ms=40,
             cached=False,
+            request_id=f"mock-reason-{self._reasoning_call_count}",
         )
 
     def _generate_mock_response(self, call_number: int) -> str:
@@ -447,14 +545,25 @@ def create_llm_call_record(
     model: str,
     metrics: CallMetrics,
     node_id: str | None = None,
+    island_id: str = "",
+    stage: str = "",
+    island_attempt: int | None = None,
+    outcome: str = "ok",
 ) -> LLMCall:
-    """Create an LLMCall record for the database."""
-    import uuid
+    """Create an LLMCall record for the database.
+
+    ``outcome`` is ``"unknown_outcome"`` for a request that was sent and never
+    answered; that row carries no tokens because the client never learned any, and
+    leaving the request out entirely would make the run look cheaper than it was.
+    Money is not derived here: ``cost_usd`` stays null unless a caller with a real
+    bill or rate fills it, so ``cost_basis`` says what the number is worth.
+    """
     from faultevolve.cloud.store import now_iso
 
     return LLMCall(
         id=str(uuid.uuid4())[:8],
         experiment_id=experiment_id,
+        island_id=island_id,
         node_id=node_id,
         purpose=purpose,
         model=model,
@@ -463,4 +572,9 @@ def create_llm_call_record(
         latency_ms=metrics.latency_ms,
         cached=metrics.cached,
         created_at=now_iso(),
+        request_id=metrics.request_id,
+        transport_attempts=metrics.attempts,
+        island_attempt=island_attempt,
+        stage=stage,
+        outcome=outcome,
     )

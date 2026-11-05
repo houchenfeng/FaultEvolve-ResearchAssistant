@@ -1,0 +1,117 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792521759.7312164,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 234,
+      "prompt_tokens": 5625,
+      "total_tokens": 5859
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "tree_blend": 0.25,
+        "epochs": 60
+      },
+      "hypothesis": "结合双分支架构（TCN+GRU）与降低树混合比例，旨在利用DL模型对时序趋势的更强捕捉能力。根据HDD-ARCHITECTURE-01，双分支在保持低误报率的同时提升了精确度和低FAR召回；根据HDD-HYBRID-01，较低的树混合比例（0.25）能进一步改善AUPRC和ROS。增加训练轮数至60以充分收敛更复杂的混合模型，预期能在不显著牺牲运行时间的前提下，全面超越当前基线，特别是提升低FAR下的召回率。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": [
+        0,
+        1
+      ]
+    },
+    "finished_at": 1792521763.9986603
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792521926.5725243,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 206,
+      "prompt_tokens": 6469,
+      "total_tokens": 6675
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "threshold_scale": 1.0
+      },
+      "hypothesis": "采用 dual (TCN+GRU) 架构以利用其已验证的精度和低误报率召回优势，同时将 threshold_scale 从 1.2 降至 1.0。根据 HDD-DUAL-THRESHOLD-01，降低阈值能显著提升召回率（弥补 dual 架构本身的召回损失），而根据 HDD-ARCHITECTURE-01，dual 架构本身具有更高的精度和更低的 FAR。两者结合旨在平衡 precision/recall 权衡，提升综合指标尤其是 low-FAR recall，同时保持较低的误报率。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01",
+        "HDD-DUAL-THRESHOLD-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792521929.5404458
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792522089.444923,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 191,
+      "prompt_tokens": 7307,
+      "total_tokens": 7498
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "tree_blend": 0.25,
+        "threshold_scale": 1.0
+      },
+      "hypothesis": "采用双分支架构（TCN+GRU）结合较低树混合比例（0.25），旨在利用时序特征互补性提升低误报率下的召回能力。将阈值缩放调整为1.0以匹配更严格的决策边界，预期在保持较高精度的同时，通过架构改进弥补因阈值收紧可能带来的召回损失，从而全面优于基线ML模型。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01",
+        "HDD-HYBRID-01",
+        "HDD-DUAL-THRESHOLD-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792522092.5940807
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792522256.0591066,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 265,
+      "prompt_tokens": 6880,
+      "total_tokens": 7145
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "threshold_scale": 1.0,
+        "tree_blend": 0.25
+      },
+      "hypothesis": "当前TCN配置在阈值1.2下召回率不足。根据HDD-ARCHITECTURE-01，双模型（TCN+GRU）能提升精度和低FAR下的召回；根据HDD-HYBRID-01，降低树混合比例至0.25可进一步改善AUPRC和整体排序质量。结合HDD-DUAL-THRESHOLD-01中阈值降至1.0对召回的显著正向作用（尽管牺牲部分精度），此组合旨在通过架构增强和更激进的阈值调整来最大化低误报率下的检测能力，同时利用较低树混合比例保持DL模型的判别力。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01",
+        "HDD-HYBRID-01",
+        "HDD-DUAL-THRESHOLD-01"
+      ],
+      "evidence_trials": [
+        10,
+        29
+      ]
+    },
+    "finished_at": 1792522259.5983171
+  }
+]

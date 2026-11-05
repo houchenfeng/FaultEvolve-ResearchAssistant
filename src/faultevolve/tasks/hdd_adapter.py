@@ -523,6 +523,13 @@ class HDDAdapter(FamouAdapter):
         """
         return HDD_EDIT_GUIDANCE
 
+    def workflow_environment(self, workspace: Path) -> dict[str, str]:
+        return {"HDD_BENCH_DATA_ROOT": str(workspace / "data")}
+
+    def prepare_workflow_data(self, task_spec: TaskSpec, workspace: Path, policy):
+        from faultevolve.tasks.data_workflow import prepare_hdd_workflow
+        return prepare_hdd_workflow(self._get_data_dir(task_spec).resolve(), workspace, policy)
+
     def _get_data_dir(self, task_spec: TaskSpec) -> Path:
         """Get the data directory for the task."""
         data_root = os.environ.get("HDD_BENCH_DATA_ROOT")

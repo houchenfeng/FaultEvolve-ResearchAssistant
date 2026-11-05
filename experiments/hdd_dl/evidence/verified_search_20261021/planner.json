@@ -1,0 +1,164 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792519056.1784976,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 188,
+      "prompt_tokens": 5009,
+      "total_tokens": 5197
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "tree_blend": 0.25,
+        "focal_gamma": 1.0
+      },
+      "hypothesis": "The 'dual' family combined with a moderate tree blend (0.25) leverages both deep sequence features and gradient-boosted trees, which has shown promise in HDD contexts (HDD-HYBRID-01). Introducing focal loss (gamma=1.0) addresses class imbalance by down-weighting easy negatives, potentially improving recall at low false alarm rates without significantly hurting precision, as suggested by DL-FOCAL-01.",
+      "knowledge_ids": [
+        "HDD-HYBRID-01",
+        "DL-FOCAL-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792519067.4030638
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792519224.9303622,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 146,
+      "prompt_tokens": 5841,
+      "total_tokens": 5987
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "depth": 1
+      },
+      "hypothesis": "TCN的固定感受野可能无法充分捕捉HDD SMART数据中非线性的长期退化趋势。GRU通过门控机制能更好地建模序列中的时间依赖性和状态演变，增加宽度至256以增强特征提取能力，有望提升低误报率下的召回率（recall_at_far）和整体AUPRC。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792519227.6263418
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792519679.3200603,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 165,
+      "prompt_tokens": 6689,
+      "total_tokens": 6854
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "depth": 2,
+        "dropout": 0.1
+      },
+      "hypothesis": "TCN的固定感受野可能无法充分捕捉SMART属性中非线性的、长程的退化趋势（如温度或重分配计数的突然加速）。GRU通过门控机制能更好地建模时间序列中的状态依赖和长期记忆，深度为2可增强特征抽象能力。预期在保持低误报率的同时提升召回率和AUPRC。",
+      "knowledge_ids": [
+        "DL-SEQ-01",
+        "AUTO-b200202968"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792519682.6683633
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792519842.702585,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 98,
+      "prompt_tokens": 6257,
+      "total_tokens": 6355
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "depth": 2,
+        "epochs": 60
+      },
+      "hypothesis": "GRU模型可能更好地捕捉SMART属性的时间序列依赖关系，增加深度和训练轮数以提升特征提取能力。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792519844.5661392
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792520019.2903423,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 217,
+      "prompt_tokens": 6661,
+      "total_tokens": 6878
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "fold_calibration": "threshold_ratio"
+      },
+      "hypothesis": "GRU模型能更好地捕捉SMART属性的时序依赖关系，结合阈值比例校准（threshold_ratio）可以在保持高召回率的同时优化低误报率下的性能。现有TCN在trial 0/25表现稳定但缺乏对长程趋势的显式建模能力，而trial 38显示GRU配合threshold_ratio在precision和recall平衡上优于默认配置，且未导致AUPRC显著下降。此实验旨在验证GRU+threshold_ratio组合能否超越当前最佳TCN基线，特别是在提升低FAR场景下的检测质量。",
+      "knowledge_ids": [
+        "HDD-CALIBRATION-01",
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": [
+        38,
+        0,
+        25
+      ]
+    },
+    "finished_at": 1792520022.9709451
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792520174.4685588,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 149,
+      "prompt_tokens": 6679,
+      "total_tokens": 6828
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "depth": 2,
+        "epochs": 60
+      },
+      "hypothesis": "TCN的固定感受野可能无法充分捕捉SMART属性中非线性的、长距离的时间依赖关系（如缓慢恶化后的突然故障）。GRU通过门控机制能更好地记忆长期状态，增加深度至2层以增强特征提取能力，同时延长训练周期以确保收敛。预期在保持低误报率的同时提升召回率和AUPRC。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792520178.0098283
+  }
+]

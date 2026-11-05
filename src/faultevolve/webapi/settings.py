@@ -62,6 +62,16 @@ class WebSettings(BaseSettings):
     #: unavailable rather than attempted and half-done.
     run_registry: Path | None = None
 
+    # --- discovery ----------------------------------------------------------
+    #: How many directory levels below a configured root the run scan may go
+    #: (TODO D6.1). A NAS archive nests runs under date and batch folders; ``1``
+    #: restores the original "immediate children only" behaviour.
+    discovery_max_depth: int = Field(default=4, gt=0)
+    #: Roots that hold demonstration fixtures rather than real runs (TODO D6.2).
+    #: A run found under one is reported as a fixture and leaves the product
+    #: listing. Nothing is judged by directory *name* -- that is not evidence.
+    fixture_roots: list[Path] = Field(default_factory=_empty_paths)
+
     def allowed_roots(self) -> list[Path]:
         """Resolved allow-list, including the artifact roots themselves."""
         roots = list(self.allowed_path_roots)
@@ -72,6 +82,10 @@ class WebSettings(BaseSettings):
                 roots.append(candidate.parent if candidate.suffix else candidate)
         for task_root in self.task_roots:
             roots.append(task_root)
+        # Listing a fixture root is read access granted by configuration, so the
+        # scan may enter it; the fixture is then kept out of the product list.
+        for fixture_root in self.fixture_roots:
+            roots.append(fixture_root)
         resolved: list[Path] = []
         for root in roots:
             try:

@@ -1,0 +1,383 @@
+{
+  "experiment_id": "15l4nd01",
+  "nodes": [
+    {
+      "id": "54b71757",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 7,
+      "adopted_cards": []
+    },
+    {
+      "id": "dfefa0b8",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "inject",
+      "score": 0.31983785422330063,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.00",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "50295e8a",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.32398416023248205,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.04",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "711c8aad",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.41925418173939116,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.07",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "5b2543ed",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "inject",
+      "score": 0.3036524487790756,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.10",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "b52e7614",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "threshold_calibrate",
+      "score": 0.40464237842948714,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.13",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "931117bc",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.36492507439564525,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.16",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "82e14fb1",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 7,
+      "adopted_cards": []
+    },
+    {
+      "id": "64aeccc0",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 0.30107311295614236,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.01",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "ae77bb6f",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "threshold_calibrate",
+      "score": 0.34290942071534447,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.05",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "2eba19c2",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "threshold_calibrate",
+      "score": 0.3070757754027508,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.08",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "155cd909",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.3476300918115545,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.11",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "2203c3af",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 0.37852110535900985,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.14",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "0e40108e",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 0.31593026746446834,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.17",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "92c27989",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 7,
+      "adopted_cards": []
+    },
+    {
+      "id": "9bc59515",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 0.3572685854055673,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Intentionally use wrong LightGBM parameter to trigger repair",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "942d8da9",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.3311216603391556,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.06",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "827bf956",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 0.4346980062059787,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.09",
+      "visit_count": 0,
+      "adopted_cards": [
+        "T01"
+      ]
+    },
+    {
+      "id": "b82773c6",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 0.3628290933551188,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.12",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "f0638853",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 0.32605107119966426,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.15",
+      "visit_count": 0,
+      "adopted_cards": [
+        "T01"
+      ]
+    },
+    {
+      "id": "d4d06747",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "inject",
+      "score": 0.38021883587729044,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.18",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "54b71757",
+      "target": "dfefa0b8"
+    },
+    {
+      "source": "54b71757",
+      "target": "50295e8a"
+    },
+    {
+      "source": "54b71757",
+      "target": "711c8aad"
+    },
+    {
+      "source": "54b71757",
+      "target": "5b2543ed"
+    },
+    {
+      "source": "54b71757",
+      "target": "b52e7614"
+    },
+    {
+      "source": "54b71757",
+      "target": "931117bc"
+    },
+    {
+      "source": "82e14fb1",
+      "target": "64aeccc0"
+    },
+    {
+      "source": "82e14fb1",
+      "target": "ae77bb6f"
+    },
+    {
+      "source": "82e14fb1",
+      "target": "2eba19c2"
+    },
+    {
+      "source": "82e14fb1",
+      "target": "155cd909"
+    },
+    {
+      "source": "82e14fb1",
+      "target": "2203c3af"
+    },
+    {
+      "source": "82e14fb1",
+      "target": "0e40108e"
+    },
+    {
+      "source": "92c27989",
+      "target": "9bc59515"
+    },
+    {
+      "source": "92c27989",
+      "target": "942d8da9"
+    },
+    {
+      "source": "92c27989",
+      "target": "827bf956"
+    },
+    {
+      "source": "92c27989",
+      "target": "b82773c6"
+    },
+    {
+      "source": "92c27989",
+      "target": "f0638853"
+    },
+    {
+      "source": "92c27989",
+      "target": "d4d06747"
+    }
+  ]
+}

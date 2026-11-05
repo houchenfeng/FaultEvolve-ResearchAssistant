@@ -1,0 +1,222 @@
+{
+  "scope": "training_seed_stability_on_reused_search_validation_set",
+  "independent_generalization": false,
+  "candidates": {
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/delta_sources_20261021/without.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 2.6426666666666665,
+          "min": 1.431,
+          "max": 3.625,
+          "median": 2.872,
+          "std": 1.1148337693725165
+        },
+        "auprc": {
+          "mean": 0.3925166666666667,
+          "min": 0.38684,
+          "max": 0.39828,
+          "median": 0.39243,
+          "std": 0.0057204924030483046
+        },
+        "f1": {
+          "mean": 0.41325333333333336,
+          "min": 0.39011,
+          "max": 0.42568,
+          "median": 0.42397,
+          "std": 0.020060942982156476
+        },
+        "f1_boot_std": {
+          "mean": 0.021456666666666666,
+          "min": 0.02047,
+          "max": 0.02208,
+          "median": 0.02182,
+          "std": 0.0008643109008530054
+        },
+        "f1_p10": {
+          "mean": 0.38516333333333336,
+          "min": 0.36256,
+          "max": 0.39721,
+          "median": 0.39572,
+          "std": 0.019589232586636307
+        },
+        "false_alarm_rate": {
+          "mean": 0.0015776666666666667,
+          "min": 0.000667,
+          "max": 0.002333,
+          "median": 0.001733,
+          "std": 0.000843792233510912
+        },
+        "missed_detection_rate": {
+          "mean": 0.57187,
+          "min": 0.48016,
+          "max": 0.69312,
+          "median": 0.54233,
+          "std": 0.10951004109212999
+        },
+        "precision": {
+          "mean": 0.43037,
+          "min": 0.35795,
+          "max": 0.5353,
+          "median": 0.39786,
+          "std": 0.09303725436619463
+        },
+        "quality": {
+          "mean": 0.40919,
+          "min": 0.39838,
+          "max": 0.41572,
+          "median": 0.41347,
+          "std": 0.009429087972863534
+        },
+        "recall": {
+          "mean": 0.42813,
+          "min": 0.30688,
+          "max": 0.51984,
+          "median": 0.45767,
+          "std": 0.10951004109212999
+        },
+        "recall_at_far": {
+          "mean": 0.49427,
+          "min": 0.4881,
+          "max": 0.50529,
+          "median": 0.48942,
+          "std": 0.009566394305066053
+        },
+        "run_time_s": {
+          "mean": 27.966666666666665,
+          "min": 26.08,
+          "max": 29.37,
+          "median": 28.45,
+          "std": 1.697419610271231
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 40.91905667726985,
+          "min": 39.838330801813036,
+          "max": 41.571727303831715,
+          "median": 41.34711192616479,
+          "std": 0.9426501633069037
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_all_metrics_better": false
+    },
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/delta_sources_20261021/with.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 2.7503333333333333,
+          "min": 1.81,
+          "max": 3.307,
+          "median": 3.134,
+          "std": 0.8189336562465444
+        },
+        "auprc": {
+          "mean": 0.39280333333333334,
+          "min": 0.38717,
+          "max": 0.397,
+          "median": 0.39424,
+          "std": 0.005070032873003222
+        },
+        "f1": {
+          "mean": 0.41540333333333335,
+          "min": 0.37727,
+          "max": 0.43988,
+          "median": 0.42906,
+          "std": 0.0334646295860769
+        },
+        "f1_boot_std": {
+          "mean": 0.02168,
+          "min": 0.02147,
+          "max": 0.02187,
+          "median": 0.0217,
+          "std": 0.00020074859899884786
+        },
+        "f1_p10": {
+          "mean": 0.38698,
+          "min": 0.35085,
+          "max": 0.41117,
+          "median": 0.39892,
+          "std": 0.03188335459138514
+        },
+        "false_alarm_rate": {
+          "mean": 0.0016556666666666666,
+          "min": 0.001,
+          "max": 0.002067,
+          "median": 0.0019,
+          "std": 0.0005739305997534312
+        },
+        "missed_detection_rate": {
+          "mean": 0.5599633333333334,
+          "min": 0.50132,
+          "max": 0.6746,
+          "median": 0.50397,
+          "std": 0.09928710708512627
+        },
+        "precision": {
+          "mean": 0.40682,
+          "min": 0.37649,
+          "max": 0.44882,
+          "median": 0.39515,
+          "std": 0.037550617837793294
+        },
+        "quality": {
+          "mean": 0.40886,
+          "min": 0.39082,
+          "max": 0.42253,
+          "median": 0.41323,
+          "std": 0.016300420239981548
+        },
+        "recall": {
+          "mean": 0.4400366666666667,
+          "min": 0.3254,
+          "max": 0.49868,
+          "median": 0.49603,
+          "std": 0.09928710708512628
+        },
+        "recall_at_far": {
+          "mean": 0.4876533333333333,
+          "min": 0.47751,
+          "max": 0.50397,
+          "median": 0.48148,
+          "std": 0.014269387980335169
+        },
+        "run_time_s": {
+          "mean": 29.11,
+          "min": 28.63,
+          "max": 29.65,
+          "median": 29.05,
+          "std": 0.5126402247190516
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 40.88599526426151,
+          "min": 39.08188241420274,
+          "max": 42.2527580048004,
+          "median": 41.323345373781386,
+          "std": 1.6300519444130614
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_all_metrics_better": false
+    }
+  }
+}

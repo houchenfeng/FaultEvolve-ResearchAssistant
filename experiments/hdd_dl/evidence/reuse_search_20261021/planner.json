@@ -1,0 +1,175 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792546076.97106,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 148,
+      "prompt_tokens": 16264,
+      "total_tokens": 16412
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "share_fold_preprocessing": true,
+        "share_fold_tree": true
+      },
+      "hypothesis": "增加网络宽度至256可提升模型容量，结合共享预处理和树预测以减少冗余计算并稳定特征分布，从而在不牺牲运行效率的前提下提高低误报率召回。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-SHARED-PREPROCESSING-01",
+        "HDD-SHARED-TREE-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792546101.7735083
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792546330.57099,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 150,
+      "prompt_tokens": 18061,
+      "total_tokens": 18211
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 1,
+        "replicas": 3
+      },
+      "hypothesis": "增加网络宽度至256并降低深度至1，结合多副本集成，旨在提升模型容量以捕捉更复杂的SMART趋势特征，同时保持浅层结构以避免过拟合。预期在维持较低误报率的同时提高召回率和F1分数，从而改善综合预测性能。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": [
+        0,
+        14
+      ]
+    },
+    "finished_at": 1792546333.693805
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792546576.690718,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 188,
+      "prompt_tokens": 18064,
+      "total_tokens": 18252
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.25
+      },
+      "hypothesis": "增加网络宽度至256以增强特征提取能力，同时降低树模型混合权重至0.25以平衡神经与树分支的贡献。假设更宽的TCN能更好地捕捉SMART属性的细微趋势变化，而适度的树混合有助于在不显著牺牲精度的前提下提升低误报率下的召回率（low-FAR recall），从而全面改善预测指标。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": [
+        18,
+        19,
+        21,
+        22
+      ]
+    },
+    "finished_at": 1792546585.3289468
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792546761.829061,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 120,
+      "prompt_tokens": 18066,
+      "total_tokens": 18186
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.5,
+        "device_context": true
+      },
+      "hypothesis": "将网络宽度从128增加到256以增强特征提取能力，同时保持树模型混合比例在0.5并启用设备上下文感知。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01",
+        "HDD-CONTEXT-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792546788.870291
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792547027.6527376,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 184,
+      "prompt_tokens": 18047,
+      "total_tokens": 18231
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "replicas": 1,
+        "lr": 0.001
+      },
+      "hypothesis": "增加网络宽度至256可提升特征容量，配合降低副本数至1并提高学习率至0.001，旨在平衡计算效率与模型收敛速度。高学习率有助于在单副本下快速拟合趋势特征，而宽网络可能改善对复杂SMART模式的捕捉能力，从而在不显著牺牲精度的前提下提升召回率和AUPRC。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-EFFICIENCY-01"
+      ],
+      "evidence_trials": [
+        0,
+        33
+      ]
+    },
+    "finished_at": 1792547031.932192
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792547245.1401737,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 173,
+      "prompt_tokens": 18061,
+      "total_tokens": 18234
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "threshold_scale": 1.0,
+        "dropout": 0.25
+      },
+      "hypothesis": "采用dual架构（TCN+GRU）结合较低阈值(1.0)和较高正则化(dropout=0.25)，旨在通过双分支时序建模捕获更丰富的故障模式，同时利用低阈值提升召回率，并通过高dropout抑制过拟合以维持精确度，从而在保持低误报率的同时改善综合预测指标。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01",
+        "HDD-DUAL-THRESHOLD-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792547263.310473
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "scope": "training_only_observation_diagnostic_not_benchmark",
+  "devices": 31093,
+  "smart_channels": 31,
+  "observed_fraction": 0.8236981489010002,
+  "intermittent_device_channel_fraction": 0.02025764537812162,
+  "never_observed_device_channel_fraction": 0.16514244986165333,
+  "fully_observed_device_channel_fraction": 0.814599904760225,
+  "devices_with_intermittent_channel_fraction": 0.02527900170456373,
+  "gap_after_observation_cells": 4347,
+  "observed_zero_cells": 3575211,
+  "data_hashes": {
+    "train_labels.csv": "64b798410d78302ff77e4312b6c930edceee60c56d820f927be1b6804d503b27",
+    "train_history.csv.gz": "f033f35b786108567351b3b5d9882bc171679c75c2e24e300f11df95e1505624"
+  },
+  "runner_sha256": "04c31736a854f98114cf866fa472e2f4b9204a144301721f85396e3725428b7f",
+  "candidate_sha256": "3f01e50914964a29da2a2148b2c6b8940042162470bfac00495ac45f53b9ead3"
+}

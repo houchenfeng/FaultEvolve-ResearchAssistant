@@ -30,12 +30,14 @@ import type {
   NodeEvaluationResponse,
   ReportManifestResponse,
   RunDetailResponse,
+  RunIslandsResponse,
   ScoreboardEntryResponse,
   TreeNodeDto,
   TreeResponse,
 } from '@/generated/api';
 
 import { NOT_RECORDED, countCell, rateCell, type Cell } from '@/features/discovery/card-logic';
+import { islandRows, type IslandEdge } from '@/features/islands/island-view';
 // 波动带判定只能有一个出处（TODO 5.4：「不要让多个前端组件各自判断显著性」）。
 // 这里只负责把 `classifyNoiseBand` 的三档翻成结果页要说的话，不重读那个字段。
 import { classifyNoiseBand } from '@/features/workbench/significance';
@@ -320,6 +322,60 @@ export function topKRows(
       downloadable: known ? present : null,
     };
   });
+}
+
+// --------------------------------------------------------------------------
+// 13.1b 全局最优与各岛最优（TODO D6.4）
+// --------------------------------------------------------------------------
+
+export interface IslandBestRow {
+  islandId: string;
+  title: string;
+  statusLabel: string;
+  /** 树内实测的最优节点；`null` 表示这个岛一个已评分节点都没有。 */
+  bestNodeId: string | null;
+  bestScore: number | null;
+  /** `run_summary.json` 为这个岛记的 `best_score`，与实测并列显示。 */
+  recordedBestScore: number | null;
+  bestScoreConsistent: boolean;
+  nodeCount: number;
+  improvedCount: number;
+  stopLabel: string;
+  /** 运行级最优的节点就在这个岛里。 */
+  holdsGlobalBest: boolean;
+  /** 岛还写着 running 而运行已结束时，这里带一句说明（同概览页）；没有就是 null。 */
+  stalenessNote: string | null;
+}
+
+/**
+ * 各岛最优的表格行。
+ *
+ * 「全局最优属于哪个岛」不靠猜：三个岛的节点集合互不相交（`islandTreeStats`
+ * 只算本岛节点），所以那个节点落在谁的集合里，答案就是谁。节点不在树里时
+ * `holdsGlobalBest` 全为 false —— 界面照实说「只有 run_summary 记了它」，
+ * 不能拿某个岛的分数去顶。
+ */
+export function islandBestRows(
+  islands: RunIslandsResponse | null | undefined,
+  nodes: TreeNodeDto[],
+  edges: readonly IslandEdge[],
+  runStatus: string | null | undefined,
+  globalBestNodeId: string | null,
+): IslandBestRow[] {
+  return islandRows(islands, nodes, edges, runStatus).map((row) => ({
+    islandId: row.islandId,
+    title: row.title,
+    statusLabel: row.statusLabel,
+    bestNodeId: row.tree.bestNodeId,
+    bestScore: row.tree.bestScore,
+    recordedBestScore: row.view?.best_score ?? null,
+    bestScoreConsistent: row.bestScoreConsistent,
+    nodeCount: row.tree.nodeCount,
+    improvedCount: row.tree.improvedCount,
+    stopLabel: row.stopLabel,
+    holdsGlobalBest: globalBestNodeId !== null && row.tree.bestNodeId === globalBestNodeId,
+    stalenessNote: row.stalenessNote,
+  }));
 }
 
 // --------------------------------------------------------------------------

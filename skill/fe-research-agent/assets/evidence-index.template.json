@@ -1,0 +1,22 @@
+{
+  "schema": "faultevolve.research-evidence/v1",
+  "project_id": null,
+  "generated_at": null,
+  "execution_mode": null,
+  "project_status": null,
+  "selected_candidate": {
+    "run_id": null,
+    "node_or_trial_id": null,
+    "source_stage": null,
+    "code_sha256": null,
+    "data_identity": null,
+    "evaluator_sha256": null,
+    "evaluation_split": null,
+    "joint_goal_achieved": null
+  },
+  "claims": [],
+  "figures": [],
+  "artifacts": [],
+  "missing_evidence": [],
+  "limitations": []
+}

@@ -1,0 +1,75 @@
+{
+  "version": "experiment.spec/v1",
+  "name": "bounded-hierarchical-search-example",
+  "routes": [
+    {
+      "id": "method_a",
+      "default_parameters": {
+        "depth": 2,
+        "weight": 0.5
+      },
+      "parameter_domains": {
+        "depth": [1, 2, 3],
+        "weight": [0.25, 0.5, 0.75]
+      }
+    },
+    {
+      "id": "method_b",
+      "default_parameters": {
+        "alpha": 0.5
+      },
+      "parameter_domains": {
+        "alpha": [0.25, 0.5, 0.75]
+      }
+    }
+  ],
+  "metric": {
+    "key": "primary_metric",
+    "direction": "maximize",
+    "min_delta": 0.001,
+    "target": 0.9
+  },
+  "budgets": {
+    "max_trials": 30,
+    "max_wall_seconds": 3600,
+    "max_parallel_trials": 4
+  },
+  "search": {
+    "beam_width": 3,
+    "exploration_slots": 1,
+    "route_exploration_c": 0.35,
+    "node_exploration_c": 0.35,
+    "virtual_visit_penalty": 0.05
+  },
+  "evaluation": {
+    "command": [
+      "python",
+      "your_evaluator.py",
+      "--candidate",
+      "{candidate_file}",
+      "--output",
+      "{result_file}"
+    ],
+    "evaluator_version": "evaluator/v1",
+    "validation_fingerprint": "replace-with-real-fingerprint",
+    "repetitions": 1,
+    "aggregation": "mean",
+    "timeout_seconds": 600,
+    "concurrency_mode": "serial/v1"
+  },
+  "holdout": {
+    "enabled": true,
+    "command": [
+      "python",
+      "your_holdout_evaluator.py",
+      "--candidate",
+      "{candidate_file}",
+      "--output",
+      "{result_file}"
+    ],
+    "repetitions": 3,
+    "aggregation": "worst",
+    "timeout_seconds": 600,
+    "minimum_acceptable_score": 0.85
+  }
+}

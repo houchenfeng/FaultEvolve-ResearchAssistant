@@ -8,7 +8,11 @@ import { useState } from 'react';
 
 import type { NodeStatus, OperatorType, TreeNodeDto } from '@/generated/api';
 import { significanceCounts, type Significance } from '@/features/workbench/significance';
-import { EMPTY_TREE_FILTER, type TreeFilter } from '@/features/workbench/tree-adapter';
+import {
+  EMPTY_TREE_FILTER,
+  islandOptions,
+  type TreeFilter,
+} from '@/features/workbench/tree-adapter';
 
 const STATUS_OPTIONS: Array<{ value: NodeStatus; label: string }> = [
   { value: 'pending', label: '待评估' },
@@ -27,6 +31,13 @@ const OPERATOR_OPTIONS: Array<{ value: OperatorType; label: string }> = [
   { value: 'threshold_calibrate', label: '阈值校准' },
   { value: 'inject', label: '注入' },
   { value: 'transplant', label: '移植' },
+  // 下面三个是后加的算子，缺一个就意味着这类节点没法按算子筛出去。
+  // `summary_cross` 尤其重要：它标记"由外岛摘要嫁接而来"的节点，
+  // 三岛视图里用户第一件想知道的事就是"哪些节点是交换来的"。
+  // 标签与 `tree-adapter.ts` 的 `OPERATOR_LABELS` 逐字一致。
+  { value: 'summary_cross', label: '摘要交叉' },
+  { value: 'hpo', label: '超参搜索' },
+  { value: 'patch', label: '热补丁' },
 ];
 
 const SIGNIFICANCE_LABELS: Record<Significance, string> = {
@@ -47,13 +58,15 @@ export interface TreeFiltersProps {
 export function TreeFilters({ filter, onChange, nodes, collapsedCount }: TreeFiltersProps) {
   const [keyword, setKeyword] = useState(filter.keyword);
   const counts = significanceCounts(nodes);
+  const islands = islandOptions(nodes);
   const isDefault =
     filter.keyword === '' &&
     !filter.bestPathOnly &&
     !filter.withinBandOnly &&
     !filter.scoredOnly &&
     filter.hiddenStatuses.length === 0 &&
-    filter.operators.length === 0;
+    filter.operators.length === 0 &&
+    filter.islands.length === 0;
 
   const toggle = <K extends keyof TreeFilter>(key: K, value: TreeFilter[K]) => {
     onChange({ ...filter, [key]: value });
@@ -126,6 +139,38 @@ export function TreeFilters({ filter, onChange, nodes, collapsedCount }: TreeFil
           </FilterChip>
         ))}
       </div>
+
+      {/*
+        岛切换（TODO D6.4）。只在树里真的分出两个以上岛时出现：单岛/历史单树
+        运行摆一排芯片只会让人以为"还有别的岛被藏起来了"。
+        默认全选 = 并列树，这是三岛最有用的看法（能横向对比），所以芯片表达的是
+        "只看这些岛"，取消全部选中则回到并列视图 —— 与算子筛选同一套语义。
+      */}
+      {islands.length > 1 ? (
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+          <span className="text-fg-subtle">进化岛</span>
+          {islands.map((option) => (
+            <FilterChip
+              key={option.id || 'legacy'}
+              active={filter.islands.includes(option.id)}
+              onClick={() => toggle('islands', toggleInArray(filter.islands, option.id))}
+              title={`只看${option.label}的 ${option.count} 个节点；跨岛的摘要嫁接边在单岛视图里不显示`}
+            >
+              {option.label} {option.count}
+            </FilterChip>
+          ))}
+          {filter.islands.length > 0 && filter.islands.length < islands.length ? (
+            <button
+              type="button"
+              onClick={() => toggle('islands', [])}
+              className="text-[11px] text-brand-600 underline decoration-dotted dark:text-brand-300"
+              title="回到并列树：三个岛同屏对比"
+            >
+              看全部岛
+            </button>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
         <span className="text-fg-subtle">算子</span>

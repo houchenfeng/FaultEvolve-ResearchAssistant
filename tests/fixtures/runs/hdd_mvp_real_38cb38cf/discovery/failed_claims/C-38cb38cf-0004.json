@@ -1,0 +1,25 @@
+{
+  "claim_id": "C-38cb38cf-0004",
+  "title": "Adding vendor-specific log-transformed SMART features and linear trend slopes improves failure prediction performance",
+  "condition": "The model uses additional engineered features: (1) vendor-specific log-transformed raw values of SMART attributes 187, 188, 190, 197, and 198; and (2) linear regression slopes of time-series SMART features in DELTA_FEATURES.",
+  "outcome": "Weighted AUPRC and recall at 0.2% false alarm rate (FAR) increase on validation sets",
+  "direction": "+",
+  "scope": "All hard drives in the dataset, grouped by serial_number, with at least two historical observations before cutoff",
+  "falsifier": "If models trained with these new features show no statistically significant improvement (p > 0.05 via paired t-test across CV folds) in weighted AUPRC or recall@0.2% FAR compared to a baseline without them, the claim is falsified.",
+  "category": "feature_engineering",
+  "tags": [
+    "SMART",
+    "vendor-specific",
+    "trend",
+    "log-transform",
+    "failure prediction",
+    "AUPRC",
+    "recall@FAR"
+  ],
+  "origin_node_id": "1b4814d7",
+  "source": "top_node",
+  "prereg_hash": "bcf438f2db7d499a10abc7d566593b0025f71da5961c1e00f2ef5be6ebb30213",
+  "error_type": "SubprocessError",
+  "cause": "bad_return_type_dataframe",
+  "error": "feature() 返回了 DataFrame（多列），但 discovery 只接受以 unit id 为索引的 pandas.Series；若只想要单列，用 .iloc[:, 0] 或 .squeeze() 取单列后再返回。"
+}

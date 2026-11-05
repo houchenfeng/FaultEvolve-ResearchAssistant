@@ -44,10 +44,19 @@ export const queryKeys = {
   scores: (runId: string) => [...queryKeys.runs(), 'scores', runId] as const,
   leaderboard: (runId: string) => [...queryKeys.runs(), 'leaderboard', runId] as const,
   knowledgeCards: (runId: string) => [...queryKeys.runs(), 'knowledge-cards', runId] as const,
+  /**
+   * 摘要交换层（`/summaries`）。
+   *
+   * 与 `insights` / `knowledgeCards` 分开：那两个是知识卡与洞察，这里是**岛之间
+   * 发布过的结论**及其投递与采用记录，三张表各自一行，混在一个 key 下会让
+   * "运行结束时一起失效"这件事变得不可描述。
+   */
+  summaries: (runId: string) => [...queryKeys.runs(), 'summaries', runId] as const,
   insights: (runId: string) => [...queryKeys.runs(), 'insights', runId] as const,
   discovery: (runId: string) => [...queryKeys.runs(), 'discovery', runId] as const,
   artifacts: (runId: string) => [...queryKeys.runs(), 'artifacts', runId] as const,
   reportManifest: (runId: string) => [...queryKeys.runs(), 'report-manifest', runId] as const,
+  workflow: (runId: string) => [...queryKeys.runs(), 'workflow', runId] as const,
 } as const;
 
 /** 一个运行下全部缓存的公共前缀，用于运行结束后批量失效（阶段 8 使用）。 */
@@ -61,8 +70,10 @@ export function runScopedKeys(runId: string) {
     queryKeys.leaderboard(runId),
     queryKeys.knowledgeCards(runId),
     queryKeys.insights(runId),
+    queryKeys.summaries(runId),
     queryKeys.discovery(runId),
     queryKeys.artifacts(runId),
     queryKeys.reportManifest(runId),
+    queryKeys.workflow(runId),
   ];
 }

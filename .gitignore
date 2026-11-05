@@ -24,6 +24,16 @@ web/.vite/
 web/*.tsbuildinfo
 web/test-results/
 web/playwright-report/
+web/blob-report/
+web/.playwright/
+web/openapi-ts-error-*.log
+pytest-of-*/
+faultevolve-probe/
+/fe_*/
+/hdd_eval_*/
+/tmp*.py
+.famou/
+agent-tools/
 
 # Local secrets
 .env

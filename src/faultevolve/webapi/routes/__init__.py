@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from faultevolve.webapi.routes import (
     artifacts,
     events,
+    exchange,
     knowledge,
     presets,
     runs,
@@ -28,6 +29,7 @@ def register_all(app: FastAPI) -> None:
     tree.register(app)
     events.register(app)
     knowledge.register(app)
+    exchange.register(app)
     artifacts.register(app)
     tasks.register(app)
     servers.register(app)

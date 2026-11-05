@@ -67,6 +67,15 @@ from faultevolve.data.temporal_split import (
     select_cold_units,
     suggest_split_boundaries,
 )
+from faultevolve.data.universal_adapter import (
+    SUPPORTED_FORMATS,
+    infer_format,
+    load_manifest,
+    load_table,
+    materialize_dataset,
+    normalize_telemetry,
+    task_config,
+)
 
 __all__ = [
     "CanonicalEventSchema",
@@ -124,4 +133,11 @@ __all__ = [
     "verify_partitions",
     "writer_lock",
     "write_partitions",
+    "SUPPORTED_FORMATS",
+    "infer_format",
+    "load_manifest",
+    "load_table",
+    "materialize_dataset",
+    "normalize_telemetry",
+    "task_config",
 ]

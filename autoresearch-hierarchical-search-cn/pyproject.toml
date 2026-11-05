@@ -1,0 +1,9 @@
+[project]
+name = "hierarchical-autoresearch-search-cn"
+version = "0.1.0"
+description = "分层 AutoResearch 实验搜索的可执行中文参考实现"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false

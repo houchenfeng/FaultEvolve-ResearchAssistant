@@ -1,0 +1,293 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792512919.3384404,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 160,
+      "prompt_tokens": 3187,
+      "total_tokens": 3347
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "batch_size": 512
+      },
+      "hypothesis": "TCN的固定感受野可能无法充分捕捉SMART数据中非线性的长期退化趋势，而GRU通过门控机制能更好地建模时间序列中的依赖关系。增加模型宽度至256并减小批量大小至512旨在提升特征提取能力和梯度更新频率，以改善低误报率下的召回性能。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": [
+        0,
+        5
+      ]
+    },
+    "finished_at": 1792512923.5470579
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513004.4646704,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 143,
+      "prompt_tokens": 3192,
+      "total_tokens": 3335
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "depth": 2
+      },
+      "hypothesis": "当前TCN模型在增加宽度或调整epochs后性能停滞，表明其感受野或非线性容量不足以捕捉SMART数据中的复杂时序依赖。切换到GRU架构并增加深度和宽度，旨在利用循环神经网络的记忆机制更好地建模长期退化趋势，从而在不牺牲低误报率的前提下提升召回率和AUPRC。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792513007.2486925
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513082.0502574,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 135,
+      "prompt_tokens": 3192,
+      "total_tokens": 3327
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "depth": 2
+      },
+      "hypothesis": "Switching from TCN to GRU with increased capacity (width=256, depth=2) may better capture long-term temporal dependencies in SMART trends, potentially improving recall at low false alarm rates compared to the current TCN baseline.",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": [
+        0,
+        1
+      ]
+    },
+    "finished_at": 1792513084.782545
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513164.2039897,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 136,
+      "prompt_tokens": 3192,
+      "total_tokens": 3328
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "depth": 2
+      },
+      "hypothesis": "TCN with depth=1 may underfit complex temporal dependencies in SMART trends. Switching to GRU (supported by DL-SEQ-01 for sequence modeling) with increased width and depth allows the model to capture longer-range degradation patterns, potentially improving recall at low false alarm rates without excessive runtime penalty.",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792513167.1164103
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513244.8512676,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 137,
+      "prompt_tokens": 3189,
+      "total_tokens": 3326
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "batch_size": 512
+      },
+      "hypothesis": "增加模型宽度至256并减小批次大小至512，旨在提升TCN对SMART趋势特征的表征容量及梯度噪声带来的正则化效果，从而在保持低误报率的前提下提高召回率和AUPRC。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": [
+        0,
+        33,
+        37
+      ]
+    },
+    "finished_at": 1792513250.758914
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513326.5988798,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 151,
+      "prompt_tokens": 3189,
+      "total_tokens": 3340
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 128,
+        "depth": 2
+      },
+      "hypothesis": "将模型族从TCN切换为GRU并增加深度，旨在利用循环神经网络对时间序列中非平稳退化趋势的长期依赖建模能力。相比固定感受野的卷积结构，GRU可能更有效地捕捉SMART属性在故障前的渐进式异常模式，从而在不显著牺牲精度的前提下提升低误报率下的召回率（recall_at_far）。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792513352.340327
+  },
+  {
+    "trial": 55,
+    "model": "qwen3.8-flash",
+    "status": "failed",
+    "created_at": 1792513428.660377,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "error_type": "ReadTimeout",
+    "finished_at": 1792513525.4155416
+  },
+  {
+    "trial": 63,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513595.5189974,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 108,
+      "prompt_tokens": 3190,
+      "total_tokens": 3298
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "depth": 1
+      },
+      "hypothesis": "GRU网络通过门控机制更好地捕捉SMART属性随时间演变的非线性依赖关系，相比TCN在低误报率下能提升召回率。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792513598.2137773
+  },
+  {
+    "trial": 71,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513671.656072,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 133,
+      "prompt_tokens": 3190,
+      "total_tokens": 3323
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "depth": 1
+      },
+      "hypothesis": "将模型架构从TCN切换为GRU，利用其门控机制更好地捕捉SMART指标中的长期依赖和时序演变模式，预期能提升低误报率下的召回率及整体预测性能。",
+      "knowledge_ids": [
+        "DL-SEQ-01",
+        "AUTO-4747e5ca4a"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792513746.403144
+  },
+  {
+    "trial": 79,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513818.6016815,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 112,
+      "prompt_tokens": 3190,
+      "total_tokens": 3302
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 256,
+        "depth": 1
+      },
+      "hypothesis": "切换至GRU架构并增加宽度，利用其门控机制更好地捕捉SMART属性的时序演变模式，预期在保持低误报率的同时提升召回率和AUPRC。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792513832.6023657
+  },
+  {
+    "trial": 87,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792513909.5072823,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 157,
+      "prompt_tokens": 3190,
+      "total_tokens": 3347
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "width": 64,
+        "depth": 2
+      },
+      "hypothesis": "将模型从TCN切换为GRU并调整架构（宽度减半，深度加倍），旨在利用循环神经网络对时序依赖的建模能力。在SMART数据存在缺失和噪声的情况下，GRU可能比纯卷积结构更能捕捉长期退化趋势，从而在不显著增加计算成本的前提下提升低误报率下的召回率。",
+      "knowledge_ids": [
+        "DL-SEQ-01",
+        "AUTO-b200202968"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792513914.7447011
+  },
+  {
+    "trial": 95,
+    "model": "qwen3.8-flash",
+    "status": "failed",
+    "created_at": 1792513990.6175375,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "error_type": "ConnectTimeout",
+    "finished_at": 1792514007.1146858
+  }
+]

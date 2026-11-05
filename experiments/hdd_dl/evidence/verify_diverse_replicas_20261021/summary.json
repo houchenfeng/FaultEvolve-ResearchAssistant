@@ -1,0 +1,222 @@
+{
+  "scope": "training_seed_stability_on_reused_search_validation_set",
+  "independent_generalization": false,
+  "candidates": {
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/diverse_replicas_sources_20261021/without.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 3.287,
+          "min": 2.573,
+          "max": 3.785,
+          "median": 3.503,
+          "std": 0.6342144747638611
+        },
+        "auprc": {
+          "mean": 0.3952733333333333,
+          "min": 0.3911,
+          "max": 0.39841,
+          "median": 0.39631,
+          "std": 0.003763646281644075
+        },
+        "f1": {
+          "mean": 0.42375999999999997,
+          "min": 0.42162,
+          "max": 0.42495,
+          "median": 0.42471,
+          "std": 0.0018571752744423404
+        },
+        "f1_boot_std": {
+          "mean": 0.020996666666666667,
+          "min": 0.02043,
+          "max": 0.02148,
+          "median": 0.02108,
+          "std": 0.0005299371031861545
+        },
+        "f1_p10": {
+          "mean": 0.3957966666666667,
+          "min": 0.39449,
+          "max": 0.39758,
+          "median": 0.39532,
+          "std": 0.0015991977155227874
+        },
+        "false_alarm_rate": {
+          "mean": 0.0020666666666666667,
+          "min": 0.0015,
+          "max": 0.002467,
+          "median": 0.002233,
+          "std": 0.000504502064746353
+        },
+        "missed_detection_rate": {
+          "mean": 0.50926,
+          "min": 0.46958,
+          "max": 0.56878,
+          "median": 0.48942,
+          "std": 0.05249170601152145
+        },
+        "precision": {
+          "mean": 0.37738666666666665,
+          "min": 0.34985,
+          "max": 0.4184,
+          "median": 0.36391,
+          "std": 0.03620761015771868
+        },
+        "quality": {
+          "mean": 0.4136566666666667,
+          "min": 0.41034,
+          "max": 0.41646,
+          "median": 0.41417,
+          "std": 0.0030921244045693528
+        },
+        "recall": {
+          "mean": 0.49074,
+          "min": 0.43122,
+          "max": 0.53042,
+          "median": 0.51058,
+          "std": 0.05249170601152149
+        },
+        "recall_at_far": {
+          "mean": 0.48589333333333334,
+          "min": 0.47884,
+          "max": 0.49074,
+          "median": 0.4881,
+          "std": 0.006249362634167857
+        },
+        "run_time_s": {
+          "mean": 25.886666666666667,
+          "min": 25.26,
+          "max": 26.67,
+          "median": 25.73,
+          "std": 0.7179368588764151
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 41.36592314893481,
+          "min": 41.03424392314499,
+          "max": 41.646159928613976,
+          "median": 41.41736559504546,
+          "std": 0.3091844811494667
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_all_metrics_better": false
+    },
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/diverse_replicas_sources_20261021/with.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 3.223666666666667,
+          "min": 2.095,
+          "max": 3.964,
+          "median": 3.612,
+          "std": 0.9931728617583815
+        },
+        "auprc": {
+          "mean": 0.39383666666666667,
+          "min": 0.38897,
+          "max": 0.39767,
+          "median": 0.39487,
+          "std": 0.004441095960833711
+        },
+        "f1": {
+          "mean": 0.41339333333333333,
+          "min": 0.40562,
+          "max": 0.42056,
+          "median": 0.414,
+          "std": 0.007488453333855623
+        },
+        "f1_boot_std": {
+          "mean": 0.020659999999999998,
+          "min": 0.01994,
+          "max": 0.02192,
+          "median": 0.02012,
+          "std": 0.001094897255453679
+        },
+        "f1_p10": {
+          "mean": 0.38542,
+          "min": 0.37662,
+          "max": 0.39206,
+          "median": 0.38758,
+          "std": 0.007943399775914592
+        },
+        "false_alarm_rate": {
+          "mean": 0.002044666666666667,
+          "min": 0.001167,
+          "max": 0.002634,
+          "median": 0.002333,
+          "std": 0.0007748382626931463
+        },
+        "missed_detection_rate": {
+          "mean": 0.5255733333333333,
+          "min": 0.46429,
+          "max": 0.62698,
+          "median": 0.48545,
+          "std": 0.08845575409962504
+        },
+        "precision": {
+          "mean": 0.37914333333333333,
+          "min": 0.33735,
+          "max": 0.44448,
+          "median": 0.3556,
+          "std": 0.05731427076508374
+        },
+        "quality": {
+          "mean": 0.4073333333333333,
+          "min": 0.40333,
+          "max": 0.41071,
+          "median": 0.40796,
+          "std": 0.0037296961449068884
+        },
+        "recall": {
+          "mean": 0.47442666666666666,
+          "min": 0.37302,
+          "max": 0.53571,
+          "median": 0.51455,
+          "std": 0.08845575409962503
+        },
+        "recall_at_far": {
+          "mean": 0.4823633333333333,
+          "min": 0.47619,
+          "max": 0.4881,
+          "median": 0.4828,
+          "std": 0.005966995335454285
+        },
+        "run_time_s": {
+          "mean": 25.169999999999998,
+          "min": 24.18,
+          "max": 26.02,
+          "median": 25.31,
+          "std": 0.9279547402756234
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 40.73348493778369,
+          "min": 40.33349648991486,
+          "max": 41.07101100510559,
+          "median": 40.795947318330626,
+          "std": 0.3727037386007117
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_all_metrics_better": false
+    }
+  }
+}

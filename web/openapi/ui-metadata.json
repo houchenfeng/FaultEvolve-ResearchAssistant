@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.11.0",
+  "contract_version": "1.15.0",
   "fields": [
     {
       "advanced": true,
@@ -426,7 +426,11 @@
     {
       "advanced": true,
       "annotated": false,
-      "default": null,
+      "default": {
+        "draft": 2,
+        "hpo": 3,
+        "patch": 5
+      },
       "group": "autotune",
       "group_zh": "",
       "help_zh": "",
@@ -481,7 +485,7 @@
       "label_zh": "Token 上限",
       "path": "budget.max_tokens",
       "preset_editable": true,
-      "type": "int"
+      "type": "int | None"
     },
     {
       "advanced": false,
@@ -493,7 +497,7 @@
       "label_zh": "墙钟上限（小时）",
       "path": "budget.max_wall_hours",
       "preset_editable": true,
-      "type": "float"
+      "type": "float | None"
     },
     {
       "advanced": false,
@@ -522,12 +526,24 @@
     {
       "advanced": true,
       "annotated": true,
-      "default": null,
+      "default": {},
       "group": "budget",
       "group_zh": "预算",
       "help_zh": "按阶段限制 token 占比",
       "label_zh": "分阶段额度",
       "path": "budget.stage_caps",
+      "preset_editable": true,
+      "type": "dict"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": {},
+      "group": "budget",
+      "group_zh": "预算",
+      "help_zh": "未设总 token 上限时唯一生效的阶段额度",
+      "label_zh": "分阶段绝对额度",
+      "path": "budget.stage_caps_absolute",
       "preset_editable": true,
       "type": "dict"
     },
@@ -1017,6 +1033,202 @@
     },
     {
       "advanced": true,
+      "annotated": true,
+      "default": true,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "重要执行错误立即跨岛通报",
+      "label_zh": "提前错误共享",
+      "path": "islands.early_error_share",
+      "preset_editable": true,
+      "type": "bool"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": true,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "关闭则回到单树行为",
+      "label_zh": "启用三岛演化",
+      "path": "islands.enabled",
+      "preset_editable": true,
+      "type": "bool"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": 1,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "同时运行的真实评估数量",
+      "label_zh": "评估并发",
+      "path": "islands.eval_concurrency",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": 5,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "每完成多少次尝试检查一次摘要交换",
+      "label_zh": "交换间隔",
+      "path": "islands.exchange_interval",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 5,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "连续多少次基础设施失败暂停该岛",
+      "label_zh": "基础设施错误熔断",
+      "path": "islands.infra_fail_pause",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": [
+        {
+          "exploration_ratio": 0.2,
+          "focus": "Overall performance: maximize the composite task score, ranking quality, and diversity of feature/model structures.",
+          "island_id": "a",
+          "knowledge_keywords": [
+            "temporal pattern",
+            "nonlinear",
+            "model family",
+            "feature interaction"
+          ],
+          "max_attempts": 50,
+          "operator_bias": [
+            "refine",
+            "inject"
+          ],
+          "profile": "performance"
+        },
+        {
+          "exploration_ratio": 0.2,
+          "focus": "Missed vs false alarms: maximize recall under a low false-alarm constraint, study error case structure and threshold calibration.",
+          "island_id": "b",
+          "knowledge_keywords": [
+            "imbalanced learning",
+            "hard positives",
+            "threshold calibration",
+            "grouped errors"
+          ],
+          "max_attempts": 50,
+          "operator_bias": [
+            "recall_focus",
+            "threshold_calibrate"
+          ],
+          "profile": "miss_alert"
+        },
+        {
+          "exploration_ratio": 0.2,
+          "focus": "Efficiency and robustness: reduce runtime and model complexity, prefer sparse features and lightweight models, stay robust to missing data.",
+          "island_id": "c",
+          "knowledge_keywords": [
+            "redundant features",
+            "lightweight model",
+            "stability",
+            "simplification"
+          ],
+          "max_attempts": 50,
+          "operator_bias": [
+            "refine",
+            "inject"
+          ],
+          "profile": "efficiency"
+        }
+      ],
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "每个岛一条独立搜索树的策略配置",
+      "label_zh": "岛列表",
+      "path": "islands.islands",
+      "preset_editable": true,
+      "type": "list"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 2,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "",
+      "label_zh": "单次负面摘要上限",
+      "path": "islands.max_negative_per_exchange",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 1,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "",
+      "label_zh": "单次正面摘要上限",
+      "path": "islands.max_positive_per_exchange",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 3,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "",
+      "label_zh": "上下文摘要条数",
+      "path": "islands.max_summaries_in_context",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 10,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "",
+      "label_zh": "停滞判定门槛",
+      "path": "islands.min_valid_evals_before_stall",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 10,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "该字段当前没有引擎调用点；接入前配置它不会有任何效果",
+      "label_zh": "停滞求助间隔（引擎未读取）",
+      "path": "islands.stagnation_request_evals",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 15,
+      "group": "islands",
+      "group_zh": "三岛",
+      "help_zh": "连续多少次有效评估无提升即停该岛",
+      "label_zh": "停滞窗口",
+      "path": "islands.stall_valid_evals",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
       "annotated": false,
       "default": "MIYANG_API_KEY",
       "group": "judge",
@@ -1365,6 +1577,18 @@
     },
     {
       "advanced": true,
+      "annotated": false,
+      "default": false,
+      "group": "llm",
+      "group_zh": "",
+      "help_zh": "",
+      "label_zh": "llm.stream",
+      "path": "llm.stream",
+      "preset_editable": true,
+      "type": "bool"
+    },
+    {
+      "advanced": true,
       "annotated": true,
       "default": 0.7,
       "group": "llm",
@@ -1372,6 +1596,18 @@
       "help_zh": "",
       "label_zh": "温度",
       "path": "llm.temperature",
+      "preset_editable": true,
+      "type": "float"
+    },
+    {
+      "advanced": true,
+      "annotated": false,
+      "default": 600.0,
+      "group": "llm",
+      "group_zh": "",
+      "help_zh": "",
+      "label_zh": "llm.timeout_s",
+      "path": "llm.timeout_s",
       "preset_editable": true,
       "type": "float"
     },
@@ -1559,6 +1795,18 @@
       "path": "reflection.max_repair_attempts",
       "preset_editable": true,
       "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": false,
+      "default": null,
+      "group": "research",
+      "group_zh": "",
+      "help_zh": "",
+      "label_zh": "research",
+      "path": "research",
+      "preset_editable": true,
+      "type": "faultevolve.common.research.ResearchConfig | None"
     },
     {
       "advanced": false,
@@ -1859,6 +2107,141 @@
       "path": "widening.alpha",
       "preset_editable": true,
       "type": "float"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 4,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "冒烟、完整验证与分层调参共用的 CPU 和数值库线程上限，默认 4 核",
+      "label_zh": "评估 CPU 核数",
+      "path": "workflow.cpu_limit",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": [
+        "missing_feature",
+        "constant_feature"
+      ],
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "缺失与常量可按声明保留，其余需决策问题阻断",
+      "label_zh": "允许保留的数据问题",
+      "path": "workflow.data.accepted_issues",
+      "preset_editable": true,
+      "type": "list"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": true,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "仅对运行目录中的训练副本去重",
+      "label_zh": "删除完全重复历史行",
+      "path": "workflow.data.drop_exact_duplicates",
+      "preset_editable": true,
+      "type": "bool"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": false,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "默认关闭；开启时由任务适配器检查、处理并复检训练输入，不影响其他任务的核心调优",
+      "label_zh": "可选数据处理",
+      "path": "workflow.data.enabled",
+      "preset_editable": true,
+      "type": "bool"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": true,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "保留记录，由候选算法处理缺失",
+      "label_zh": "无穷特征值转缺失",
+      "path": "workflow.data.nonfinite_to_missing",
+      "preset_editable": true,
+      "type": "bool"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": false,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "通过任务适配器执行结构搜索与分层调优；数据处理与报告导出分别配置",
+      "label_zh": "逐结构调优流程",
+      "path": "workflow.enabled",
+      "preset_editable": true,
+      "type": "bool"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": true,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "默认在每个新候选评分前调优，以调优后的代码与实测成绩驱动下一轮演化",
+      "label_zh": "分层参数搜索",
+      "path": "workflow.hierarchical.enabled",
+      "preset_editable": true,
+      "type": "bool"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": 24,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "逐结构模式下为每个候选的试验预算，包含默认参数评估",
+      "label_zh": "分层试验上限",
+      "path": "workflow.hierarchical.max_trials",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": true,
+      "annotated": true,
+      "default": 43200,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "达到时限后不再派发新试验，已派发试验按评估器超时结束",
+      "label_zh": "分层搜索时限（秒）",
+      "path": "workflow.hierarchical.max_wall_seconds",
+      "preset_editable": true,
+      "type": "int"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": "per_structure",
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "per_structure：逐结构调优；post_evolution：兼容旧版演化结束后统一调优",
+      "label_zh": "调优时机",
+      "path": "workflow.hierarchical.mode",
+      "preset_editable": true,
+      "type": "Literal"
+    },
+    {
+      "advanced": false,
+      "annotated": true,
+      "default": false,
+      "group": "workflow",
+      "group_zh": "工作流",
+      "help_zh": "默认关闭；报告只读取已存结果，可独立重建，导出失败不改变搜索完成状态",
+      "label_zh": "完成后导出报告",
+      "path": "workflow.reports.enabled",
+      "preset_editable": true,
+      "type": "bool"
     }
   ],
   "nav_module_labels_zh": {

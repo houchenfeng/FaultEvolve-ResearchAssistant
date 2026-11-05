@@ -27,9 +27,7 @@ specified as single-worker, and the code does not pretend otherwise.
 from __future__ import annotations
 
 import asyncio
-import ctypes
 import json
-import os
 import sys
 import uuid
 from pathlib import Path
@@ -37,6 +35,7 @@ from typing import Any
 
 import yaml
 
+from faultevolve.common.proc import pid_alive
 from faultevolve.webapi import presets as presets_module
 from faultevolve.webapi import run_registry as registry
 from faultevolve.webapi import server_profiles, task_service
@@ -119,42 +118,9 @@ def _require_registry(settings: WebSettings) -> None:
 # process aliveness
 # --------------------------------------------------------------------------
 
-
-def _pid_alive(pid: int | None) -> bool | None:
-    """Whether ``pid`` names a live process. ``None`` when unknowable.
-
-    ``None`` rather than ``False`` matters: a remote handle has no local pid, and
-    reporting a remote run as dead would be a claim the server cannot support.
-    """
-    if pid is None or pid <= 0:
-        return None
-    if os.name == "nt":
-        # OpenProcess + GetExitCodeProcess: no tasklist round-trip, no psutil.
-        process_query_limited_information = 0x1000
-        still_active = 259
-        kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
-        handle = kernel32.OpenProcess(
-            process_query_limited_information, False, int(pid)
-        )
-        if not handle:
-            return False
-        try:
-            code = ctypes.c_ulong()
-            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
-                return None
-            return code.value == still_active
-        finally:
-            kernel32.CloseHandle(handle)
-    try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        # Alive, just not ours to signal.
-        return True
-    except OSError:
-        return None
-    return True
+#: The engine's resume claim answers the same question, so there is one
+#: implementation of it (:mod:`faultevolve.common.proc`).
+_pid_alive = pid_alive
 
 
 def _summary_path(record: registry.RunRecord) -> Path | None:
@@ -178,6 +144,19 @@ def _summary_path(record: registry.RunRecord) -> Path | None:
         return candidate if candidate.is_file() else None
     except OSError:
         return None
+
+
+def _completed(record: registry.RunRecord) -> bool:
+    summary = _summary_path(record)
+    if summary is None:
+        return False
+    workflow = summary.parent / "workflow.json"
+    if not workflow.is_file():
+        return True
+    try:
+        return json.loads(workflow.read_text(encoding="utf-8")).get("state") == "finished"
+    except (OSError, ValueError, TypeError):
+        return False
 
 
 def _summary_iterations(record: registry.RunRecord) -> int | None:
@@ -709,7 +688,7 @@ async def live_state(settings: WebSettings, run_id: str) -> RunLiveResponse:
         if alive is not True:
             status = (
                 registry.STATUS_COMPLETED
-                if _summary_path(record) is not None
+                if _completed(record)
                 else registry.STATUS_INTERRUPTED
             )
             registry.mark_finished(
@@ -777,7 +756,7 @@ def recover_on_startup(settings: WebSettings) -> list[str]:
             continue
         status = (
             registry.STATUS_COMPLETED
-            if _summary_path(record) is not None
+            if _completed(record)
             else registry.STATUS_INTERRUPTED
         )
         registry.mark_finished(

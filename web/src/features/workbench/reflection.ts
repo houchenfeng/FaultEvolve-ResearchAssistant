@@ -264,4 +264,5 @@ export const EDGE_KIND_LABELS: Record<TreeEdgeKind, string> = {
   parent: '父子',
   crossover_second_parent: '交叉第二父',
   repair: '修复',
+  summary_cross: '外岛摘要嫁接',
 };

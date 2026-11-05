@@ -1,0 +1,29 @@
+task:
+  adapter: famou
+research:
+  domain: synthetic-classification
+  dataset_id: six-point-demo-v1
+  evidence_level: synthetic
+  evaluation_split: val
+  targets:
+    - {metric: combined_score, op: ">=", value: 90}
+    - {metric: metric.recall, op: ">=", value: 0.9}
+    - {metric: metric.false_alarm_rate, op: "<=", value: 0.1}
+budget:
+  max_iterations: 5
+  max_tokens: 100000
+  max_wall_hours: 0.1
+  min_iterations_before_stop: 0
+knowledge:
+  enabled: false
+smoke_test:
+  enabled: false
+operators:
+  enabled: [refine]
+  bandit: false
+islands:
+  enabled: false
+  islands:
+    - island_id: default
+      profile: performance
+      focus: Improve the local classifier while respecting the false-alarm constraint.

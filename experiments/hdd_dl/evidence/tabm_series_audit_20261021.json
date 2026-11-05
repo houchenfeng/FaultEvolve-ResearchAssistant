@@ -1,0 +1,411 @@
+{
+  "scope": "seven_paired_experiments_on_reused_validation_not_cross_experiment_ranking",
+  "independent_generalization": false,
+  "experiments": [
+    {
+      "experiment": "verify_tabm_20261021",
+      "paired_mean_deltas": {
+        "combined_score": -0.14798582618889355,
+        "precision": -0.02493666666666668,
+        "recall": 0.026896666666666662,
+        "f1": -0.004086666666666665,
+        "f1_p10": -0.0018599999999999728,
+        "auprc": -0.0024199999999999964,
+        "recall_at_far": 0.0008800000000000289,
+        "false_alarm_rate": 0.00031133333333333333,
+        "missed_detection_rate": -0.026896666666666662,
+        "f1_boot_std": -0.0008100000000000005,
+        "run_time_s": 12.563333333333334
+      },
+      "paired_strict_wins": {
+        "combined_score": 1,
+        "precision": 0,
+        "recall": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 1,
+        "recall_at_far": 2,
+        "false_alarm_rate": 0,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 2,
+        "run_time_s": 0
+      },
+      "treatment_failed_metric_counts_vs_strong_ml": {
+        "precision": 1,
+        "f1": 2,
+        "f1_p10": 2,
+        "false_alarm_rate": 1,
+        "run_time_s": 3,
+        "recall": 2,
+        "recall_at_far": 2,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 2,
+        "quality": 1,
+        "combined_score": 1
+      },
+      "gates": {
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_sources_20261021/without.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        },
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_sources_20261021/with.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        }
+      },
+      "source_sha256": {
+        "paired.json": "5acf1faa73cf7dbb35d9c58e0fa7e69a7e3dd271bccedb02a9dfa0c88aec2c7a",
+        "records.json": "98c0407c13a3d585fbb8cc1866217273e253a00206dc21f6c43554cf4e534e4a",
+        "summary.json": "29d042fdaf9ed92e21366214ab158cbe50102a18205bb0f0b86fecf3a07d0b59"
+      }
+    },
+    {
+      "experiment": "verify_tabm_embedding_20261021",
+      "paired_mean_deltas": {
+        "combined_score": 0.41795737818940165,
+        "precision": 0.021886666666666683,
+        "recall": -0.01851666666666668,
+        "f1": 0.004469999999999992,
+        "f1_p10": 0.0031900000000000075,
+        "auprc": 0.0009700000000000079,
+        "recall_at_far": 0.011463333333333362,
+        "false_alarm_rate": -0.00022233333333333336,
+        "missed_detection_rate": 0.018516666666666664,
+        "f1_boot_std": 0.0012133333333333325,
+        "run_time_s": 23.773333333333337
+      },
+      "paired_strict_wins": {
+        "combined_score": 3,
+        "precision": 2,
+        "recall": 0,
+        "f1": 1,
+        "f1_p10": 1,
+        "auprc": 1,
+        "recall_at_far": 3,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 0,
+        "f1_boot_std": 0,
+        "run_time_s": 0
+      },
+      "treatment_failed_metric_counts_vs_strong_ml": {
+        "precision": 1,
+        "f1_p10": 1,
+        "recall_at_far": 1,
+        "false_alarm_rate": 1,
+        "f1_boot_std": 2,
+        "run_time_s": 3,
+        "recall": 2,
+        "missed_detection_rate": 2
+      },
+      "gates": {
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_embedding_sources_20261021/without.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        },
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_embedding_sources_20261021/with.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        }
+      },
+      "source_sha256": {
+        "paired.json": "7c8e0cf59727fd52e3260d522ab5a29dc180193e64e817f534e8fb4e3401aa34",
+        "records.json": "64461a8d47c29db8ae7c7bc342d24d583e2f9f70f45400ddd8b693a6c5dd1f24",
+        "summary.json": "ca68d6f580c17d8f5347bde0946eee7b63e09edd9c710e669a0a1ccb6567534a"
+      }
+    },
+    {
+      "experiment": "verify_tabm_lr_20261021",
+      "paired_mean_deltas": {
+        "combined_score": 0.06893924224503205,
+        "precision": 0.021866666666666663,
+        "recall": -0.028220000000000005,
+        "f1": -0.0002500000000000095,
+        "f1_p10": -0.001080000000000007,
+        "auprc": 0.0041033333333333295,
+        "recall_at_far": 0.0,
+        "false_alarm_rate": -0.0002669999999999999,
+        "missed_detection_rate": 0.02821999999999995,
+        "f1_boot_std": 0.0008466666666666657,
+        "run_time_s": -4.713333333333334
+      },
+      "paired_strict_wins": {
+        "combined_score": 1,
+        "precision": 3,
+        "recall": 0,
+        "f1": 1,
+        "f1_p10": 1,
+        "auprc": 2,
+        "recall_at_far": 1,
+        "false_alarm_rate": 3,
+        "missed_detection_rate": 0,
+        "f1_boot_std": 0,
+        "run_time_s": 3
+      },
+      "treatment_failed_metric_counts_vs_strong_ml": {
+        "recall": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "recall_at_far": 3,
+        "quality": 2,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 3,
+        "run_time_s": 3,
+        "combined_score": 2
+      },
+      "gates": {
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_lr_sources_20261021/without.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        },
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_lr_sources_20261021/with.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        }
+      },
+      "source_sha256": {
+        "paired.json": "38c7a27df76aa1ad3e840ccc34c2d9687faea6273cafbfa624d45c3733088563",
+        "records.json": "e48e8dfbaae8fcc22d2d62939daeb4a1854dc2b857636e7e4898536610e2c675",
+        "summary.json": "d60e01f566365df5981f9b36ef114513e82dde48dee7b20eb9964f4e8caa9db1"
+      }
+    },
+    {
+      "experiment": "verify_tabm_members_20261021",
+      "paired_mean_deltas": {
+        "combined_score": -0.33140846711997085,
+        "precision": -0.009746666666666662,
+        "recall": -0.003086666666666682,
+        "f1": -0.006439999999999983,
+        "f1_p10": -0.006290000000000018,
+        "auprc": 0.0006133333333333361,
+        "recall_at_far": -0.0017600000000000022,
+        "false_alarm_rate": 5.5666666666666755e-05,
+        "missed_detection_rate": 0.003086666666666719,
+        "f1_boot_std": -0.00012333333333333293,
+        "run_time_s": 9.653333333333332
+      },
+      "paired_strict_wins": {
+        "combined_score": 0,
+        "precision": 1,
+        "recall": 2,
+        "f1": 0,
+        "f1_p10": 0,
+        "auprc": 2,
+        "recall_at_far": 1,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 2,
+        "run_time_s": 0
+      },
+      "treatment_failed_metric_counts_vs_strong_ml": {
+        "recall": 2,
+        "f1": 1,
+        "f1_p10": 1,
+        "recall_at_far": 3,
+        "quality": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 2,
+        "run_time_s": 3,
+        "combined_score": 1,
+        "false_alarm_rate": 1
+      },
+      "gates": {
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_members_sources_20261021/without.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        },
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_members_sources_20261021/with.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        }
+      },
+      "source_sha256": {
+        "paired.json": "f4de08b2214e5351ffc3e5e14f7a98d672a1d79f4cf6b8081b387d429975588f",
+        "records.json": "ca08990fb87a078e877958edc92a9af7f5bb4ff56207714d89c15cb31dc3b8d6",
+        "summary.json": "c240b02aaf0506fa959517e2229b672edfee31d5277425a3415598e9a19b8c55"
+      }
+    },
+    {
+      "experiment": "verify_tabm_optimizer_20261021",
+      "paired_mean_deltas": {
+        "combined_score": -0.1999658267330323,
+        "precision": -0.0071566666666666445,
+        "recall": 0.0030866666666666633,
+        "f1": -0.004483333333333321,
+        "f1_p10": -0.005366666666666668,
+        "auprc": -0.002423333333333333,
+        "recall_at_far": 0.007053333333333338,
+        "false_alarm_rate": 0.00010033333333333335,
+        "missed_detection_rate": -0.003086666666666682,
+        "f1_boot_std": -5.0000000000000273e-05,
+        "run_time_s": -9.856666666666666
+      },
+      "paired_strict_wins": {
+        "combined_score": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f1_p10": 0,
+        "auprc": 1,
+        "recall_at_far": 2,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 1,
+        "run_time_s": 3
+      },
+      "treatment_failed_metric_counts_vs_strong_ml": {
+        "precision": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "recall_at_far": 3,
+        "quality": 2,
+        "false_alarm_rate": 3,
+        "run_time_s": 3,
+        "combined_score": 2,
+        "f1_boot_std": 1
+      },
+      "gates": {
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_optimizer_sources_20261021/without.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        },
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_optimizer_sources_20261021/with.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        }
+      },
+      "source_sha256": {
+        "paired.json": "0ec195e9d23feb43ad814cf894efe051018f4740c62a527696aecbf23191729c",
+        "records.json": "285d1fdfe7a37db7753c4f4e12e985d25062b84f1f1bb0a75542647c0265cd66",
+        "summary.json": "66509b11736e568c651599a1e0094a80d8684e36e5459720003245179747ecdf"
+      }
+    },
+    {
+      "experiment": "verify_tabm_replicas_20261021",
+      "paired_mean_deltas": {
+        "combined_score": 0.07713332903397448,
+        "precision": -0.010703333333333323,
+        "recall": 0.024693333333333345,
+        "f1": -0.0006566666666666757,
+        "f1_p10": 0.0004999999999999819,
+        "auprc": 0.00291666666666666,
+        "recall_at_far": -0.001763333333333339,
+        "false_alarm_rate": 0.0002443333333333334,
+        "missed_detection_rate": -0.024693333333333328,
+        "f1_boot_std": -0.000416666666666667,
+        "run_time_s": -38.57
+      },
+      "paired_strict_wins": {
+        "combined_score": 1,
+        "precision": 1,
+        "recall": 2,
+        "f1": 1,
+        "f1_p10": 1,
+        "auprc": 3,
+        "recall_at_far": 0,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 2,
+        "run_time_s": 3
+      },
+      "treatment_failed_metric_counts_vs_strong_ml": {
+        "precision": 2,
+        "recall_at_far": 3,
+        "false_alarm_rate": 2,
+        "f1_boot_std": 2,
+        "run_time_s": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "quality": 1,
+        "combined_score": 1,
+        "recall": 1,
+        "missed_detection_rate": 1
+      },
+      "gates": {
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_replicas_sources_20261021/without.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        },
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_replicas_sources_20261021/with.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        }
+      },
+      "source_sha256": {
+        "paired.json": "309e3cc0d78112430b8f31833abb7b2dfbbc0028150cc4459767ade477b25256",
+        "records.json": "6b1e01b81fbead03df5e8b3c8715c6319cb38b0b115c099484c7b1684098473d",
+        "summary.json": "71e33ffb8f26f5860b33cb2d472f0d70f54b041888c07909f31e12a06652e07c"
+      }
+    },
+    {
+      "experiment": "verify_tabm_sequence_20261021",
+      "paired_mean_deltas": {
+        "combined_score": -0.05401047484590057,
+        "precision": -0.01633333333333331,
+        "recall": 0.01499333333333334,
+        "f1": -0.0017300000000000093,
+        "f1_p10": -0.0018799999999999744,
+        "auprc": -0.00219666666666668,
+        "recall_at_far": 0.005289999999999999,
+        "false_alarm_rate": 0.00015533333333333341,
+        "missed_detection_rate": -0.014993333333333322,
+        "f1_boot_std": 0.00016000000000000042,
+        "run_time_s": -3.083333333333332
+      },
+      "paired_strict_wins": {
+        "combined_score": 2,
+        "precision": 2,
+        "recall": 2,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 1,
+        "recall_at_far": 2,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 1,
+        "run_time_s": 3
+      },
+      "treatment_failed_metric_counts_vs_strong_ml": {
+        "precision": 2,
+        "f1": 2,
+        "f1_p10": 2,
+        "recall_at_far": 3,
+        "false_alarm_rate": 2,
+        "f1_boot_std": 2,
+        "run_time_s": 3,
+        "quality": 1,
+        "combined_score": 1,
+        "recall": 1,
+        "missed_detection_rate": 1
+      },
+      "gates": {
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_sequence_sources_20261021/without.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        },
+        "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tabm_sequence_sources_20261021/with.py": {
+          "complete": true,
+          "all_seeds_all_predictive_better": false,
+          "all_seeds_all_metrics_better": false
+        }
+      },
+      "source_sha256": {
+        "paired.json": "cef8aad9429cc34b5e1b93056b1f13551121b6ae6bbfabb945144909b24b45e2",
+        "records.json": "89b524fa468e83f71f02fe1ed975f36d3347a4775338423a252b22110d7ee772",
+        "summary.json": "f3276451ae553b9be4032123dacd7c1c66dc95f1b6c63617e4d00134f9745729"
+      }
+    }
+  ]
+}

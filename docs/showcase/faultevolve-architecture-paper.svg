@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">FaultEvolve 算法总体架构</title>
+  <desc id="desc">展示 KGTE 群岛协同进化、J-PUCT 噪声感知树搜索、PMP 三层知识发现，以及云端控制面与本地可信评测闭环。</desc>
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#2563eb"/></marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#059669"/></marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#64748b"/></marker>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.12"/></filter>
+    <style>
+      text{font-family:"Noto Sans CJK SC","Microsoft YaHei","PingFang SC",Arial,sans-serif;fill:#172033}
+      .title{font-size:31px;font-weight:700}.subtitle{font-size:15px;fill:#526075}
+      .region-title{font-size:19px;font-weight:700}.box-title{font-size:17px;font-weight:700}.box-sub{font-size:13px;fill:#526075}
+      .small{font-size:12px;fill:#526075}.tiny{font-size:11px;fill:#64748b}.tag{font-size:14px;font-weight:700}
+      .region{fill:#f8fafc;stroke:#94a3b8;stroke-width:1.5}.cloud{fill:#f6f9ff;stroke:#6b8fdc}.local{fill:#f5fbf8;stroke:#65a88b}
+      .node{fill:#fff;stroke:#a9b4c5;stroke-width:1.4;filter:url(#shadow)}
+      .kgte{fill:#eef4ff;stroke:#2563eb;stroke-width:2}.jpu{fill:#f5f0ff;stroke:#7c3aed;stroke-width:1.8}.pmp{fill:#ecfdf5;stroke:#059669;stroke-width:2}
+      .island{fill:#fff;stroke:#6b8fdc;stroke-width:1.3}.local-node{fill:#fff;stroke:#65a88b;stroke-width:1.4}
+      .arrow{fill:none;stroke:#2563eb;stroke-width:2;marker-end:url(#arrow-blue)}
+      .feedback{fill:none;stroke:#059669;stroke-width:2.2;marker-end:url(#arrow-green)}
+      .flow{fill:none;stroke:#64748b;stroke-width:1.7;marker-end:url(#arrow-gray)}
+      .exchange{fill:none;stroke:#7c3aed;stroke-width:1.5;stroke-dasharray:6 5;marker-end:url(#arrow-gray)}
+      .divider{stroke:#cbd5e1;stroke-width:1.2;stroke-dasharray:5 5}
+    </style>
+  </defs>
+
+  <rect width="1600" height="980" fill="#ffffff"/>
+  <text x="70" y="54" class="title">FaultEvolve 算法总体架构</text>
+  <text x="70" y="80" class="subtitle">面向数据中心设备故障预测算法自进化的知识驱动、多岛协同与边云可信闭环</text>
+
+  <g transform="translate(945 26)">
+    <rect x="0" y="0" width="180" height="46" rx="9" fill="#eef4ff" stroke="#2563eb"/>
+    <text x="14" y="20" class="tag" fill="#1d4ed8">① KGTE</text><text x="14" y="37" class="tiny">群岛协同进化</text>
+    <rect x="192" y="0" width="180" height="46" rx="9" fill="#f5f0ff" stroke="#7c3aed"/>
+    <text x="206" y="20" class="tag" fill="#6d28d9">② J-PUCT</text><text x="206" y="37" class="tiny">噪声感知树搜索</text>
+    <rect x="384" y="0" width="190" height="46" rx="9" fill="#ecfdf5" stroke="#059669"/>
+    <text x="398" y="20" class="tag" fill="#047857">③ PMP Discovery</text><text x="398" y="37" class="tiny">三层知识发现</text>
+  </g>
+
+  <rect x="55" y="112" width="1040" height="598" rx="18" class="region cloud"/>
+  <text x="78" y="143" class="region-title" fill="#1d4ed8">云端控制面 · Cloud Control Plane</text>
+  <text x="870" y="143" class="small">生成、搜索、知识管理与任务调度</text>
+
+  <rect x="1135" y="112" width="410" height="598" rx="18" class="region local"/>
+  <text x="1158" y="143" class="region-title" fill="#047857">本地可信执行域 · Local Trusted Domain</text>
+  <text x="1158" y="166" class="small">原始数据 · 评估逻辑 · 模型权重不出域</text>
+
+  <rect x="85" y="172" width="195" height="116" rx="12" class="node"/>
+  <text x="182" y="201" text-anchor="middle" class="box-title">知识库 · Knowledge Base</text>
+  <text x="182" y="228" text-anchor="middle" class="box-sub">专家知识 / 文献卡片</text>
+  <text x="182" y="250" text-anchor="middle" class="box-sub">历史经验 / 新发现知识</text>
+  <text x="182" y="272" text-anchor="middle" class="tiny">检索注入 · 信誉更新</text>
+
+  <rect x="315" y="172" width="745" height="318" rx="16" class="kgte"/>
+  <circle cx="345" cy="202" r="16" fill="#2563eb"/><text x="345" y="208" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">1</text>
+  <text x="370" y="208" class="box-title" fill="#1d4ed8">知识引导的群岛协同进化 · Knowledge-Guided Tree Evolution (KGTE)</text>
+  <text x="370" y="231" class="box-sub">多岛并行探索，岛内维护候选算法树，岛间交换已验证知识与优秀子结构</text>
+
+  <rect x="345" y="258" width="188" height="122" rx="11" class="island"/>
+  <text x="439" y="285" text-anchor="middle" class="box-title">Island A</text>
+  <text x="439" y="309" text-anchor="middle" class="box-sub">特征与时序建模</text>
+  <path d="M390 353L420 327L447 347L482 312" fill="none" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="390" cy="353" r="5" fill="#2563eb"/><circle cx="420" cy="327" r="5" fill="#2563eb"/><circle cx="447" cy="347" r="5" fill="#2563eb"/><circle cx="482" cy="312" r="6" fill="#2563eb"/>
+
+  <rect x="594" y="258" width="188" height="122" rx="11" class="island"/>
+  <text x="688" y="285" text-anchor="middle" class="box-title">Island B</text>
+  <text x="688" y="309" text-anchor="middle" class="box-sub">模型与集成策略</text>
+  <path d="M640 352L666 319L693 342L735 309" fill="none" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="640" cy="352" r="5" fill="#2563eb"/><circle cx="666" cy="319" r="5" fill="#2563eb"/><circle cx="693" cy="342" r="5" fill="#2563eb"/><circle cx="735" cy="309" r="6" fill="#2563eb"/>
+
+  <rect x="843" y="258" width="188" height="122" rx="11" class="island"/>
+  <text x="937" y="285" text-anchor="middle" class="box-title">Island C</text>
+  <text x="937" y="309" text-anchor="middle" class="box-sub">阈值与运维目标</text>
+  <path d="M887 352L916 330L945 343L984 306" fill="none" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="887" cy="352" r="5" fill="#2563eb"/><circle cx="916" cy="330" r="5" fill="#2563eb"/><circle cx="945" cy="343" r="5" fill="#2563eb"/><circle cx="984" cy="306" r="6" fill="#2563eb"/>
+
+  <path d="M534 321H587" class="exchange"/><path d="M783 321H836" class="exchange"/>
+  <text x="687" y="399" text-anchor="middle" class="tiny">Cross-island Knowledge Exchange · 跨岛知识交换</text>
+
+  <rect x="425" y="416" width="525" height="56" rx="10" class="jpu"/>
+  <circle cx="452" cy="444" r="15" fill="#7c3aed"/><text x="452" y="449" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">2</text>
+  <text x="477" y="439" class="box-title" fill="#6d28d9">J-PUCT · 噪声感知树搜索</text>
+  <text x="477" y="459" class="box-sub">Jev prior + UCT value + Noise gate：选择扩展节点并过滤随机波动</text>
+
+  <path d="M280 230H315" class="arrow"/><text x="293" y="219" text-anchor="middle" class="tiny">知识注入</text>
+
+  <rect x="100" y="530" width="245" height="116" rx="12" class="node"/>
+  <text x="222" y="559" text-anchor="middle" class="box-title">候选生成 · LLM Generator</text>
+  <text x="222" y="584" text-anchor="middle" class="box-sub">REFINE / REPAIR / CROSSOVER</text>
+  <text x="222" y="607" text-anchor="middle" class="box-sub">生成可执行预测算法</text>
+  <text x="222" y="629" text-anchor="middle" class="tiny">任务约束 + 知识卡 + 历史反思</text>
+
+  <rect x="395" y="530" width="245" height="116" rx="12" class="node"/>
+  <text x="517" y="559" text-anchor="middle" class="box-title">三层反思 · Reflection</text>
+  <text x="517" y="585" text-anchor="middle" class="box-sub">实现层 · 设计层 · 假设层</text>
+  <text x="517" y="609" text-anchor="middle" class="box-sub">更新树价值与岛屿记忆</text>
+  <text x="517" y="631" text-anchor="middle" class="tiny">Evaluation Feedback</text>
+
+  <rect x="690" y="530" width="245" height="116" rx="12" class="node"/>
+  <text x="812" y="559" text-anchor="middle" class="box-title">边云调度 · Orchestrator</text>
+  <text x="812" y="585" text-anchor="middle" class="box-sub">REST API：候选与评估任务</text>
+  <text x="812" y="609" text-anchor="middle" class="box-sub">SSE：进度、事件与状态流</text>
+  <text x="812" y="631" text-anchor="middle" class="tiny">白名单协议 · 可审计日志</text>
+
+  <path d="M688 490V510H222V530" class="arrow"/>
+  <path d="M345 588H388" class="flow"/>
+  <path d="M640 588H683" class="flow"/>
+
+  <line x1="1115" y1="180" x2="1115" y2="680" class="divider"/>
+  <text x="1115" y="698" text-anchor="middle" class="tiny">Trust Boundary · 可信边界</text>
+
+  <rect x="1175" y="205" width="330" height="108" rx="12" class="local-node"/>
+  <text x="1340" y="235" text-anchor="middle" class="box-title">候选沙箱 · Candidate Sandbox</text>
+  <text x="1340" y="260" text-anchor="middle" class="box-sub">静态检查 · 隔离执行 · 超时控制</text>
+  <text x="1340" y="284" text-anchor="middle" class="tiny">候选程序仅接触授权数据快照</text>
+
+  <rect x="1175" y="352" width="330" height="108" rx="12" class="local-node"/>
+  <text x="1340" y="382" text-anchor="middle" class="box-title">本地评估器 · Local Evaluator</text>
+  <text x="1340" y="407" text-anchor="middle" class="box-sub">ROS / F1 / AUPRC / R@FAR</text>
+  <text x="1340" y="431" text-anchor="middle" class="tiny">真实分数只由本地 evaluator 产生</text>
+
+  <rect x="1175" y="499" width="330" height="120" rx="12" class="local-node"/>
+  <text x="1340" y="529" text-anchor="middle" class="box-title">指标白名单 · Metric Whitelist</text>
+  <text x="1340" y="554" text-anchor="middle" class="box-sub">分数 + 聚合统计 + 脱敏错误</text>
+  <text x="1340" y="579" text-anchor="middle" class="box-sub">禁止原始样本、标签与模型权重外传</text>
+  <text x="1340" y="602" text-anchor="middle" class="tiny">Privacy-preserving Feedback</text>
+
+  <path d="M935 575H1125V259H1168" class="arrow"/>
+  <text x="1040" y="563" text-anchor="middle" class="tiny">REST API + SSE</text>
+  <path d="M1340 313V345" class="flow"/><path d="M1340 460V492" class="flow"/>
+  <path d="M1175 559H1080V664H517V653" class="feedback"/>
+  <text x="860" y="681" text-anchor="middle" class="tiny" fill="#047857">白名单指标回传 · Score &amp; Aggregated Statistics</text>
+  <path d="M517 530V500H688V490" class="feedback"/>
+
+  <rect x="125" y="750" width="1350" height="170" rx="16" class="pmp"/>
+  <circle cx="158" cy="781" r="16" fill="#059669"/><text x="158" y="787" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">3</text>
+  <text x="184" y="787" class="box-title" fill="#047857">PMP Discovery · “现象 → 机理 → 原理”三层知识发现</text>
+  <text x="184" y="810" class="box-sub">从评估统计与演化轨迹中提出、验证和沉淀可积累、可迁移、可答辩的知识卡片</text>
+
+  <rect x="180" y="836" width="230" height="58" rx="10" fill="#fff" stroke="#65a88b"/>
+  <text x="295" y="859" text-anchor="middle" class="box-title">Phenomenon · 现象</text><text x="295" y="880" text-anchor="middle" class="tiny">统计关联与候选规律</text>
+  <rect x="500" y="836" width="230" height="58" rx="10" fill="#fff" stroke="#65a88b"/>
+  <text x="615" y="859" text-anchor="middle" class="box-title">Mechanism · 机理</text><text x="615" y="880" text-anchor="middle" class="tiny">对照、锦标赛与证伪</text>
+  <rect x="820" y="836" width="230" height="58" rx="10" fill="#fff" stroke="#65a88b"/>
+  <text x="935" y="859" text-anchor="middle" class="box-title">Principle · 原理</text><text x="935" y="880" text-anchor="middle" class="tiny">抽象机制与适用边界</text>
+  <rect x="1140" y="836" width="260" height="58" rx="10" fill="#fff" stroke="#65a88b"/>
+  <text x="1270" y="859" text-anchor="middle" class="box-title">Knowledge Cards · 知识卡</text><text x="1270" y="880" text-anchor="middle" class="tiny">版本化沉淀并回灌 KGTE</text>
+  <path d="M410 865H493" class="feedback"/><path d="M730 865H813" class="feedback"/><path d="M1050 865H1133" class="feedback"/>
+
+  <path d="M1340 619V728H1060V750" class="feedback"/>
+  <text x="1225" y="718" text-anchor="middle" class="tiny" fill="#047857">聚合评估证据</text>
+  <path d="M1140 865H74V288H85" class="feedback"/>
+  <text x="92" y="740" class="tiny" fill="#047857" transform="rotate(-90 92 740)">新知识回灌 · Knowledge Feedback</text>
+
+  <text x="70" y="955" class="small">图 1. FaultEvolve 的端到端算法架构：KGTE 执行多岛并行演化，J-PUCT 完成噪声感知选择，PMP Discovery 将评估证据沉淀为可迁移知识。</text>
+</svg>

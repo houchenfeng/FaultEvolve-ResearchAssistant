@@ -73,8 +73,24 @@ class RetrievalContext:
     ancestor_adopted_cards: set[str] | None = None
     keywords: list[str] | None = None
     profile_keywords: list[str] | None = None
+    island_keywords: list[str] | None = None
     recently_offered_cards: dict[str, int] | None = None
     failed_card_sets: list[set[str]] | None = None
+
+
+def keyword_phrase_parts(phrases: list[str]) -> set[str]:
+    """Split configured keyword phrases into the word parts card tags use.
+
+    An island profile writes ``"lightweight model"`` while a card tags
+    ``"model"``. Comparing the whole phrase as one token would match nothing and
+    only dilute every score, so phrases are broken into the same pieces a tag is.
+    """
+    parts: set[str] = set()
+    for phrase in phrases:
+        for part in re.split(r"[^0-9a-z]+", phrase.lower()):
+            if part:
+                parts.add(part)
+    return parts
 
 
 def extract_keywords_from_text(text: str) -> set[str]:
@@ -320,6 +336,11 @@ class CardRetriever:
             context_keywords.update(extract_keywords_from_text(context.last_reflection))
         if context.profile_keywords:
             context_keywords.update(k.lower() for k in context.profile_keywords)
+        # An island's own configured keywords are what makes three trees search
+        # three different parts of the same library; they join the keyword set
+        # rather than replacing it, so a card that fits the node still wins.
+        if context.island_keywords:
+            context_keywords.update(keyword_phrase_parts(context.island_keywords))
 
         total_adoptions = sum(s.n for s in self.card_stats.values())
 

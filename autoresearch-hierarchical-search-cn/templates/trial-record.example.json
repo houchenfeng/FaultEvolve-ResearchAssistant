@@ -1,0 +1,55 @@
+{
+  "contract_hash": "replace-with-contract-hash",
+  "trial_number": 7,
+  "candidate_id": "replace-with-canonical-candidate-hash",
+  "route_id": "method_a",
+  "parent_id": "method-a-root",
+  "depth": 1,
+  "changed_parameter": "weight",
+  "parameters": {
+    "depth": 2,
+    "weight": 0.75
+  },
+  "selection": {
+    "phase": "parameter_search",
+    "frontier_kind": "beam",
+    "beam_rank": 1,
+    "route_quality": 0.12,
+    "route_exploration_bonus": 0.08,
+    "route_virtual_penalty": 0.0,
+    "route_score": 0.2,
+    "node_mean_reward": 0.1,
+    "node_exploration_bonus": 0.06,
+    "node_virtual_penalty": 0.0,
+    "node_score": 0.16,
+    "prior_source": null,
+    "prior_reward": 0.0,
+    "prior_visits": 0.0
+  },
+  "execution": {
+    "execution_id": "execution-0007",
+    "worker_id": "search-worker-02",
+    "dispatch_order": 7,
+    "completion_order": 6,
+    "duration_seconds": 18.4,
+    "status": "completed"
+  },
+  "evaluation": {
+    "metric_key": "primary_metric",
+    "samples": [0.72],
+    "aggregation": "mean",
+    "score": 0.72,
+    "reward": 0.11,
+    "integrity_passed": true
+  },
+  "decision": {
+    "status": "keep",
+    "reason": "directional improvement satisfies min_delta",
+    "best_before": 0.69,
+    "best_after": 0.72
+  },
+  "backprop_path": [
+    "method-a-root",
+    "replace-with-canonical-candidate-hash"
+  ]
+}

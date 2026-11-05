@@ -1,0 +1,224 @@
+{
+  "scope": "training_seed_stability_on_reused_search_validation_set",
+  "independent_generalization": false,
+  "candidates": {
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/quality_symmetric_context_sources_20261021/without.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 3.1,
+          "min": 2.756,
+          "max": 3.33,
+          "median": 3.214,
+          "std": 0.3035061778613412
+        },
+        "auprc": {
+          "mean": 0.39032666666666666,
+          "min": 0.38616,
+          "max": 0.39729,
+          "median": 0.38753,
+          "std": 0.006069203681977825
+        },
+        "f1": {
+          "mean": 0.4223133333333333,
+          "min": 0.41622,
+          "max": 0.42678,
+          "median": 0.42394,
+          "std": 0.0054646988328116855
+        },
+        "f1_boot_std": {
+          "mean": 0.02154,
+          "min": 0.02093,
+          "max": 0.02238,
+          "median": 0.02131,
+          "std": 0.0007518643494673758
+        },
+        "f1_p10": {
+          "mean": 0.39394333333333337,
+          "min": 0.3864,
+          "max": 0.40088,
+          "median": 0.39455,
+          "std": 0.0072590380446263866
+        },
+        "false_alarm_rate": {
+          "mean": 0.0019223333333333334,
+          "min": 0.001667,
+          "max": 0.0021,
+          "median": 0.002,
+          "std": 0.00022670759434419767
+        },
+        "missed_detection_rate": {
+          "mean": 0.5264533333333333,
+          "min": 0.50529,
+          "max": 0.56217,
+          "median": 0.5119,
+          "std": 0.031107607322539785
+        },
+        "precision": {
+          "mean": 0.38222666666666666,
+          "min": 0.37088,
+          "max": 0.39664,
+          "median": 0.37916,
+          "std": 0.013150959407333495
+        },
+        "quality": {
+          "mean": 0.41168666666666665,
+          "min": 0.40614,
+          "max": 0.41487,
+          "median": 0.41405,
+          "std": 0.0048210199474108505
+        },
+        "recall": {
+          "mean": 0.47354666666666667,
+          "min": 0.43783,
+          "max": 0.49471,
+          "median": 0.4881,
+          "std": 0.031107607322539817
+        },
+        "recall_at_far": {
+          "mean": 0.4880933333333333,
+          "min": 0.48545,
+          "max": 0.49206,
+          "median": 0.48677,
+          "std": 0.0034980613678626863
+        },
+        "run_time_s": {
+          "mean": 16.713333333333335,
+          "min": 16.11,
+          "max": 17.64,
+          "median": 16.39,
+          "std": 0.8146369334454054
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 41.168811524288394,
+          "min": 40.61392969434764,
+          "max": 41.487363550861026,
+          "median": 41.405141327656516,
+          "std": 0.48229711526814384
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_quality_without_runtime_better": false,
+      "all_seeds_all_metrics_better": false
+    },
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/quality_symmetric_context_sources_20261021/with.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 2.921333333333333,
+          "min": 2.516,
+          "max": 3.609,
+          "median": 2.639,
+          "std": 0.5987038778338866
+        },
+        "auprc": {
+          "mean": 0.39054666666666665,
+          "min": 0.38727,
+          "max": 0.39444,
+          "median": 0.38993,
+          "std": 0.0036245597433803424
+        },
+        "f1": {
+          "mean": 0.41973,
+          "min": 0.41921,
+          "max": 0.42027,
+          "median": 0.41971,
+          "std": 0.0005302829433424885
+        },
+        "f1_boot_std": {
+          "mean": 0.021346666666666667,
+          "min": 0.0205,
+          "max": 0.02201,
+          "median": 0.02153,
+          "std": 0.0007715136637372871
+        },
+        "f1_p10": {
+          "mean": 0.39169666666666664,
+          "min": 0.38911,
+          "max": 0.39435,
+          "median": 0.39163,
+          "std": 0.0026206360551082344
+        },
+        "false_alarm_rate": {
+          "mean": 0.001789,
+          "min": 0.001467,
+          "max": 0.002333,
+          "median": 0.001567,
+          "std": 0.00047376365415679577
+        },
+        "missed_detection_rate": {
+          "mean": 0.54453,
+          "min": 0.48677,
+          "max": 0.57804,
+          "median": 0.56878,
+          "std": 0.05023544664875589
+        },
+        "precision": {
+          "mean": 0.39382,
+          "min": 0.35501,
+          "max": 0.41859,
+          "median": 0.40786,
+          "std": 0.03403594129739915
+        },
+        "quality": {
+          "mean": 0.4116,
+          "min": 0.40968,
+          "max": 0.41524,
+          "median": 0.40988,
+          "std": 0.0031539181980514298
+        },
+        "recall": {
+          "mean": 0.45547,
+          "min": 0.42196,
+          "max": 0.51323,
+          "median": 0.43122,
+          "std": 0.05023544664875588
+        },
+        "recall_at_far": {
+          "mean": 0.4929466666666667,
+          "min": 0.48942,
+          "max": 0.49868,
+          "median": 0.49074,
+          "std": 0.005008885438232073
+        },
+        "run_time_s": {
+          "mean": 16.953333333333333,
+          "min": 15.68,
+          "max": 18.95,
+          "median": 16.23,
+          "std": 1.7508950092262334
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 41.16006328481779,
+          "min": 40.96815702635773,
+          "max": 41.52408982627832,
+          "median": 40.987943001817314,
+          "std": 0.31541141921625054
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_quality_without_runtime_better": false,
+      "all_seeds_all_metrics_better": false
+    }
+  }
+}

@@ -45,6 +45,8 @@ __all__ = [
     "ContractWarning",
     "DeploymentModeAvailability",
     "DiscoveryResponse",
+    "ExchangeDeliveryResponse",
+    "ExchangeSummaryResponse",
     "EventPageResponse",
     "EventResponse",
     "HealthResponse",
@@ -63,6 +65,17 @@ __all__ = [
     "PresetFieldSource",
     "PresetListResponse",
     "PresetResponse",
+    "ExchangeViewResponse",
+    "IslandCostResponse",
+    "IslandViewResponse",
+    "RunIslandCostResponse",
+    "RunIslandsResponse",
+    "RunSummariesResponse",
+    "RunProvenanceEntry",
+    "RunProvenanceResponse",
+    "ScanErrorDTO",
+    "SummaryApplicationResponse",
+    "SummaryDetailResponse",
     "RunBudgetResponse",
     "RunControlRequest",
     "RunControlResponse",
@@ -94,6 +107,12 @@ __all__ = [
     "TreeEdgeDTO",
     "TreeNodeDTO",
     "TreeResponse",
+    "WorkflowResponse",
+    "WorkflowDataResponse",
+    "WorkflowTransformationResponse",
+    "HierarchicalSearchResponse",
+    "HierarchicalRouteResponse",
+    "HierarchicalTrialResponse",
 ]
 
 #: Bumped per docs/plans/FRONTEND_IMPLEMENTATION_TODO.md §13.4.
@@ -116,7 +135,21 @@ __all__ = [
 #: are filled only when the run's registered task has a matching catalog card.
 #: 1.11.0: KnowledgeSourceResponse.takeaway. Optional. Copied from
 #: sources.yaml when that entry has one; never invented from card stats.
-CONTRACT_VERSION = "1.11.0"
+#: 1.12.0: RunDetailResponse.islands -- the ``islands``/``exchange``/``cost``
+#: blocks the multi-island engine already writes into ``run_summary.json``, which
+#: had no way to reach the UI. Additive: every new field is optional or an empty
+#: mapping, and a historical single-tree run answers with ``MISSING`` rather than
+#: a fabricated island ring.
+#: 1.13.0: TreeEdgeKind gains ``summary_cross``, TreeNodeDTO gains ``island_id``,
+#: and the exchange surface (RunSummariesResponse / SummaryDetailResponse) joins the
+#: contract. Additive: no existing field changed shape or meaning.
+#: 1.14.0: run discovery (TODO D6.1/D6.2). RunSummaryResponse gains optional
+#: external_id / origin / run_type, and GET /api/runs/provenance publishes the
+#: source manifest with its reconciling counts. Additive: a client that ignores
+#: them still reads the same listing, and a bare run id keeps working because the
+#: first occurrence of an id keeps its unsuffixed external_id.
+#: 1.15.0: typed workflow data checks, hierarchical route/trial records and final result.
+CONTRACT_VERSION = "1.15.0"
 
 
 # --------------------------------------------------------------------------
@@ -158,6 +191,10 @@ class TreeEdgeKind(str, Enum):
     PARENT = "parent"
     CROSSOVER_SECOND_PARENT = "crossover_second_parent"
     REPAIR = "repair"
+    #: A node that was generated with another island's summary in its context.
+    #: The source sits in a *different* island, so a tree layout must never treat
+    #: this edge as parenthood (TODO D6.3).
+    SUMMARY_CROSS = "summary_cross"
 
 
 class ControlAction(str, Enum):
@@ -192,6 +229,172 @@ class ContractWarning(ContractModel):
 
     field: str
     reason: str
+
+
+class WorkflowTransformationResponse(ContractModel):
+    rule: str
+    column: str | None = None
+    affected: int
+    reason: str
+
+
+class WorkflowDataResponse(ContractModel):
+    state: str | None = None
+    before_samples: int | None = None
+    after_samples: int | None = None
+    before_rows: int | None = None
+    after_rows: int | None = None
+    transformations: list[WorkflowTransformationResponse] = Field(default_factory=list)
+    accepted_issues: list[str] = Field(default_factory=list)
+    unresolved_codes: list[str] = Field(default_factory=list)
+    source_sha256: dict[str, str] = Field(default_factory=dict)
+    derived_sha256: dict[str, str] = Field(default_factory=dict)
+
+
+class HierarchicalRouteResponse(ContractModel):
+    route_id: str
+    source: str | None = None
+    default_score: float | None = None
+    best_score: float | None = None
+    visits: int | None = None
+
+
+class HierarchicalTrialResponse(ContractModel):
+    trial_number: int
+    candidate_id: str
+    route_id: str
+    parent_id: str | None = None
+    depth: int | None = None
+    changed_parameter: str | None = None
+    parameters: dict[str, float] = Field(default_factory=dict)
+    status: str | None = None
+    score: float | None = None
+    reward: float | None = None
+    decision: str | None = None
+    reason: str | None = None
+    duration_seconds: float | None = None
+
+
+class HierarchicalSearchResponse(ContractModel):
+    contract_hash: str | None = None
+    completed_trials: int | None = None
+    max_trials: int | None = None
+    default_barrier_open: bool | None = None
+    stop_reason: str | None = None
+    best_candidate_id: str | None = None
+    best_score: float | None = None
+    routes: list[HierarchicalRouteResponse] = Field(default_factory=list)
+    trials: list[HierarchicalTrialResponse] = Field(default_factory=list)
+
+
+class EffectPerformanceResponse(ContractModel):
+    precision: float | None = None
+    recall: float | None = None
+    f1: float | None = None
+    false_alarm_rate: float | None = None
+    missed_detection_rate: float | None = None
+    alarms_per_1k_disks: float | None = None
+    auprc: float | None = None
+    recall_at_far: float | None = None
+    f1_p10: float | None = None
+    combined_score: float | None = None
+
+
+class EffectComplexityResponse(ContractModel):
+    source_lines: int | None = None
+    ast_nodes: int | None = None
+    branch_points: int | None = None
+    functions: int | None = None
+    model_families: list[str] = Field(default_factory=list)
+    ensemble_fits: int | None = None
+    estimated_parameters: int | None = None
+    evaluation_seconds: float | None = None
+    parameter_note: str | None = None
+
+
+class EffectSolutionResponse(ContractModel):
+    key: str
+    label: str
+    performance: EffectPerformanceResponse = Field(default_factory=EffectPerformanceResponse)
+    complexity: EffectComplexityResponse = Field(default_factory=EffectComplexityResponse)
+
+
+class EffectTokenUsageResponse(ContractModel):
+    total_tokens: float | None = None
+    generate_tokens: float | None = None
+    reflect_tokens: float | None = None
+    jev_tokens: float | None = None
+    knowledge_tokens: float | None = None
+    repair_tokens: float | None = None
+    hierarchical_tokens: float | None = None
+    tokens_per_score_gain: float | None = None
+    wall_time_s: float | None = None
+    total_llm_latency_ms: float | None = None
+    total_eval_time_s: float | None = None
+    iterations_done: int | None = None
+
+
+class ConvergencePointResponse(ContractModel):
+    round: int | None = None
+    trial: int | None = None
+    score: float | None = None
+    best_so_far: float | None = None
+    elapsed_s: float | None = None
+
+
+class EffectConvergenceResponse(ContractModel):
+    target_score: float | None = None
+    target_reached: bool | None = None
+    rounds_to_target: int | None = None
+    time_to_target_s: float | None = None
+    tokens_to_target: float | None = None
+    evolution_rounds: int | None = None
+    evolution_stop_reason: str | None = None
+    evolution_curve: list[ConvergencePointResponse] = Field(default_factory=list)
+    hpo_trials: int | None = None
+    hpo_best_trial: int | None = None
+    hpo_elapsed_s: float | None = None
+    hpo_stop_reason: str | None = None
+    hpo_curve: list[ConvergencePointResponse] = Field(default_factory=list)
+
+
+class EffectAutomationResponse(ContractModel):
+    stages: int | None = None
+    evolution_attempts: int | None = None
+    hpo_trials: int | None = None
+    total_steps: int | None = None
+    manual_interventions: int | None = None
+    automatic_coverage: float | None = None
+    end_to_end_unattended: bool | None = None
+    self_recovered_failures: int | None = None
+    unrecovered_adapter_errors: int | None = None
+    note: str | None = None
+
+
+class EffectReportResponse(ContractModel):
+    solutions: list[EffectSolutionResponse] = Field(default_factory=list)
+    convergence: EffectConvergenceResponse | None = None
+    automation: EffectAutomationResponse | None = None
+    token_usage: EffectTokenUsageResponse = Field(default_factory=EffectTokenUsageResponse)
+    note: str | None = None
+
+
+class WorkflowResponse(ContractModel):
+    contract_version: str = CONTRACT_VERSION
+    run_id: str
+    state: str | None = None
+    phase: str | None = None
+    data_state: ArtifactState = ArtifactState.MISSING
+    search_state: ArtifactState = ArtifactState.MISSING
+    data: WorkflowDataResponse | None = None
+    search: HierarchicalSearchResponse | None = None
+    evolution_best_score: float | None = None
+    final_best_score: float | None = None
+    best_origin: str | None = None
+    best_artifact_id: str | None = None
+    effect_state: ArtifactState = ArtifactState.MISSING
+    effect: EffectReportResponse | None = None
+    warnings: list[ContractWarning] = Field(default_factory=list)
 
 
 class DeploymentModeAvailability(ContractModel):
@@ -540,6 +743,21 @@ class RunSummaryResponse(ContractModel):
     task_id: str | None = None
     warnings: list[ContractWarning] = Field(default_factory=list)
 
+    # --- discovery additions (TODO D6.1 / D6.2, all optional) ---------------
+    #: The id to query this run with. Equal to ``run_id`` unless two directories
+    #: share a run id, in which case the later ones carry a path digest suffix so
+    #: neither overwrites the other.
+    external_id: str = ""
+    #: Evidence for how real this run is: ``real`` (this service started it),
+    #: ``fixture`` (found under a configured fixture root) or ``unverified``.
+    #: Never inferred from the directory name, and ``unverified`` is the honest
+    #: answer for a run copied onto the volume by hand.
+    origin: str | None = None
+    #: Artifact shape: ``evolve`` / ``discovery`` / ``autotune`` / ``database`` /
+    #: ``unknown``. A run without a tree stays listed; the tree endpoint then says
+    #: it has none instead of drawing an invented one.
+    run_type: str | None = None
+
 
 class RunBudgetResponse(ContractModel):
     """Token and time accounting (TODO §5.7). All values from RunSummary."""
@@ -716,6 +934,168 @@ class RunCostResponse(ContractModel):
     judge: RunJudgeResponse
 
 
+class IslandViewResponse(ContractModel):
+    """One island's own lifecycle, as the engine recorded it.
+
+    Mirrors the ``islands`` block of ``run_summary.json`` field for field. Every
+    counter stays ``None`` when the run did not record it, so the UI renders
+    "未记录" instead of a zero that would look like an island that never worked.
+    ``best_score`` is the best score inside *this* island's tree, not the run's
+    global best, and ``stop_reason`` explains only why this island stopped: a run
+    can finish while an island still has quota left.
+    """
+
+    island_id: str
+    status: str | None = None
+    profile: str | None = None
+    attempts: int | None = None
+    valid_evaluations: int | None = None
+    invalid_evaluations: int | None = None
+    best_score: float | None = None
+    stop_reason: str | None = None
+
+
+class ExchangeViewResponse(ContractModel):
+    """The four separate facts of the summary channel, never collapsed into one.
+
+    Published -> delivered -> accepted/rejected -> applied, where
+    ``applications`` can exceed ``accepted`` because one adopted summary may
+    produce several candidates, and only ``evaluated_applications`` were scored by
+    the receiving island's own evaluator.
+    """
+
+    summaries: int | None = None
+    by_kind: dict[str, int] = Field(default_factory=dict)
+    deliveries: int | None = None
+    accepted: int | None = None
+    rejected: int | None = None
+    applications: int | None = None
+    evaluated_applications: int | None = None
+
+
+class IslandCostResponse(ContractModel):
+    """One island's share of the spend."""
+
+    tokens: int | None = None
+    calls: int | None = None
+    unresolved_calls: int | None = None
+    cached_calls: int | None = None
+    by_stage: dict[str, int] = Field(default_factory=dict)
+
+
+class RunIslandCostResponse(ContractModel):
+    """Cost attributed per island, plus what could not be attributed.
+
+    ``by_island`` tokens plus ``shared_tokens`` must equal ``total_tokens``;
+    ``shared_tokens`` holds calls with no island context. ``cost_usd`` is a number
+    only when ``cost_basis`` is ``recorded`` -- a model that does not quote a price
+    never gets an invented one.
+    """
+
+    total_tokens: int | None = None
+    by_island: dict[str, IslandCostResponse] = Field(default_factory=dict)
+    shared_tokens: int | None = None
+    unresolved_calls: int | None = None
+    cost_usd: float | None = None
+    cost_basis: str | None = None
+
+
+class RunIslandsResponse(ContractModel):
+    """The island/exchange/cost view of one run.
+
+    ``state`` carries the whole story for a historical single-tree run: those runs
+    predate the island engine and recorded nothing, so ``state`` is ``MISSING`` and
+    the ring is empty. The UI must then show one tree, not invent three islands.
+    """
+
+    state: ArtifactState
+    #: Which artifact the block was read out of; empty when nothing carried it.
+    source: str = ""
+    detail: str = ""
+    islands: dict[str, IslandViewResponse] = Field(default_factory=dict)
+    exchange: ExchangeViewResponse | None = None
+    cost: RunIslandCostResponse | None = None
+    #: ``sum(islands[*].attempts)``. The engine's identity is that this equals
+    #: ``outcome.iterations_done``; the UI compares the two rather than trusting it.
+    attempt_total: int | None = None
+
+
+class ExchangeDeliveryResponse(ContractModel):
+    """One island's decision about one foreign summary."""
+
+    delivery_id: str
+    summary_id: str
+    source_island_id: str
+    target_island_id: str
+    status: str = ""
+    reason: str = ""
+
+
+class SummaryApplicationResponse(ContractModel):
+    """One candidate that was built with one summary in its context.
+
+    ``score`` is that candidate's *own* evaluator result. It is never presented as
+    the gain the summary caused: several summaries can be applied to one candidate
+    and the evaluator answers once (TODO D3.4).
+    """
+
+    application_id: str
+    delivery_id: str
+    candidate_node_id: str
+    target_island_id: str = ""
+    score: float | None = None
+    #: False when the candidate has no evaluation yet -- a crash between the
+    #: application row and the evaluator's answer, not a score of zero.
+    evaluated: bool = False
+
+
+class ExchangeSummaryResponse(ContractModel):
+    """A published conclusion about one island, with its evidence and its fate."""
+
+    summary_id: str
+    kind: str = ""
+    source_island_id: str
+    source_node_id: str = ""
+    summary_text: str = ""
+    conditions: str = ""
+    evidence: list[str] = Field(default_factory=list)
+    metrics: dict[str, float] = Field(default_factory=dict)
+    #: ``single_observation`` until a second run reproduces it -- the UI must not
+    #: render that as a confirmed rule (requirements §6).
+    confidence_status: str = ""
+    created_at: str | None = None
+    deliveries: list[ExchangeDeliveryResponse] = Field(default_factory=list)
+    applications: list[SummaryApplicationResponse] = Field(default_factory=list)
+
+
+class RunSummariesResponse(ContractModel):
+    """``GET /api/runs/{run_id}/summaries``: a run's whole exchange layer.
+
+    The four counts stay four separate facts (TODO D3.1): published, delivered,
+    applied, applied-and-evaluated. None of them is derived from another.
+    """
+
+    contract_version: str
+    run_id: str
+    state: ArtifactState
+    detail: str = ""
+    summaries: list[ExchangeSummaryResponse] = Field(default_factory=list)
+    summary_count: int = 0
+    delivery_count: int = 0
+    application_count: int = 0
+    evaluated_application_count: int = 0
+
+
+class SummaryDetailResponse(ContractModel):
+    """``GET /api/runs/{run_id}/summaries/{summary_id}``: one summary, in full."""
+
+    contract_version: str
+    run_id: str
+    state: ArtifactState
+    detail: str = ""
+    summary: ExchangeSummaryResponse | None = None
+
+
 class RunDetailResponse(ContractModel):
     """Everything the run-level pages read out of one run directory.
 
@@ -733,6 +1113,9 @@ class RunDetailResponse(ContractModel):
     discovery: RunDiscoveryResponse | None = None
     judge: RunJudgeResponse | None = None
     operators: RunOperatorResponse | None = None
+    #: Islands, exchange and per-island cost. ``None`` only when the run has no
+    #: ``run_summary.json`` at all; a single-tree run answers with ``MISSING``.
+    islands: RunIslandsResponse | None = None
     artifact_states: dict[str, ArtifactState] = Field(default_factory=dict)
     warnings: list[ContractWarning] = Field(default_factory=list)
 
@@ -741,6 +1124,46 @@ class RunControlRequest(ContractModel):
     """Pause / resume / cancel request."""
 
     action: ControlAction
+
+
+class ScanErrorDTO(ContractModel):
+    """One directory the run scan could not read, relative to its root."""
+
+    relative_path: str
+    reason: str
+
+
+class RunProvenanceEntry(ContractModel):
+    """Where one run was found and what the server concluded from that."""
+
+    external_id: str
+    run_id: str
+    origin: str
+    run_type: str
+    #: Relative to the configured root, never a host path.
+    relative_path: str
+    markers: list[str] = Field(default_factory=list)
+    #: True when ``fe.db`` and the report artifacts live in different directories
+    #: (a run launched with separate ``--runs-dir`` / ``--artifacts-dir``).
+    split_layout: bool = False
+
+
+class RunProvenanceResponse(ContractModel):
+    """The source manifest of the run listing (TODO D6.2).
+
+    ``scanned == len(runs) + paired`` and ``len(runs) == listed +
+    excluded_fixtures``: a run never disappears between the scan and the list.
+    """
+
+    contract_version: str
+    scanned: int
+    paired: int
+    listed: int
+    excluded_fixtures: int
+    unverified: int
+    errors: list[ScanErrorDTO] = Field(default_factory=list)
+    errors_truncated: bool = False
+    runs: list[RunProvenanceEntry] = Field(default_factory=list)
 
 
 class RunControlResponse(ContractModel):
@@ -840,6 +1263,9 @@ class TreeNodeDTO(ContractModel):
     parent_id: str | None = None
     second_parent_ids: list[str] = Field(default_factory=list)
     branch_id: str
+    #: The island the node grew in. ``""`` is a run from before the multi-island
+    #: engine: recorded as unreadable rather than renamed into island "a".
+    island_id: str = ""
     depth: int
     operator: OperatorType
     score: float | None = None

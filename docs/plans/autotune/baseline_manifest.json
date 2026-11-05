@@ -1,0 +1,285 @@
+{
+  "schema": 1,
+  "git": {
+    "commit": "07539e791de25b5865af793b908c6c2c1f19ce02",
+    "dirty": true
+  },
+  "python": "3.12.3",
+  "packages": {
+    "numpy": "2.4.4",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "lightgbm": "4.7.0",
+    "pydantic": "2.13.5",
+    "PyYAML": "6.0.1"
+  },
+  "effective_config": {
+    "task": {
+      "adapter": "hdd"
+    },
+    "budget": {
+      "max_iterations": 50,
+      "max_tokens": 3000000,
+      "max_wall_hours": 6.0,
+      "stage_caps": {},
+      "stagnation_window": 0,
+      "tokens_per_point_cap": null,
+      "min_iterations_before_stop": 5,
+      "safety_factor": 1.5,
+      "expand_gating": false,
+      "cost_window": 5
+    },
+    "selection": {
+      "policy": "uct",
+      "c_puct": 1.2,
+      "kappa_noise": 1.0,
+      "lambda_dup": 0.1,
+      "value": {
+        "mode": "scalar",
+        "lambda_rank": 0.3,
+        "lambda_noise": 1.0,
+        "backup": "max",
+        "elite_m": 3,
+        "elite_prob": 0.2,
+        "rank_keys": [],
+        "threshold_keys": [],
+        "noise_key": ""
+      }
+    },
+    "widening": {
+      "C": 2.0,
+      "alpha": 0.5
+    },
+    "operators": {
+      "bandit": false,
+      "enabled": [
+        "refine"
+      ],
+      "min_explore": 0.1,
+      "prior_alpha": 1.0,
+      "prior_beta": 1.0,
+      "fn_keywords": false,
+      "fn_keyword_groups": 3,
+      "crossover": {
+        "enabled": false,
+        "min_valid_nodes": 4,
+        "runtime_budget_s": 300.0,
+        "top_quantile": 0.3,
+        "max_code_chars": 6000
+      }
+    },
+    "insights": {
+      "top_k_foreign": 3,
+      "top_k_negative": 3,
+      "summarize_every": 5,
+      "top_k_branch_memory": 5,
+      "reputation_enabled": false
+    },
+    "stop": {
+      "target_score": null,
+      "stop_at_target": true,
+      "window": 15,
+      "improve_rate_q90": 0.05,
+      "continue_prob": 0.2
+    },
+    "judge": {
+      "provider": "none",
+      "base_url": "https://miyang.cn/api/v1/decisions",
+      "api_key_env": "MIYANG_API_KEY",
+      "model": "miyang/jev-1.13",
+      "timeout_s": 5.0,
+      "prescreen": false,
+      "invalid_threshold": 0.85,
+      "low_value_threshold": 0.15,
+      "low_value_action": "skip",
+      "defer_flush_evals": 0,
+      "warmup": 10,
+      "audit_rate": 0.1,
+      "prior": true,
+      "prior_tau": 0.5,
+      "max_calls": 500,
+      "max_consecutive_errors": 3,
+      "max_state_chars": 6000,
+      "retries": 0,
+      "calibration_window": 30,
+      "initial_trust": 0.5
+    },
+    "llm": {
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "generate_model": "qwen3-coder-plus",
+      "reason_model": "qwen3-max",
+      "max_concurrency": 4,
+      "temperature": 0.7,
+      "max_tokens": 8000
+    },
+    "reflection": {
+      "design_delta_factor": 1.0,
+      "hypothesis_delta_factor": 2.0,
+      "max_repair_attempts": 1
+    },
+    "knowledge": {
+      "dir": "",
+      "k": 4,
+      "max_per_category": 2,
+      "enabled": true
+    },
+    "smoke_test": {
+      "enabled": true,
+      "sample_fraction": 0.02,
+      "timeout_s": 60
+    },
+    "analysis": {
+      "enabled": false,
+      "top_k": 3,
+      "on_new_best": true,
+      "dev_late_fraction": 0.4,
+      "timeout_s": 600,
+      "min_group_count": 10
+    },
+    "discovery": {
+      "enabled": false,
+      "tournament": {
+        "enabled": false,
+        "elo_k0": 32.0,
+        "max_rounds": 3,
+        "max_rivals": 2,
+        "n_slices": 4,
+        "min_env_pos": 5,
+        "equiv_margin": 0.02,
+        "icp_gate_p": 0.01,
+        "max_token_share": 0.1,
+        "max_patches": 1
+      },
+      "every_n_iterations": 5,
+      "run_at_end": true,
+      "max_claims_per_round": 3,
+      "min_insight_z": 2.0,
+      "top_k_programs": 3,
+      "discover_op_every": 0,
+      "alpha": 0.05,
+      "bootstrap_b": 500,
+      "e_calibrator_kappa": 0.5,
+      "rho_max": 0.8,
+      "planted_strengths": [
+        0.2,
+        0.5,
+        1.0
+      ],
+      "neg_control_repeats": 5,
+      "max_neg_control_fpr": 0.1,
+      "confirmation_fraction": 0.3,
+      "split_salt": "fe-kd-2026",
+      "sandbox_timeout_s": 120,
+      "max_token_share": 0.2,
+      "inject_same_run": true,
+      "cards_path": null,
+      "extra_card_paths": [],
+      "use_jev_entailment": false
+    },
+    "autotune": {
+      "ledger": {
+        "enabled": true,
+        "full_eval_cap": 50
+      },
+      "hpo": {
+        "enabled": false,
+        "families": [
+          "logreg"
+        ],
+        "search": "random",
+        "trials_per_structure": 8,
+        "max_fits_total": 80,
+        "promote_top_k": 1,
+        "threads": 1,
+        "trial_timeout_s": 300,
+        "dev": {
+          "dev_late_fraction": 0.4,
+          "purge_days": 7,
+          "min_dev_pos": 20,
+          "min_train_pos": 20
+        }
+      },
+      "cache": {
+        "enabled": false,
+        "full_eval": false
+      },
+      "patch": {
+        "enabled": false,
+        "fallback": "reject",
+        "max_hunks": 3,
+        "max_changed_lines": 60
+      },
+      "ablation": {
+        "enabled": false,
+        "max_units": 6,
+        "paired_resamples": 200
+      },
+      "feedback": {
+        "enabled": false,
+        "max_chars": 2500
+      },
+      "quota": {
+        "enabled": false,
+        "shares": {
+          "hpo": 3,
+          "patch": 5,
+          "draft": 2
+        },
+        "plateau_evals": 8,
+        "max_restarts": 2,
+        "archive_cap": 20
+      }
+    },
+    "seed": 20260926
+  },
+  "config_hash": "sha256:f43ee6a973a17570e88b97600a388302f7ef284571f20f9e7e6e353af9bb2016",
+  "task": {
+    "adapter": "hdd",
+    "files": {
+      "evaluator.py": "sha256:cddfaaab6dbe2ee661b634bf39f3585b3b5821c04e84944ea084455c333523a9",
+      "init.py": "sha256:91744b4ba390ed377b8eb8884a5c0b19e1407765824f00aec5e857aad208caf2",
+      "problem.md": "sha256:0f417e318421f36b98f1fbcaa823c7699bb08d2069393834e04a07fd151a4004",
+      "prompt.md": "sha256:8a70862b64982193847bcb1eac74ddb982b85c90a0e64306b364d04f12f7b97a"
+    }
+  },
+  "data": {
+    "realpath_is_symlink": false,
+    "train_labels.csv": {
+      "sha256": "sha256:64b798410d78302ff77e4312b6c930edceee60c56d820f927be1b6804d503b27",
+      "rows": null
+    },
+    "train_history.csv.gz": {
+      "sha256": "sha256:f033f35b786108567351b3b5d9882bc171679c75c2e24e300f11df95e1505624",
+      "rows": null
+    },
+    "val_history.csv.gz": {
+      "sha256": "sha256:0b8e75b409c28c8ee1a45a6e187c8e01bf7829c830727e3cff4850a035bc9091",
+      "rows": null
+    },
+    "val_index.csv": {
+      "sha256": "sha256:9abf34bcb5bbbc9cf8f2fdeabad505959418ed0aaed3ab61d5d72552820a44d8",
+      "rows": null
+    }
+  },
+  "evaluator_hash": "sha256:cddfaaab6dbe2ee661b634bf39f3585b3b5821c04e84944ea084455c333523a9",
+  "models": {
+    "generate_model": "qwen3-coder-plus",
+    "reason_model": "qwen3-max",
+    "base_url_host": "dashscope.aliyuncs.com"
+  },
+  "seed": 20260926,
+  "threads": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "LIGHTGBM_NUM_THREADS": null
+  },
+  "budget": {
+    "max_iterations": 50,
+    "max_tokens": 3000000,
+    "max_wall_hours": 6.0,
+    "full_eval_cap": 50
+  },
+  "artifacts": {},
+  "created_at": "2026-10-03T21:06:16.139642+00:00"
+}

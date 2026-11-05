@@ -1,0 +1,114 @@
+{
+  "scope": "training_seed_stability_on_reused_search_validation_set",
+  "independent_generalization": false,
+  "candidates": {
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/hybrid_search_20261021/candidate_0031.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 3.3,
+          "min": 3.024,
+          "max": 3.679,
+          "median": 3.197,
+          "std": 0.3394304052379514
+        },
+        "auprc": {
+          "mean": 0.38953333333333334,
+          "min": 0.38354,
+          "max": 0.39281,
+          "median": 0.39225,
+          "std": 0.005197925868395328
+        },
+        "f1": {
+          "mean": 0.41989666666666664,
+          "min": 0.41061,
+          "max": 0.43305,
+          "median": 0.41603,
+          "std": 0.011709044936856865
+        },
+        "f1_boot_std": {
+          "mean": 0.02095,
+          "min": 0.02041,
+          "max": 0.02196,
+          "median": 0.02048,
+          "std": 0.0008753856293085917
+        },
+        "f1_p10": {
+          "mean": 0.39191333333333334,
+          "min": 0.38234,
+          "max": 0.40424,
+          "median": 0.38916,
+          "std": 0.011206611144022667
+        },
+        "false_alarm_rate": {
+          "mean": 0.0020886666666666666,
+          "min": 0.001833,
+          "max": 0.0024,
+          "median": 0.002033,
+          "std": 0.00028756970169566414
+        },
+        "missed_detection_rate": {
+          "mean": 0.5127866666666666,
+          "min": 0.48545,
+          "max": 0.53175,
+          "median": 0.52116,
+          "std": 0.02425916390425136
+        },
+        "precision": {
+          "mean": 0.3700133333333333,
+          "min": 0.34918,
+          "max": 0.39526,
+          "median": 0.3656,
+          "std": 0.0233548653032582
+        },
+        "quality": {
+          "mean": 0.4100833333333333,
+          "min": 0.39936,
+          "max": 0.419,
+          "median": 0.41189,
+          "std": 0.009943864104729772
+        },
+        "recall": {
+          "mean": 0.48721333333333333,
+          "min": 0.46825,
+          "max": 0.51455,
+          "median": 0.47884,
+          "std": 0.02425916390425136
+        },
+        "recall_at_far": {
+          "mean": 0.48633000000000004,
+          "min": 0.46561,
+          "max": 0.49735,
+          "median": 0.49603,
+          "std": 0.01795617999464251
+        },
+        "run_time_s": {
+          "mean": 25.143333333333334,
+          "min": 24.65,
+          "max": 25.76,
+          "median": 25.02,
+          "std": 0.5651843357112218
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 41.00832309246553,
+          "min": 39.93554255554752,
+          "max": 41.89993100116817,
+          "median": 41.1894957206809,
+          "std": 0.9946472400971244
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_all_metrics_better": false
+    }
+  }
+}

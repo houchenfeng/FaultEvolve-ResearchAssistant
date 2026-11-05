@@ -1,0 +1,4 @@
+# Optional TabM backend. Existing torch/typing_extensions are provisioned separately.
+# Install with --no-deps --require-hashes to avoid replacing the GPU runtime.
+tabm==0.0.3 --hash=sha256:6cabed3cb436fef5e8a45f46097fd745f51b3e16be16d555b9af16cffda7f944
+rtdl_num_embeddings==0.0.12 --hash=sha256:87fd61270118915cf40888f2164f3a1f0353edf702f15fd91e71a147d23c930d

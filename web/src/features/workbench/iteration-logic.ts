@@ -172,7 +172,12 @@ export function filterEvents(events: EventResponse[], filter: EventFilter): Even
 
 /** 事件类型的中文标签。取不到就是类型原文，不编造译名。 */
 const EVENT_LABELS: Record<string, string> = {
+  research_contract: '冻结科研目标',
+  research_goal_reached: '同一候选达成全部科研目标',
   init_evaluated: '初始程序已评估',
+  structure_tuning_started: '开始逐结构分层调优',
+  structure_tuning_trial: '完成参数试验',
+  structure_tuning_complete: '完成逐结构分层调优',
   node_created: '创建节点',
   iteration_complete: '一代完成',
   run_finished: '运行结束',
@@ -197,6 +202,7 @@ const EVENT_LABELS: Record<string, string> = {
   budget_stop: '预算耗尽停止',
   budget_stage_cap_hit: '触发阶段上限',
   llm_error: 'LLM 调用失败',
+  llm_call_lost: 'LLM 调用丢失（花费未知）',
   jev_error: 'JEV 失败',
   jev_prescreen: 'JEV 预筛',
   jev_screened: 'JEV 已筛',
@@ -212,6 +218,52 @@ const EVENT_LABELS: Record<string, string> = {
   discovery_skipped: '跳过发现',
   analysis_complete: '分析完成',
   analysis_failed: '分析失败',
+  // 三岛：一次尝试的生命周期、岛自己的停止、调度与配额。
+  attempt_started: '尝试开始',
+  island_stopped: '岛停止',
+  all_islands_stopped: '全部岛停止',
+  island_attempt_cap_hit: '岛尝试上限触发',
+  infra_failure: '基础设施失败',
+  init_evaluation_invalid: '初始评估非法',
+  run_aborted_invalid_init: '因初始评估非法中止',
+  value_mode_fallback: '价值模式回退（无目标指标）',
+  objective_brief_failed: '目标简报生成失败',
+  objective_spec_failed: '目标规格生成失败',
+  operator_bias_applied: '岛策略算子偏置生效',
+  quota_slot: '配额槽位改选算子',
+  expand_redirected_budget: '扩展改道到高分节点（预算）',
+  run_stalled: '运行停滞',
+  run_interrupted: '运行被中断',
+  run_resumed: '运行已恢复',
+  run_resume_refused: '恢复被拒',
+  knowledge_injected: '注入知识卡',
+  // 摘要交换：发布、复制证据、投递、拒绝、采用各有各的事件，时间轴上要能分开读。
+  exchange_check: '摘要交换检查',
+  exchange_summary_published: '发布摘要',
+  exchange_summary_replicated: '摘要被复现（追加证据）',
+  exchange_summary_failed: '摘要生成失败',
+  exchange_delivered: '摘要已投递',
+  exchange_delivery_backfilled: '补投递摘要',
+  exchange_rejected: '摘要投递被拒',
+  exchange_applied: '摘要被采用',
+  summary_cross_selected: '选定摘要交叉',
+  summary_crossover: '摘要交叉生成',
+  // 超参搜索（HPO）：跳过/无晋级/晋级各有事件，payload 里带 reason 与试验号。
+  hpo_skipped: '超参搜索跳过',
+  hpo_no_promotion: '超参搜索无晋级',
+  hpo_promotion_skipped: '超参晋级被跳过',
+  hpo_promoted: '超参试验晋级',
+  // 机理锦标赛：整轮跳过与一轮完成（payload 带 established/refuted/undetermined）。
+  tournament_skipped: '机理锦标赛跳过',
+  tournament_round_finished: '机理锦标赛一轮完成',
+  // 热补丁与冒烟修复。
+  patch_proposed: '热补丁已提议',
+  patch_applied: '热补丁已应用',
+  patch_rejected: '热补丁被拒',
+  patch_unavailable: '热补丁不可用',
+  patch_fallback_draft: '热补丁回退为草稿',
+  smoke_data_build_failed: '冒烟数据构建失败',
+  smoke_fix_success: '冒烟修复成功',
 };
 
 export function eventLabel(type: string): string {

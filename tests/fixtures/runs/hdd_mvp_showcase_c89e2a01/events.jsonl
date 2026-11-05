@@ -1,0 +1,46 @@
+{"id": 1, "experiment_id": "c89e2a01", "type": "smoke_data_built", "payload": {"path": "<REDACTED_PATH>", "sample_fraction": 0.02}, "ts": ""}
+{"id": 2, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n0a1b2c3", "operator": "init"}, "ts": ""}
+{"id": 3, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n0a1b2c3", "status": "done", "score": 12.46}, "ts": ""}
+{"id": 4, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n1d4e5f6", "operator": "refine", "parent_id": "n0a1b2c3"}, "ts": ""}
+{"id": 5, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n1d4e5f6", "status": "done", "score": 15.92}, "ts": ""}
+{"id": 6, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n2a7b8c9", "operator": "refine", "parent_id": "n0a1b2c3"}, "ts": ""}
+{"id": 7, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n2a7b8c9", "status": "done", "score": 14.31}, "ts": ""}
+{"id": 8, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n3d0e1f2", "operator": "refine", "parent_id": "n0a1b2c3"}, "ts": ""}
+{"id": 9, "experiment_id": "c89e2a01", "type": "smoke_failed", "payload": {"node_id": "n3d0e1f2", "error_class": "timeout", "reason": "候选在 900s 预算内未写出 pred.csv"}, "ts": ""}
+{"id": 10, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n3d0e1f2", "status": "invalid", "score": 0.0}, "ts": ""}
+{"id": 11, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n4a3b4c5", "operator": "refine", "parent_id": "n1d4e5f6"}, "ts": ""}
+{"id": 12, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n4a3b4c5", "status": "done", "score": 20.11}, "ts": ""}
+{"id": 13, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n5d6e7f8", "operator": "refine", "parent_id": "n1d4e5f6"}, "ts": ""}
+{"id": 14, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n5d6e7f8", "status": "done", "score": 18.07}, "ts": ""}
+{"id": 15, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n6a9b0c1", "operator": "refine", "parent_id": "n2a7b8c9"}, "ts": ""}
+{"id": 16, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n6a9b0c1", "status": "done", "score": 22.18}, "ts": ""}
+{"id": 17, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n7d2e3f4", "operator": "refine", "parent_id": "n2a7b8c9"}, "ts": ""}
+{"id": 18, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n7d2e3f4", "status": "done", "score": 17.06}, "ts": ""}
+{"id": 19, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n8a5b6c7", "operator": "refine", "parent_id": "n4a3b4c5"}, "ts": ""}
+{"id": 20, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n8a5b6c7", "status": "done", "score": 24.12}, "ts": ""}
+{"id": 21, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n9d8e9f0", "operator": "recall_focus", "parent_id": "n4a3b4c5"}, "ts": ""}
+{"id": 22, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n9d8e9f0", "status": "done", "score": 21.03}, "ts": ""}
+{"id": 23, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n10a1b2d3", "operator": "refine", "parent_id": "n5d6e7f8"}, "ts": ""}
+{"id": 24, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n10a1b2d3", "status": "done", "score": 26.41}, "ts": ""}
+{"id": 25, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n11d3e4f5", "operator": "refine", "parent_id": "n5d6e7f8"}, "ts": ""}
+{"id": 26, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n11d3e4f5", "status": "done", "score": 23.18}, "ts": ""}
+{"id": 27, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n12a5b6d7", "operator": "refine", "parent_id": "n7d2e3f4"}, "ts": ""}
+{"id": 28, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n12a5b6d7", "status": "done", "score": 19.34}, "ts": ""}
+{"id": 29, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n13d7e8f9", "operator": "refine", "parent_id": "n8a5b6c7"}, "ts": ""}
+{"id": 30, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n13d7e8f9", "status": "done", "score": 27.56}, "ts": ""}
+{"id": 31, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n14a7b8d9", "operator": "refine", "parent_id": "n8a5b6c7"}, "ts": ""}
+{"id": 32, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n14a7b8d9", "status": "done", "score": 25.11}, "ts": ""}
+{"id": 33, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n15d9e0fa", "operator": "refine", "parent_id": "n10a1b2d3"}, "ts": ""}
+{"id": 34, "experiment_id": "c89e2a01", "type": "smoke_failed", "payload": {"node_id": "n15d9e0fa", "error_class": "timeout", "reason": "候选在 900s 预算内未写出 pred.csv"}, "ts": ""}
+{"id": 35, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n15d9e0fa", "status": "invalid", "score": 0.0}, "ts": ""}
+{"id": 36, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n16a9b0db", "operator": "repair", "parent_id": "n10a1b2d3", "repair_parent_id": "n15d9e0fa"}, "ts": ""}
+{"id": 37, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n16a9b0db", "status": "done", "score": 31.48}, "ts": ""}
+{"id": 38, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n17d1e2fc", "operator": "threshold_calibrate", "parent_id": "n12a5b6d7"}, "ts": ""}
+{"id": 39, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n17d1e2fc", "status": "done", "score": 22.17}, "ts": ""}
+{"id": 40, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n18a3b4dd", "operator": "refine", "parent_id": "n13d7e8f9"}, "ts": ""}
+{"id": 41, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n18a3b4dd", "status": "done", "score": 33.7}, "ts": ""}
+{"id": 42, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n19d5e6fe", "operator": "refine", "parent_id": "n13d7e8f9"}, "ts": ""}
+{"id": 43, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n19d5e6fe", "status": "done", "score": 31.12}, "ts": ""}
+{"id": 44, "experiment_id": "c89e2a01", "type": "node_created", "payload": {"node_id": "n20a7b8df", "operator": "inject", "parent_id": "n16a9b0db"}, "ts": ""}
+{"id": 45, "experiment_id": "c89e2a01", "type": "iteration_complete", "payload": {"node_id": "n20a7b8df", "status": "done", "score": 29.08}, "ts": ""}
+{"id": 46, "experiment_id": "c89e2a01", "type": "run_finished", "payload": {"status": "finished", "stop_reason": "max_iterations", "best_node_id": "n18a3b4dd", "best_score": 38.139345971596875}, "ts": ""}

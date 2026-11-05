@@ -1,0 +1,222 @@
+{
+  "scope": "training_seed_stability_on_reused_search_validation_set",
+  "independent_generalization": false,
+  "candidates": {
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tree_input_sources_20261021/without.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 2.43,
+          "min": 1.826,
+          "max": 2.739,
+          "median": 2.725,
+          "std": 0.5231261798075106
+        },
+        "auprc": {
+          "mean": 0.38828,
+          "min": 0.38698,
+          "max": 0.38978,
+          "median": 0.38808,
+          "std": 0.0014106735979666023
+        },
+        "f1": {
+          "mean": 0.41839,
+          "min": 0.39877,
+          "max": 0.43254,
+          "median": 0.42386,
+          "std": 0.017536929605834643
+        },
+        "f1_boot_std": {
+          "mean": 0.0216,
+          "min": 0.02146,
+          "max": 0.02182,
+          "median": 0.02152,
+          "std": 0.00019287301521985845
+        },
+        "f1_p10": {
+          "mean": 0.39004333333333335,
+          "min": 0.37163,
+          "max": 0.40281,
+          "median": 0.39569,
+          "std": 0.016338963655426038
+        },
+        "false_alarm_rate": {
+          "mean": 0.0014,
+          "min": 0.000967,
+          "max": 0.001633,
+          "median": 0.0016,
+          "std": 0.0003753518349495577
+        },
+        "missed_detection_rate": {
+          "mean": 0.5859800000000001,
+          "min": 0.54762,
+          "max": 0.65476,
+          "median": 0.55556,
+          "std": 0.059697380177022835
+        },
+        "precision": {
+          "mean": 0.43046333333333336,
+          "min": 0.40509,
+          "max": 0.47194,
+          "median": 0.41436,
+          "std": 0.03621765637549363
+        },
+        "quality": {
+          "mean": 0.4092133333333333,
+          "min": 0.40012,
+          "max": 0.41543,
+          "median": 0.41209,
+          "std": 0.008050182192555254
+        },
+        "recall": {
+          "mean": 0.41402,
+          "min": 0.34524,
+          "max": 0.45238,
+          "median": 0.44444,
+          "std": 0.05969738017702285
+        },
+        "recall_at_far": {
+          "mean": 0.4885366666666667,
+          "min": 0.48545,
+          "max": 0.49074,
+          "median": 0.48942,
+          "std": 0.002753403953896594
+        },
+        "run_time_s": {
+          "mean": 26.803333333333335,
+          "min": 25.48,
+          "max": 27.63,
+          "median": 27.3,
+          "std": 1.1578572162979908
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 40.92124353745886,
+          "min": 40.01191859311024,
+          "max": 41.543247220528556,
+          "median": 41.208564798737775,
+          "std": 0.8050819658114938
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_all_metrics_better": false
+    },
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tree_input_sources_20261021/with.py": {
+      "evaluated": 3,
+      "valid": 3,
+      "expected": 3,
+      "complete": true,
+      "metrics": {
+        "alarms_per_1k_disks": {
+          "mean": 2.396,
+          "min": 1.737,
+          "max": 2.782,
+          "median": 2.669,
+          "std": 0.5735006538793134
+        },
+        "auprc": {
+          "mean": 0.38795666666666667,
+          "min": 0.38581,
+          "max": 0.38998,
+          "median": 0.38808,
+          "std": 0.002087734018818812
+        },
+        "f1": {
+          "mean": 0.41207333333333335,
+          "min": 0.39629,
+          "max": 0.42831,
+          "median": 0.41162,
+          "std": 0.01601481293469687
+        },
+        "f1_boot_std": {
+          "mean": 0.021563333333333334,
+          "min": 0.02079,
+          "max": 0.02213,
+          "median": 0.02177,
+          "std": 0.0006934935712271125
+        },
+        "f1_p10": {
+          "mean": 0.38325,
+          "min": 0.36837,
+          "max": 0.39749,
+          "median": 0.38389,
+          "std": 0.01457054563151293
+        },
+        "false_alarm_rate": {
+          "mean": 0.001389,
+          "min": 0.0009,
+          "max": 0.0017,
+          "median": 0.001567,
+          "std": 0.00042867586822679905
+        },
+        "missed_detection_rate": {
+          "mean": 0.5952366666666667,
+          "min": 0.55688,
+          "max": 0.66402,
+          "median": 0.56481,
+          "std": 0.05969992825232987
+        },
+        "precision": {
+          "mean": 0.4293033333333333,
+          "min": 0.39047,
+          "max": 0.48299,
+          "median": 0.41445,
+          "std": 0.048015140667640795
+        },
+        "quality": {
+          "mean": 0.40492666666666666,
+          "min": 0.39717,
+          "max": 0.41336,
+          "median": 0.40425,
+          "std": 0.008116183421617159
+        },
+        "recall": {
+          "mean": 0.40476333333333336,
+          "min": 0.33598,
+          "max": 0.44312,
+          "median": 0.43519,
+          "std": 0.05969992825232987
+        },
+        "recall_at_far": {
+          "mean": 0.48456666666666665,
+          "min": 0.4828,
+          "max": 0.4881,
+          "median": 0.4828,
+          "std": 0.003059956426705
+        },
+        "run_time_s": {
+          "mean": 26.05,
+          "min": 24.89,
+          "max": 26.73,
+          "median": 26.53,
+          "std": 1.009554357129917
+        },
+        "time_factor": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "median": 1.0,
+          "std": 0.0
+        },
+        "combined_score": {
+          "mean": 40.492491872578114,
+          "min": 39.71698429486893,
+          "max": 41.335579393629786,
+          "median": 40.424911929235634,
+          "std": 0.8114109994261826
+        }
+      },
+      "all_seeds_all_predictive_better": false,
+      "all_seeds_all_metrics_better": false
+    }
+  }
+}

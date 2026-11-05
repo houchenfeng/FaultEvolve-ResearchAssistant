@@ -1,0 +1,20 @@
+{
+  "telemetry": [
+    {
+      "path": "telemetry.parquet",
+      "device_col": "device_id",
+      "time_col": "timestamp"
+    }
+  ],
+  "events": {
+    "path": "events.json",
+    "records_path": "events",
+    "device_col": "device_id",
+    "time_col": "failure_time"
+  },
+  "task": {
+    "window_d": 7,
+    "lead_min": 30,
+    "group_by": "vendor_model"
+  }
+}

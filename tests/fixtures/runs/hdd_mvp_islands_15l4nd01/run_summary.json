@@ -1,0 +1,262 @@
+{
+  "experiment_id": "15l4nd01",
+  "status": "finished",
+  "iterations_done": 18,
+  "best_score": 22.807355886970594,
+  "best_node_id": "54b71757",
+  "initial_score": 22.807355886970594,
+  "improvement": 0.0,
+  "valid_rate": 1.0,
+  "total_tokens": 10200,
+  "total_llm_latency_ms": 1670,
+  "total_eval_time_s": 45.432990312576294,
+  "wall_time_s": 85.5365252494812,
+  "rounds_to_target": null,
+  "time_to_target_s": null,
+  "tokens_to_target": null,
+  "stop_reason": "max_iterations",
+  "repair_attempts": 0,
+  "repair_successes": 0,
+  "repair_tokens": 0,
+  "repair_iterations": 0,
+  "knowledge_tokens": 7894,
+  "card_adoption_rate": 0.31746031746031744,
+  "card_stats": [
+    {
+      "card_id": "FE01",
+      "n": 0,
+      "mean_delta": 0.0,
+      "refuted": 9
+    },
+    {
+      "card_id": "M01",
+      "n": 0,
+      "mean_delta": 0.0,
+      "refuted": 9
+    },
+    {
+      "card_id": "T01",
+      "n": 0,
+      "mean_delta": 0.0,
+      "refuted": 2
+    }
+  ],
+  "generate_tokens": 5400,
+  "reflect_tokens": 4500,
+  "knowledge_token_share": 1.7160869565217391,
+  "cards_offered": 63,
+  "cards_adopted": 20,
+  "cards_adopted_valid": 0,
+  "tokens_per_score_gain": 10200000.0,
+  "precheck_fixes": 0,
+  "adapter_errors": 0,
+  "perf_rejections": 0,
+  "smoke_failures": 1,
+  "smoke_fixes": 1,
+  "self_fix_tokens": 300,
+  "smoke_time_s_total": 29.605,
+  "smoke_tests": 19,
+  "avg_smoke_time_s": 1.558,
+  "iteration_events": 18,
+  "jev_calls": 0,
+  "jev_errors": 0,
+  "jev_fail_open": 0,
+  "jev_prompt_tokens": 0,
+  "jev_completion_tokens": 0,
+  "jev_tokens": 0,
+  "jev_latency_ms": 0,
+  "jev_disabled_reason": "",
+  "candidates_screened": 0,
+  "evaluations_saved": 0,
+  "eval_time_saved_est_s": 0.0,
+  "screen_audited": 0,
+  "screen_audit_bad": 0,
+  "screen_shadow": 0,
+  "screening_precision": null,
+  "jev_prior_active": false,
+  "analysis_calls": 0,
+  "analysis_failures": 0,
+  "analysis_time_s": 0.0,
+  "analysis_nonempty_rate": 0.0,
+  "tokens_per_ros_point": null,
+  "stage_cap_hits": {},
+  "budget_stop_reason": "",
+  "elite_archive_sizes": {
+    "rank": 0,
+    "threshold": 0
+  },
+  "expand_skipped_budget": 0,
+  "value_mode": "scalar",
+  "operator_counts": {
+    "inject": 3,
+    "refine": 5,
+    "threshold_calibrate": 3,
+    "summary_cross": 7
+  },
+  "operator_valid_rate": {
+    "inject": 1.0,
+    "refine": 1.0,
+    "threshold_calibrate": 1.0,
+    "summary_cross": 1.0
+  },
+  "operator_mean_delta": {
+    "inject": -22.472786174010707,
+    "refine": -22.44997285326695,
+    "threshold_calibrate": -22.4558133621214,
+    "summary_cross": -22.4535885666926
+  },
+  "operator_posteriors": {
+    "inject": {
+      "alpha": 2.0,
+      "beta": 5.0,
+      "mean": 0.2857
+    },
+    "refine": {
+      "alpha": 3.0,
+      "beta": 8.0,
+      "mean": 0.2727
+    },
+    "threshold_calibrate": {
+      "alpha": 2.0,
+      "beta": 5.0,
+      "mean": 0.2857
+    },
+    "summary_cross": {
+      "alpha": 2.0,
+      "beta": 9.0,
+      "mean": 0.1818
+    }
+  },
+  "operator_tokens": {
+    "inject": 600,
+    "refine": 900,
+    "threshold_calibrate": 300
+  },
+  "generative_valid_rate": 1.0,
+  "bandit_active": true,
+  "discovery_tokens": 0,
+  "discovery_token_share": 0.0,
+  "discovery_rounds": 0,
+  "discovery_rounds_skipped": 0,
+  "claims_proposed": 0,
+  "claims_tested": 0,
+  "claims_sandbox_failed": 0,
+  "claims_confirmed": 0,
+  "claims_revised": 0,
+  "claims_discovered": 0,
+  "claims_refuted": 0,
+  "claims_undetermined": 0,
+  "discovered_cards_count": 0,
+  "discovered_cards_offered": 0,
+  "discovered_cards_adopted": 0,
+  "discovered_card_adoption_rate": 0.0,
+  "discovered_card_mean_delta": null,
+  "literature_card_mean_delta": null,
+  "score_delta_after_discovery": null,
+  "neg_control_false_positives": 0,
+  "neg_control_fpr": null,
+  "planted_recovery_rate": {},
+  "mechanism_tokens": 0,
+  "mechanisms_proposed": 0,
+  "matches_played": 0,
+  "decisive_matches": 0,
+  "underpowered_draws": 0,
+  "certificates_issued": 0,
+  "mechanisms_established": 0,
+  "mechanisms_refuted": 0,
+  "mechanism_patches": 0,
+  "mechanism_cards_count": 0,
+  "tournament_rounds": 0,
+  "planted_mechanism_recovered": null,
+  "llm_vs_data_kendall_tau": null,
+  "shuffled_env_false_pass": null,
+  "tournament_tokens": 0,
+  "min_detectable_effect": null,
+  "crossover_count": 0,
+  "crossover_valid_rate": null,
+  "crossover_mean_delta": null,
+  "crossover_best_gain": null,
+  "crossover_tokens": 0,
+  "islands": {
+    "a": {
+      "status": "running",
+      "profile": "performance",
+      "attempts": 6,
+      "valid_evaluations": 7,
+      "invalid_evaluations": 0,
+      "best_score": 22.807355886970594,
+      "stop_reason": ""
+    },
+    "b": {
+      "status": "running",
+      "profile": "miss_alert",
+      "attempts": 6,
+      "valid_evaluations": 7,
+      "invalid_evaluations": 0,
+      "best_score": 22.807355886970594,
+      "stop_reason": ""
+    },
+    "c": {
+      "status": "running",
+      "profile": "efficiency",
+      "attempts": 6,
+      "valid_evaluations": 7,
+      "invalid_evaluations": 0,
+      "best_score": 22.807355886970594,
+      "stop_reason": ""
+    }
+  },
+  "exchange": {
+    "summaries": 1,
+    "by_kind": {
+      "best": 1,
+      "failure": 0,
+      "knowledge": 0
+    },
+    "deliveries": 2,
+    "accepted": 2,
+    "rejected": 0,
+    "applications": 12,
+    "evaluated_applications": 12
+  },
+  "cost": {
+    "total_tokens": 10200,
+    "by_island": {
+      "a": {
+        "tokens": 3300,
+        "calls": 12,
+        "unresolved_calls": 0,
+        "cached_calls": 0,
+        "by_stage": {
+          "generate": 1800,
+          "reflect": 1500
+        }
+      },
+      "b": {
+        "tokens": 3300,
+        "calls": 12,
+        "unresolved_calls": 0,
+        "cached_calls": 0,
+        "by_stage": {
+          "generate": 1800,
+          "reflect": 1500
+        }
+      },
+      "c": {
+        "tokens": 3600,
+        "calls": 13,
+        "unresolved_calls": 0,
+        "cached_calls": 0,
+        "by_stage": {
+          "generate": 1800,
+          "self_fix": 300,
+          "reflect": 1500
+        }
+      }
+    },
+    "shared_tokens": 0,
+    "unresolved_calls": 0,
+    "cost_usd": null,
+    "cost_basis": "unknown"
+  }
+}

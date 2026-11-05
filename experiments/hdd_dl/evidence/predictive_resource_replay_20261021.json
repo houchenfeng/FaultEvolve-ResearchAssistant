@@ -1,0 +1,45 @@
+{
+  "scope": "offline_selection_replay_not_new_training_or_generalization",
+  "controller_sha256": "27c2da7188f15d42ffb7fe17f61873a44059b4c4b69bc027e8f22a3b24a2ab22",
+  "results": [
+    {
+      "campaign": "tabm_search_20261021",
+      "source_sha256": "5aa2347fed58f94667dcdc13789717952374cdeb37e818fd57b1e02b7f7be618",
+      "old_trial": 24,
+      "new_trial": 3,
+      "new_rank": [
+        1,
+        -10.564516129032258,
+        0.01080871235339782
+      ],
+      "new_ros": 42.236031588477665,
+      "new_runtime": 21.51
+    },
+    {
+      "campaign": "backend_quota_search_20261021",
+      "source_sha256": "d5f16ed78192a12f4d479fa5a311118516a936bbabe74f41fbb8a225fb3f49d9",
+      "old_trial": 24,
+      "new_trial": 3,
+      "new_rank": [
+        1,
+        -10.645502645502647,
+        0.01080871235339782
+      ],
+      "new_ros": 42.236031588477665,
+      "new_runtime": 22.01
+    },
+    {
+      "campaign": "resource_search_20261021",
+      "source_sha256": "954135c543594bbecaafd97fd54e8fbc4abe5479e30eae11c5a33af1dbee247d",
+      "old_trial": 45,
+      "new_trial": 3,
+      "new_rank": [
+        1,
+        -10.641711229946523,
+        0.01080871235339782
+      ],
+      "new_ros": 42.236031588477665,
+      "new_runtime": 21.77
+    }
+  ]
+}

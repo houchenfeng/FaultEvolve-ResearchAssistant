@@ -33,6 +33,8 @@ def load_evaluator(evaluator_path: Path) -> Any:
     module = importlib.util.module_from_spec(spec)
     sys.modules["evaluator"] = module
     spec.loader.exec_module(module)
+    from faultevolve.worker.aggregate_metrics import add_aggregate_metrics
+    add_aggregate_metrics(module)
     return module
 
 

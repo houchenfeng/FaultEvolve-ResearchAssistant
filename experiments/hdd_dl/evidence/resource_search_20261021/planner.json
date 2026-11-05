@@ -1,0 +1,170 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792536564.9157937,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 174,
+      "prompt_tokens": 10771,
+      "total_tokens": 10945
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 1,
+        "replicas": 3
+      },
+      "hypothesis": "Increasing width to 256 improves precision and AUPRC (HDD-CAPACITY-01), while reducing depth to 1 prevents the overfitting/instability seen in deeper TCNs (Trial 4 vs Trial 0). Restoring replicas=3 stabilizes the variance observed in single-replica runs. This configuration aims to boost low-FAR recall by improving ranking quality without sacrificing runtime efficiency excessively.",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": [
+        0,
+        4
+      ]
+    },
+    "finished_at": 1792536567.995896
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792536717.6828728,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 149,
+      "prompt_tokens": 12083,
+      "total_tokens": 12232
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 1,
+        "dropout": 0.25
+      },
+      "hypothesis": "增加网络宽度至256以提升特征容量，同时保持浅层结构（depth=1）以避免过拟合和梯度消失。引入较高的Dropout率（0.25）以正则化更宽的模型，预期能在不牺牲精度的情况下提高召回率和AUPRC，特别是改善低误报率下的召回表现。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792536721.0338023
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792536822.4622064,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 154,
+      "prompt_tokens": 12522,
+      "total_tokens": 12676
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 1,
+        "epochs": 60
+      },
+      "hypothesis": "增加网络宽度至256并降低深度至1，旨在提升特征提取容量同时避免深层过拟合。结合较少的训练轮数（60），预期能在保持运行效率的同时，通过更丰富的表征能力改善低误报率下的召回率及整体预测指标。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": [
+        0,
+        3,
+        11
+      ]
+    },
+    "finished_at": 1792536827.897834
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792536948.556596,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 221,
+      "prompt_tokens": 12514,
+      "total_tokens": 12735
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "width": 256,
+        "depth": 1
+      },
+      "hypothesis": "HDD-ARCHITECTURE-01显示dual架构在precision和low-FAR recall上优于TCN，但recall下降导致ROS微降。结合HDD-CAPACITY-01中width=256对AUPRC和F1的全面提升，将dual架构扩展至width=256并固定depth=1（避免trial 23/27中depth=2可能带来的过拟合或优化困难），旨在通过更大的容量补偿dual架构的recall损失，同时保留其在低误报率下的精度优势，从而在不增加过多运行时间的前提下提升综合指标。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01",
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792536952.7308471
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792537039.648265,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 181,
+      "prompt_tokens": 12517,
+      "total_tokens": 12698
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "width": 256,
+        "dropout": 0.25
+      },
+      "hypothesis": "双分支架构(TCN+GRU)结合更大宽度(256)能同时捕捉局部趋势和长期依赖，提升低误报率下的召回率。增加Dropout(0.25)以抑制因模型容量增大带来的过拟合风险，从而在保持高AUPRC的同时改善F1和Precision，实现综合指标优于单一TCN基线。",
+      "knowledge_ids": [
+        "HDD-ARCHITECTURE-01",
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": [
+        38
+      ]
+    },
+    "finished_at": 1792537043.6974828
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792537135.7194736,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 132,
+      "prompt_tokens": 12515,
+      "total_tokens": 12647
+    },
+    "proposal": {
+      "changes": {
+        "dropout": 0.25,
+        "lr": 0.001
+      },
+      "hypothesis": "增加正则化强度（dropout）并提高学习率，旨在抑制TCN在宽网络下的过拟合风险，同时加速收敛至更优的泛化局部极小值，预期能提升AUPRC和低FAR下的召回率。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": [
+        23
+      ]
+    },
+    "finished_at": 1792537142.3218274
+  }
+]

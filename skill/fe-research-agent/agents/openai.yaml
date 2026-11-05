@@ -1,0 +1,4 @@
+interface:
+  display_name: "统一自动科研 Agent"
+  short_description: "串联数据处理、文献假设、算法进化、参数优化、效果可视化与证据归档"
+  default_prompt: "使用 $fe-research-agent，围绕我的科研问题完成数据理解与处理、文献假设、实验设计、岛屿进化和参数优化，在约定预算内验证目标，交付可追溯的图表、报告与方法 Skill。"

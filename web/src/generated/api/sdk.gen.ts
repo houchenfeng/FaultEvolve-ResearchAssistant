@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AppendRoundsApiRunsRunIdRoundsPostData, AppendRoundsApiRunsRunIdRoundsPostErrors, AppendRoundsApiRunsRunIdRoundsPostResponses, CancelRunApiRunsRunIdCancelPostData, CancelRunApiRunsRunIdCancelPostErrors, CancelRunApiRunsRunIdCancelPostResponses, CheckPathApiServersProfileIdCheckPathPostData, CheckPathApiServersProfileIdCheckPathPostErrors, CheckPathApiServersProfileIdCheckPathPostResponses, CreateRunApiRunsPostData, CreateRunApiRunsPostErrors, CreateRunApiRunsPostResponses, DeleteServerApiServersProfileIdDeleteData, DeleteServerApiServersProfileIdDeleteErrors, DeleteServerApiServersProfileIdDeleteResponses, DownloadArtifactApiRunsRunIdArtifactsArtifactIdGetData, DownloadArtifactApiRunsRunIdArtifactsArtifactIdGetErrors, DownloadArtifactApiRunsRunIdArtifactsArtifactIdGetResponses, GetDiscoveryApiRunsRunIdDiscoveryGetData, GetDiscoveryApiRunsRunIdDiscoveryGetErrors, GetDiscoveryApiRunsRunIdDiscoveryGetResponses, GetEventsApiRunsRunIdEventsGetData, GetEventsApiRunsRunIdEventsGetErrors, GetEventsApiRunsRunIdEventsGetResponses, GetInsightsApiRunsRunIdInsightsGetData, GetInsightsApiRunsRunIdInsightsGetErrors, GetInsightsApiRunsRunIdInsightsGetResponses, GetKnowledgeCardsApiRunsRunIdKnowledgeCardsGetData, GetKnowledgeCardsApiRunsRunIdKnowledgeCardsGetErrors, GetKnowledgeCardsApiRunsRunIdKnowledgeCardsGetResponses, GetLeaderboardApiRunsRunIdLeaderboardGetData, GetLeaderboardApiRunsRunIdLeaderboardGetErrors, GetLeaderboardApiRunsRunIdLeaderboardGetResponses, GetNodeApiRunsRunIdNodesNodeIdGetData, GetNodeApiRunsRunIdNodesNodeIdGetErrors, GetNodeApiRunsRunIdNodesNodeIdGetResponses, GetPresetApiPresetsNameGetData, GetPresetApiPresetsNameGetErrors, GetPresetApiPresetsNameGetResponses, GetReportManifestApiRunsRunIdReportsManifestGetData, GetReportManifestApiRunsRunIdReportsManifestGetErrors, GetReportManifestApiRunsRunIdReportsManifestGetResponses, GetRunApiRunsRunIdGetData, GetRunApiRunsRunIdGetErrors, GetRunApiRunsRunIdGetResponses, GetRunLiveApiRunsRunIdLiveGetData, GetRunLiveApiRunsRunIdLiveGetErrors, GetRunLiveApiRunsRunIdLiveGetResponses, GetScoresApiRunsRunIdScoresGetData, GetScoresApiRunsRunIdScoresGetErrors, GetScoresApiRunsRunIdScoresGetResponses, GetServerApiServersProfileIdGetData, GetServerApiServersProfileIdGetErrors, GetServerApiServersProfileIdGetResponses, GetTaskApiTasksTaskIdGetData, GetTaskApiTasksTaskIdGetErrors, GetTaskApiTasksTaskIdGetResponses, GetTaskCardApiTasksTaskIdCardGetData, GetTaskCardApiTasksTaskIdCardGetErrors, GetTaskCardApiTasksTaskIdCardGetResponses, GetTaskReadinessApiTasksTaskIdReadinessGetData, GetTaskReadinessApiTasksTaskIdReadinessGetErrors, GetTaskReadinessApiTasksTaskIdReadinessGetResponses, GetTreeApiRunsRunIdTreeGetData, GetTreeApiRunsRunIdTreeGetErrors, GetTreeApiRunsRunIdTreeGetResponses, HealthApiHealthGetData, HealthApiHealthGetResponses, ListArtifactsApiRunsRunIdArtifactsGetData, ListArtifactsApiRunsRunIdArtifactsGetErrors, ListArtifactsApiRunsRunIdArtifactsGetResponses, ListPresetsApiPresetsGetData, ListPresetsApiPresetsGetResponses, ListRunsApiRunsGetData, ListRunsApiRunsGetResponses, ListServersApiServersGetData, ListServersApiServersGetResponses, ListTasksApiTasksGetData, ListTasksApiTasksGetResponses, MergePresetApiPresetsNameMergePostData, MergePresetApiPresetsNameMergePostErrors, MergePresetApiPresetsNameMergePostResponses, MetaApiMetaGetData, MetaApiMetaGetResponses, PauseRunApiRunsRunIdPausePostData, PauseRunApiRunsRunIdPausePostErrors, PauseRunApiRunsRunIdPausePostResponses, ProbeServerApiServersProfileIdProbePostData, ProbeServerApiServersProfileIdProbePostErrors, ProbeServerApiServersProfileIdProbePostResponses, ResumeRunApiRunsRunIdResumePostData, ResumeRunApiRunsRunIdResumePostErrors, ResumeRunApiRunsRunIdResumePostResponses, StreamEventsApiRunsRunIdStreamGetData, StreamEventsApiRunsRunIdStreamGetErrors, StreamEventsApiRunsRunIdStreamGetResponses, UpsertServerApiServersPostData, UpsertServerApiServersPostErrors, UpsertServerApiServersPostResponses } from './types.gen';
+import type { AppendRoundsApiRunsRunIdRoundsPostData, AppendRoundsApiRunsRunIdRoundsPostErrors, AppendRoundsApiRunsRunIdRoundsPostResponses, CancelRunApiRunsRunIdCancelPostData, CancelRunApiRunsRunIdCancelPostErrors, CancelRunApiRunsRunIdCancelPostResponses, CheckPathApiServersProfileIdCheckPathPostData, CheckPathApiServersProfileIdCheckPathPostErrors, CheckPathApiServersProfileIdCheckPathPostResponses, CreateRunApiRunsPostData, CreateRunApiRunsPostErrors, CreateRunApiRunsPostResponses, DeleteServerApiServersProfileIdDeleteData, DeleteServerApiServersProfileIdDeleteErrors, DeleteServerApiServersProfileIdDeleteResponses, DownloadArtifactApiRunsRunIdArtifactsArtifactIdGetData, DownloadArtifactApiRunsRunIdArtifactsArtifactIdGetErrors, DownloadArtifactApiRunsRunIdArtifactsArtifactIdGetResponses, GetDiscoveryApiRunsRunIdDiscoveryGetData, GetDiscoveryApiRunsRunIdDiscoveryGetErrors, GetDiscoveryApiRunsRunIdDiscoveryGetResponses, GetEventsApiRunsRunIdEventsGetData, GetEventsApiRunsRunIdEventsGetErrors, GetEventsApiRunsRunIdEventsGetResponses, GetInsightsApiRunsRunIdInsightsGetData, GetInsightsApiRunsRunIdInsightsGetErrors, GetInsightsApiRunsRunIdInsightsGetResponses, GetKnowledgeCardsApiRunsRunIdKnowledgeCardsGetData, GetKnowledgeCardsApiRunsRunIdKnowledgeCardsGetErrors, GetKnowledgeCardsApiRunsRunIdKnowledgeCardsGetResponses, GetLeaderboardApiRunsRunIdLeaderboardGetData, GetLeaderboardApiRunsRunIdLeaderboardGetErrors, GetLeaderboardApiRunsRunIdLeaderboardGetResponses, GetNodeApiRunsRunIdNodesNodeIdGetData, GetNodeApiRunsRunIdNodesNodeIdGetErrors, GetNodeApiRunsRunIdNodesNodeIdGetResponses, GetPresetApiPresetsNameGetData, GetPresetApiPresetsNameGetErrors, GetPresetApiPresetsNameGetResponses, GetQwenConfigApiQwenConfigGetData, GetQwenConfigApiQwenConfigGetResponses, GetReportManifestApiRunsRunIdReportsManifestGetData, GetReportManifestApiRunsRunIdReportsManifestGetErrors, GetReportManifestApiRunsRunIdReportsManifestGetResponses, GetRunApiRunsRunIdGetData, GetRunApiRunsRunIdGetErrors, GetRunApiRunsRunIdGetResponses, GetRunLiveApiRunsRunIdLiveGetData, GetRunLiveApiRunsRunIdLiveGetErrors, GetRunLiveApiRunsRunIdLiveGetResponses, GetRunProvenanceApiRunsProvenanceGetData, GetRunProvenanceApiRunsProvenanceGetResponses, GetScoresApiRunsRunIdScoresGetData, GetScoresApiRunsRunIdScoresGetErrors, GetScoresApiRunsRunIdScoresGetResponses, GetServerApiServersProfileIdGetData, GetServerApiServersProfileIdGetErrors, GetServerApiServersProfileIdGetResponses, GetSummariesApiRunsRunIdSummariesGetData, GetSummariesApiRunsRunIdSummariesGetErrors, GetSummariesApiRunsRunIdSummariesGetResponses, GetSummaryApiRunsRunIdSummariesSummaryIdGetData, GetSummaryApiRunsRunIdSummariesSummaryIdGetErrors, GetSummaryApiRunsRunIdSummariesSummaryIdGetResponses, GetTaskApiTasksTaskIdGetData, GetTaskApiTasksTaskIdGetErrors, GetTaskApiTasksTaskIdGetResponses, GetTaskCardApiTasksTaskIdCardGetData, GetTaskCardApiTasksTaskIdCardGetErrors, GetTaskCardApiTasksTaskIdCardGetResponses, GetTaskReadinessApiTasksTaskIdReadinessGetData, GetTaskReadinessApiTasksTaskIdReadinessGetErrors, GetTaskReadinessApiTasksTaskIdReadinessGetResponses, GetTreeApiRunsRunIdTreeGetData, GetTreeApiRunsRunIdTreeGetErrors, GetTreeApiRunsRunIdTreeGetResponses, GetWorkflowApiRunsRunIdWorkflowGetData, GetWorkflowApiRunsRunIdWorkflowGetErrors, GetWorkflowApiRunsRunIdWorkflowGetResponses, HealthApiHealthGetData, HealthApiHealthGetResponses, ListArtifactsApiRunsRunIdArtifactsGetData, ListArtifactsApiRunsRunIdArtifactsGetErrors, ListArtifactsApiRunsRunIdArtifactsGetResponses, ListPresetsApiPresetsGetData, ListPresetsApiPresetsGetResponses, ListRunsApiRunsGetData, ListRunsApiRunsGetResponses, ListServersApiServersGetData, ListServersApiServersGetResponses, ListTasksApiTasksGetData, ListTasksApiTasksGetResponses, MergePresetApiPresetsNameMergePostData, MergePresetApiPresetsNameMergePostErrors, MergePresetApiPresetsNameMergePostResponses, MetaApiMetaGetData, MetaApiMetaGetResponses, PauseRunApiRunsRunIdPausePostData, PauseRunApiRunsRunIdPausePostErrors, PauseRunApiRunsRunIdPausePostResponses, ProbeServerApiServersProfileIdProbePostData, ProbeServerApiServersProfileIdProbePostErrors, ProbeServerApiServersProfileIdProbePostResponses, ResumeRunApiRunsRunIdResumePostData, ResumeRunApiRunsRunIdResumePostErrors, ResumeRunApiRunsRunIdResumePostResponses, StreamEventsApiRunsRunIdStreamGetData, StreamEventsApiRunsRunIdStreamGetErrors, StreamEventsApiRunsRunIdStreamGetResponses, UpdateQwenConfigApiQwenConfigPostData, UpdateQwenConfigApiQwenConfigPostErrors, UpdateQwenConfigApiQwenConfigPostResponses, UpsertServerApiServersPostData, UpsertServerApiServersPostErrors, UpsertServerApiServersPostResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -64,9 +64,26 @@ export const mergePresetApiPresetsNameMergePost = <ThrowOnError extends boolean 
 });
 
 /**
+ * Get Qwen Config
+ */
+export const getQwenConfigApiQwenConfigGet = <ThrowOnError extends boolean = false>(options?: Options<GetQwenConfigApiQwenConfigGetData, ThrowOnError>): RequestResult<GetQwenConfigApiQwenConfigGetResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetQwenConfigApiQwenConfigGetResponses, unknown, ThrowOnError>({ url: '/api/qwen/config', ...options });
+
+/**
+ * Update Qwen Config
+ */
+export const updateQwenConfigApiQwenConfigPost = <ThrowOnError extends boolean = false>(options: Options<UpdateQwenConfigApiQwenConfigPostData, ThrowOnError>): RequestResult<UpdateQwenConfigApiQwenConfigPostResponses, UpdateQwenConfigApiQwenConfigPostErrors, ThrowOnError> => (options.client ?? client).post<UpdateQwenConfigApiQwenConfigPostResponses, UpdateQwenConfigApiQwenConfigPostErrors, ThrowOnError>({
+    url: '/api/qwen/config',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * 列出可回放的运行
  *
- * Every run directory one level below the configured roots.
+ * Every run the bounded discovery scan found, fixtures excluded.
  *
  * An unreadable run still appears, marked ``unreadable``: hiding it would
  * make a broken run look like a run that never existed.
@@ -90,6 +107,17 @@ export const createRunApiRunsPost = <ThrowOnError extends boolean = false>(optio
         ...options.headers
     }
 });
+
+/**
+ * 列出运行的来源清单
+ *
+ * What the scan looked at, what it found, and how each run was judged.
+ *
+ * TODO D6.2: real / fixture / unverified come from evidence, and the counts
+ * reconcile, so an operator can see a run was skipped rather than trusting
+ * a listing that quietly left it out.
+ */
+export const getRunProvenanceApiRunsProvenanceGet = <ThrowOnError extends boolean = false>(options?: Options<GetRunProvenanceApiRunsProvenanceGetData, ThrowOnError>): RequestResult<GetRunProvenanceApiRunsProvenanceGetResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetRunProvenanceApiRunsProvenanceGetResponses, unknown, ThrowOnError>({ url: '/api/runs/provenance', ...options });
 
 /**
  * 读取单个运行的详情
@@ -244,6 +272,23 @@ export const getScoresApiRunsRunIdScoresGet = <ThrowOnError extends boolean = fa
 export const streamEventsApiRunsRunIdStreamGet = <ThrowOnError extends boolean = false>(options: Options<StreamEventsApiRunsRunIdStreamGetData, ThrowOnError>): RequestResult<StreamEventsApiRunsRunIdStreamGetResponses, StreamEventsApiRunsRunIdStreamGetErrors, ThrowOnError> => (options.client ?? client).get<StreamEventsApiRunsRunIdStreamGetResponses, StreamEventsApiRunsRunIdStreamGetErrors, ThrowOnError>({ url: '/api/runs/{run_id}/stream', ...options });
 
 /**
+ * 本运行的跨岛摘要
+ *
+ * Every published summary with its deliveries and applications.
+ *
+ * A run without an exchange layer answers ``missing`` with a reason instead
+ * of an empty list that would look like "three islands, nothing exchanged".
+ */
+export const getSummariesApiRunsRunIdSummariesGet = <ThrowOnError extends boolean = false>(options: Options<GetSummariesApiRunsRunIdSummariesGetData, ThrowOnError>): RequestResult<GetSummariesApiRunsRunIdSummariesGetResponses, GetSummariesApiRunsRunIdSummariesGetErrors, ThrowOnError> => (options.client ?? client).get<GetSummariesApiRunsRunIdSummariesGetResponses, GetSummariesApiRunsRunIdSummariesGetErrors, ThrowOnError>({ url: '/api/runs/{run_id}/summaries', ...options });
+
+/**
+ * 单条摘要的投递与采用记录
+ *
+ * One summary. An unknown id is a structured ``missing``, not a 500.
+ */
+export const getSummaryApiRunsRunIdSummariesSummaryIdGet = <ThrowOnError extends boolean = false>(options: Options<GetSummaryApiRunsRunIdSummariesSummaryIdGetData, ThrowOnError>): RequestResult<GetSummaryApiRunsRunIdSummariesSummaryIdGetResponses, GetSummaryApiRunsRunIdSummariesSummaryIdGetErrors, ThrowOnError> => (options.client ?? client).get<GetSummaryApiRunsRunIdSummariesSummaryIdGetResponses, GetSummaryApiRunsRunIdSummariesSummaryIdGetErrors, ThrowOnError>({ url: '/api/runs/{run_id}/summaries/{summary_id}', ...options });
+
+/**
  * 整棵进化树
  *
  * Nodes, edges and the best path.
@@ -253,6 +298,11 @@ export const streamEventsApiRunsRunIdStreamGet = <ThrowOnError extends boolean =
  * two disagree, and the disagreement is reported.
  */
 export const getTreeApiRunsRunIdTreeGet = <ThrowOnError extends boolean = false>(options: Options<GetTreeApiRunsRunIdTreeGetData, ThrowOnError>): RequestResult<GetTreeApiRunsRunIdTreeGetResponses, GetTreeApiRunsRunIdTreeGetErrors, ThrowOnError> => (options.client ?? client).get<GetTreeApiRunsRunIdTreeGetResponses, GetTreeApiRunsRunIdTreeGetErrors, ThrowOnError>({ url: '/api/runs/{run_id}/tree', ...options });
+
+/**
+ * 读取数据处理复检与分层搜索记录
+ */
+export const getWorkflowApiRunsRunIdWorkflowGet = <ThrowOnError extends boolean = false>(options: Options<GetWorkflowApiRunsRunIdWorkflowGetData, ThrowOnError>): RequestResult<GetWorkflowApiRunsRunIdWorkflowGetResponses, GetWorkflowApiRunsRunIdWorkflowGetErrors, ThrowOnError> => (options.client ?? client).get<GetWorkflowApiRunsRunIdWorkflowGetResponses, GetWorkflowApiRunsRunIdWorkflowGetErrors, ThrowOnError>({ url: '/api/runs/{run_id}/workflow', ...options });
 
 /**
  * 列出服务器配置

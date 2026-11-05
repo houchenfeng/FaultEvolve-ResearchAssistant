@@ -1,0 +1,160 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792533906.094812,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 178,
+      "prompt_tokens": 10222,
+      "total_tokens": 10400
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 2
+      },
+      "hypothesis": "增加TCN的宽度至256并加深至2层，旨在扩大感受野以捕捉更复杂的SMART属性时序模式。根据HDD-CAPACITY-01，较宽网络在多数指标上优于窄网络；结合DL-SEQ-01关于卷积序列模型有效性的证据，此配置试图通过增强特征提取能力来提升低误报率下的召回率（low-FAR recall）及整体预测性能，同时保持计算效率在可接受范围内。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792533911.1895554
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792534059.6315207,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 134,
+      "prompt_tokens": 11967,
+      "total_tokens": 12101
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "lr": 0.001
+      },
+      "hypothesis": "增加网络宽度至256能提升特征提取容量，配合较高学习率(0.001)加速收敛并优化决策边界，旨在提高AUPRC和精确度以改善低误报率下的召回表现。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-EFFICIENCY-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792534064.2815905
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792534213.474674,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 171,
+      "prompt_tokens": 11967,
+      "total_tokens": 12138
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.25
+      },
+      "hypothesis": "增加网络宽度至256以捕捉更复杂的SMART趋势特征，同时降低树模型混合权重至0.25以减少对线性特征的依赖并提升神经网络的决策主导权。根据HDD-CAPACITY-01和HDD-HYBRID-01的证据，这种组合有望在保持低误报率的同时提高AUPRC和整体F1分数，尽管可能需要权衡召回率。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792534216.3874764
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792534374.431883,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 178,
+      "prompt_tokens": 11525,
+      "total_tokens": 11703
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 2
+      },
+      "hypothesis": "增加TCN宽度至256并加深至2层，旨在提升模型对SMART趋势特征的表征容量。根据HDD-CAPACITY-01证据，宽度256在保持FAR低位的同时显著提升了AUPRC和Precision；结合更深的网络结构（Depth=2），预期能更好地捕捉时序依赖中的细微退化模式，从而在不牺牲精度的前提下提高低误报率下的召回率（Low-FAR Recall），弥补当前配置中Recall不足的问题。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01"
+      ],
+      "evidence_trials": [
+        1
+      ]
+    },
+    "finished_at": 1792534378.0293045
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792534514.4979663,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 201,
+      "prompt_tokens": 11923,
+      "total_tokens": 12124
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "depth": 2,
+        "lr": 0.001
+      },
+      "hypothesis": "增加TCN的宽度(128->256)和深度(1->2)以捕获更复杂的SMART趋势模式，同时提高学习率(0.0003->0.001)以加速收敛并可能帮助跳出局部最优。根据HDD-CAPACITY-01，宽度256在多项指标上优于128；结合深度增加和更高LR，旨在提升低误报率下的召回率及整体AUPRC，同时通过调整超参数平衡训练稳定性。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792534517.9006739
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792534676.3958607,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 156,
+      "prompt_tokens": 11957,
+      "total_tokens": 12113
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.25
+      },
+      "hypothesis": "增加网络宽度至256并降低树模型混合比例至0.25，旨在通过提升神经网络容量来增强对SMART趋势特征的深层模式捕捉能力（依据HDD-CAPACITY-01显示宽度增加可提升AUPRC和F1），同时减少树模型的干扰以优化低误报率下的召回表现。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792534679.4995959
+  }
+]

@@ -98,7 +98,7 @@ export const useIntakeStore = create<IntakeState>((set) => ({
   setServerProfile: (serverProfileId) => set({ serverProfileId }),
   setPreset: (name) => set({ preset: name, patch: {}, presetPreview: 'idle' }),
   applyPatch: (fragment) =>
-    set((state) => ({ patch: deepMerge(state.patch, fragment) })),
+    set((state) => ({ patch: deepMerge(state.patch, fragment), presetPreview: 'idle' })),
   resetToPreset: () => set({ patch: {}, presetPreview: 'idle' }),
   setKnowledgeMode: (knowledgeMode) => set({ knowledgeMode }),
   setNotes: (notes) => set({ notes }),

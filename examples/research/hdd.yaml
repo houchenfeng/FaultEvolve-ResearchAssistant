@@ -1,0 +1,34 @@
+task:
+  adapter: hdd
+workflow:
+  enabled: true
+  data:
+    enabled: false
+  reports:
+    enabled: true
+  hierarchical:
+    enabled: true
+    mode: per_structure
+    max_trials: 24
+    max_wall_seconds: 43200
+research:
+  domain: hdd
+  dataset_id: hdd-mvp-q3-q4-v1
+  evidence_level: real
+  evaluation_split: val
+  targets:
+    - {metric: combined_score, op: ">=", value: 35}
+    - {metric: metric.recall, op: ">=", value: 0.45}
+    - {metric: metric.false_alarm_rate, op: "<=", value: 0.002}
+    - {metric: cost_time, op: "<=", value: 60}
+budget:
+  max_iterations: 15
+  max_tokens: 1000000
+  max_wall_hours: 3
+  min_iterations_before_stop: 0
+llm:
+  max_tokens: 8192
+  timeout_s: 180
+  stream: true
+stop:
+  stop_at_target: false

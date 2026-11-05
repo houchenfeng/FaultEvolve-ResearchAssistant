@@ -7,7 +7,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class NodeStatus(str, Enum):
@@ -38,6 +38,7 @@ class OperatorType(str, Enum):
     INJECT = "inject"
     TRANSPLANT = "transplant"
     CROSSOVER = "crossover"
+    SUMMARY_CROSS = "summary_cross"
     REPAIR = "repair"
     HPO = "hpo"
     PATCH = "patch"
@@ -49,6 +50,7 @@ GENERATIVE_OPERATORS = (
     OperatorType.THRESHOLD_CALIBRATE,
     OperatorType.INJECT,
     OperatorType.CROSSOVER,
+    OperatorType.SUMMARY_CROSS,
 )
 
 
@@ -82,6 +84,9 @@ class Insight(BaseModel):
     id: str
     origin_node: str
     branch_id: str
+    #: Island the insight belongs to. Insights never cross islands; only
+    #: exchange summaries may. Empty means a pre-island (legacy) row.
+    island_id: str = ""
     polarity: int = Field(ge=-1, le=1)
     change_summary: str
     mechanism: str = ""
@@ -108,6 +113,7 @@ class Node(BaseModel):
     """A node in the evolution tree."""
     id: str
     experiment_id: str
+    island_id: str = ""
     parent_id: str | None = None
     branch_id: str
     depth: int = 0
@@ -159,9 +165,19 @@ class Node(BaseModel):
 
 
 class LLMCall(BaseModel):
-    """Record of an LLM call."""
+    """Record of an LLM call.
+
+    One row is one request the run either got an answer to or lost. The identity
+    fields exist so a cost can be attributed after the fact: ``island_id`` plus
+    ``island_attempt`` say which tree's progress paid for it, ``request_id`` plus
+    ``transport_attempts`` say how many sends one logical request needed, and
+    ``outcome`` distinguishes "answered" from "sent and never answered", which is
+    a spend the run must not drop. ``cost_usd`` stays null unless something with a
+    bill or a rate filled ``cost_basis``; nothing here estimates money from tokens.
+    """
     id: str
     experiment_id: str
+    island_id: str = ""
     node_id: str | None = None
     purpose: str
     model: str
@@ -170,6 +186,14 @@ class LLMCall(BaseModel):
     latency_ms: int = 0
     cached: bool = False
     created_at: str = ""
+    request_id: str = ""
+    transport_attempts: int = 1
+    island_attempt: int | None = None
+    #: Cost stage, named the same way the ledger names it.
+    stage: str = ""
+    outcome: str = "ok"
+    cost_usd: float | None = None
+    cost_basis: str = "unknown"
 
 
 class Event(BaseModel):
@@ -182,10 +206,13 @@ class Event(BaseModel):
 
 
 class ExperimentConfig(BaseModel):
-    """Configuration for an evolution experiment."""
+    """Configuration for an evolution experiment.
+
+    ``max_tokens`` / ``max_wall_hours`` may be null, meaning "no cost limit".
+    """
     max_iterations: int = 50
-    max_tokens: int = 3_000_000
-    max_wall_hours: float = 6.0
+    max_tokens: int | None = 3_000_000
+    max_wall_hours: float | None = 6.0
     target_score: float | None = None
     c_puct: float = 1.2
     kappa_noise: float = 1.0
@@ -344,3 +371,113 @@ class TreeExport(BaseModel):
     experiment_id: str
     nodes: list[dict[str, Any]]
     edges: list[dict[str, str]]
+
+
+class IslandStatus(str, Enum):
+    """Lifecycle of one island (one independent search tree).
+
+    Distinct from a *run* status: ``PAUSED`` means this island stopped taking
+    attempts while the parent run keeps going on its other islands.
+    """
+    PENDING = "pending"
+    RUNNING = "running"
+    PAUSED = "paused"
+    FINISHED = "finished"
+
+
+SUMMARY_TEXT_MAX_CHARS = 1200
+
+ISLAND_STATUSES = tuple(m.value for m in IslandStatus)
+EXCHANGE_KINDS = ("best", "failure", "knowledge")
+DELIVERY_STATUSES = ("offered", "accepted", "rejected")
+CONFIDENCE_LEVELS = ("proposal", "single_observation", "replicated", "statistically_confirmed")
+
+
+class IslandState(BaseModel):
+    """Persisted state of one island (one independent search tree)."""
+    experiment_id: str
+    island_id: str
+    profile: str = "performance"
+    root_id: str | None = None
+    best_node_id: str | None = None
+    best_score: float = 0.0
+    attempts: int = 0
+    valid_evaluations: int = 0
+    invalid_evaluations: int = 0
+    status: IslandStatus = Field(default=IslandStatus.PENDING)
+    stop_reason: str = ""
+    last_exchange_attempt: int = 0
+    stall_valid_evals: int = 0
+    infra_fail_streak: int = 0
+    #: Iterations that produced nothing (selection refused, generation lost).
+    #: Ends an island that can no longer expand instead of burning turns.
+    consecutive_failures: int = 0
+    #: Set when all island roots share one real initialization evaluation.
+    shared_initial_evaluation_id: str | None = None
+    created_at: str = ""
+    updated_at: str = ""
+
+
+class ExchangeSummary(BaseModel):
+    """A strategy summary exchanged between islands.
+
+    Summaries carry method descriptions and conclusions only - never candidate
+    source code, model weights, raw data or prediction dumps. ``metrics`` is
+    filled by the program from real evaluation results; LLM output cannot set
+    or overwrite these numbers.
+    """
+    summary_id: str
+    experiment_id: str
+    kind: str = Field(pattern="^(" + "|".join(EXCHANGE_KINDS) + ")$")
+    source_island_id: str
+    source_node_id: str = ""
+    task_fingerprint: str = ""
+    evaluator_fingerprint: str = ""
+    summary_text: str = ""
+    conditions: str = ""
+    evidence_refs: list[str] = Field(default_factory=list)
+    metrics: dict[str, Any] = Field(default_factory=dict)
+    confidence_status: str = Field(default="single_observation", pattern="^(" + "|".join(CONFIDENCE_LEVELS) + ")$")
+    content_hash: str = ""
+    created_at: str = ""
+
+    @model_validator(mode="after")
+    def _check_text_bound(self) -> "ExchangeSummary":
+        if len(self.summary_text) > SUMMARY_TEXT_MAX_CHARS:
+            raise ValueError(
+                f"summary_text exceeds {SUMMARY_TEXT_MAX_CHARS} chars; re-distill instead of truncating"
+            )
+        return self
+
+
+class ExchangeDelivery(BaseModel):
+    """One delivery of a summary to one target island (deduplicated)."""
+    delivery_id: str
+    experiment_id: str
+    summary_id: str
+    source_island_id: str
+    target_island_id: str
+    status: str = Field(default="offered", pattern="^(" + "|".join(DELIVERY_STATUSES) + ")$")
+    reason: str = ""
+    created_at: str = ""
+    updated_at: str = ""
+
+
+class SummaryApplication(BaseModel):
+    """Record that a delivered summary was actually used by a new candidate."""
+    application_id: str
+    delivery_id: str
+    experiment_id: str
+    candidate_node_id: str
+    evaluation_id: str = ""
+    score: float | None = None
+    created_at: str = ""
+
+
+class SchedulerState(BaseModel):
+    """Coordinator rotation and cursor state, persisted for recovery."""
+    experiment_id: str
+    next_island_index: int = 0
+    rng_state_json: str = ""
+    schema_version: int = 2
+    updated_at: str = ""

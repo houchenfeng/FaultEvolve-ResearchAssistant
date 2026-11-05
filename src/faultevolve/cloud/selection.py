@@ -521,6 +521,8 @@ def get_era_knowledge_cards(
             - experiment_id: Experiment ID (optional)
             - k: Number of cards to return (default 4)
             - max_per_category: Max cards per category (default 2)
+            - profile_keywords: keywords from the parent's error profile
+            - island_keywords: keywords the active island's profile configures
 
     Returns:
         List of knowledge card dictionaries with keys:
@@ -615,6 +617,7 @@ def get_era_knowledge_cards(
         ancestor_adopted_cards=ancestor_adopted,
         keywords=keywords,
         profile_keywords=context.get("profile_keywords"),
+        island_keywords=context.get("island_keywords"),
         recently_offered_cards=recently_offered,
         failed_card_sets=failed_card_sets,
     )

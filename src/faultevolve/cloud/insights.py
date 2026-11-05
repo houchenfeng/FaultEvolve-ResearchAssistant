@@ -464,7 +464,9 @@ class BranchMemoryManager:
             if insight.id not in current_ids:
                 current_ids.append(insight.id)
 
-            insights = self.store.get_insights_by_experiment(experiment_id)
+            insights = self.store.get_insights_by_experiment(
+                experiment_id, island_id=self.tree.island_id
+            )
             insight_map = {i.id: i for i in insights}
 
             valid_ids = [iid for iid in current_ids if iid in insight_map]
@@ -494,7 +496,9 @@ class BranchMemoryManager:
         if not insight_ids:
             return []
 
-        all_insights = self.store.get_insights_by_experiment(experiment_id)
+        all_insights = self.store.get_insights_by_experiment(
+            experiment_id, island_id=self.tree.island_id
+        )
         insight_map = {i.id: i for i in all_insights}
 
         return [insight_map[iid] for iid in insight_ids if iid in insight_map]
@@ -524,7 +528,11 @@ def get_foreign_insights(
     Returns:
         Tuple of (positive_insights, negative_insights)
     """
-    all_insights = store.get_insights_by_experiment(experiment_id)
+    # Insights are island memory: only exchange summaries may cross islands,
+    # so an island must never see another island's insights here.
+    all_insights = store.get_insights_by_experiment(
+        experiment_id, island_id=node.island_id
+    )
 
     ancestor_ids = set()
     current = node

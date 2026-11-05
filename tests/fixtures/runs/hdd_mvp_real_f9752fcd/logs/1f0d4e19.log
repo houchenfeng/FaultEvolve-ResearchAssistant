@@ -1,0 +1,3 @@
+smoke_failed: ... [truncated]
+el_rate_map).values
+<path>:270: PerformanceWarning: DataFrame is highly fragmented. 

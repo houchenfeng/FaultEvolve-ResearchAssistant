@@ -1,0 +1,56 @@
+schema: faultevolve.research-project/v1
+project_id: null
+question: null
+repo_root: null
+task_dir: null
+data:
+  dataset_id: null
+  domain: null
+  evidence_level: unspecified
+  allowed_inputs: []
+  forbidden_inputs: []
+  evaluation_split: null
+  fingerprint_manifest: null
+  quality_report: null
+  quality_status: null
+  processing_plan: null
+  processing_log: null
+  derived_data_dir: null
+  leakage_checks: []
+goals:
+  targets: []
+  required_deliverables:
+    - 数据质量、处理记录与检查范围
+    - 文献证据与可检验假设
+    - 方法结构、可信评估和基线
+    - 岛屿配置及分配理由
+    - 代码进化与超参数实验记录
+    - 目标验收与方法规范
+    - 效果图表及可追溯证据索引
+  validation_plan: null
+budget:
+  max_evolution_attempts_total: null
+  max_hpo_trials_total: null
+  max_full_evaluations_total: null
+  max_tokens_total: null
+  max_wall_hours_total: null
+  max_replans: null
+  retry_limit: null
+  stage_allocation: {}
+  authorization_basis: null
+execution:
+  mode: null
+  python: .venv/bin/python
+  local_runs_dir: .fe/research
+  hpo_mode: null
+  resources: {}
+  config_path: null
+  protected_artifacts: []
+outputs:
+  local_delivery_dir: null
+  archive_root: null
+  archive_source_code: false
+  archive_private_data: false
+  archive_active_database: false
+  evidence_index: null
+  include: [data_quality, processing_logs, literature, design, configs, decisions, steps, metrics, plots, reports, lessons, skill]

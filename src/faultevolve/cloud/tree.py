@@ -30,14 +30,23 @@ class Tree:
     - Visit counts
     """
 
-    def __init__(self, experiment_id: str, store: Store) -> None:
+    def __init__(self, experiment_id: str, store: Store, island_id: str = "") -> None:
         """Initialize tree.
 
         Args:
             experiment_id: ID of the experiment
             store: Database store for persistence
+            island_id: Island this view is scoped to. Empty is the implicit
+                single island of a legacy (pre-island) run. Every read, write
+                and score propagation below stays inside this island. There is
+                deliberately **no** cross-island query on this class: the whole
+                run's best comes from ``EvolutionEngine._best_across_islands``,
+                and the unscoped node list only from
+                ``Store.get_nodes_by_experiment(experiment_id)`` for reporting
+                and the coordinator. A selector must never see either.
         """
         self.experiment_id = experiment_id
+        self.island_id = island_id
         self.store = store
         self.nodes: dict[str, Node] = {}
         self.root_id: str | None = None
@@ -51,12 +60,31 @@ class Tree:
         self.on_node_added: Callable[[Node], None] | None = None
 
     def load_from_store(self) -> None:
-        """Load all nodes from the store."""
-        nodes = self.store.get_nodes_by_experiment(self.experiment_id)
+        """Load this island's nodes from the store, replacing any prior cache."""
+        self.nodes.clear()
+        self.subtree_best.clear()
+        self.root_id = None
+
+        roots: list[str] = []
+        nodes = self.store.get_nodes_by_experiment(
+            self.experiment_id, island_id=self.island_id
+        )
         for node in nodes:
+            if node.island_id != self.island_id:
+                raise ValueError(
+                    f"node {node.id} belongs to island {node.island_id!r}, "
+                    f"not {self.island_id!r}"
+                )
             self.nodes[node.id] = node
             if node.parent_id is None:
-                self.root_id = node.id
+                roots.append(node.id)
+
+        if len(roots) > 1:
+            raise ValueError(
+                f"island {self.island_id!r} has {len(roots)} roots ({roots}); "
+                "an island owns exactly one root"
+            )
+        self.root_id = roots[0] if roots else None
 
         self._rebuild_subtree_best()
 
@@ -145,11 +173,34 @@ class Tree:
 
         Also updates the parent's children list and subtree best scores.
         """
+        if node.island_id != self.island_id:
+            raise ValueError(
+                f"cannot add node {node.id} of island {node.island_id!r} "
+                f"to island {self.island_id!r}"
+            )
+
+        if node.parent_id is not None:
+            parent = self.nodes.get(node.parent_id)
+            if parent is None:
+                raise ValueError(
+                    f"node {node.id} references unknown parent {node.parent_id!r} "
+                    f"inside island {self.island_id!r}"
+                )
+            if parent.island_id != self.island_id:
+                raise ValueError(
+                    f"node {node.id}: parent {parent.id} belongs to island "
+                    f"{parent.island_id!r}, not {self.island_id!r}"
+                )
+
         self.nodes[node.id] = node
 
         if node.parent_id is None:
+            if self.root_id is not None and self.root_id != node.id:
+                raise ValueError(
+                    f"island {self.island_id!r} already has root {self.root_id!r}"
+                )
             self.root_id = node.id
-        elif node.parent_id in self.nodes:
+        else:
             parent = self.nodes[node.parent_id]
             if node.id not in parent.children:
                 parent.children.append(node.id)
@@ -345,8 +396,8 @@ class Tree:
             node.branch_memory.refuted_hypotheses.append(hypothesis)
             self.store.update_node(node_id, branch_memory_json=node.branch_memory.model_dump_json())
 
-    def get_global_best(self) -> tuple[str | None, float]:
-        """Get the best node ID and score across the entire tree."""
+    def get_island_best(self) -> tuple[str | None, float]:
+        """Best node id and score inside this island only."""
         best_id = None
         best_score = 0.0
 
@@ -359,7 +410,7 @@ class Tree:
         return best_id, best_score
 
     def get_frontier(self) -> list[Node]:
-        """Get all expandable nodes (frontier)."""
+        """All expandable nodes of this island."""
         return [n for n in self.nodes.values() if n.is_expandable()]
 
     def to_export(self) -> dict[str, Any]:
@@ -370,6 +421,7 @@ class Tree:
         for node_id, node in self.nodes.items():
             nodes.append({
                 "id": node_id,
+                "island_id": node.island_id,
                 "branch_id": node.branch_id,
                 "depth": node.depth,
                 "operator": node.operator.value,
@@ -393,13 +445,20 @@ class Tree:
         }
 
 
-def create_init_node(experiment_id: str, branch_id: str, code: str, intent: str = "") -> Node:
-    """Create the initial node for an experiment."""
+def create_init_node(
+    experiment_id: str,
+    branch_id: str,
+    code: str,
+    intent: str = "",
+    island_id: str = "",
+) -> Node:
+    """Create the initial node for one island of an experiment."""
     import uuid
 
     return Node(
         id=str(uuid.uuid4())[:8],
         experiment_id=experiment_id,
+        island_id=island_id,
         parent_id=None,
         branch_id=branch_id,
         depth=0,
@@ -423,6 +482,7 @@ def create_child_node(
     return Node(
         id=str(uuid.uuid4())[:8],
         experiment_id=parent.experiment_id,
+        island_id=parent.island_id,
         parent_id=parent.id,
         branch_id=parent.branch_id,
         depth=parent.depth + 1,
@@ -459,6 +519,7 @@ def create_repair_node(
     return Node(
         id=str(uuid.uuid4())[:8],
         experiment_id=failed_node.experiment_id,
+        island_id=failed_node.island_id,
         parent_id=failed_node.parent_id,
         branch_id=failed_node.branch_id,
         depth=failed_node.depth,

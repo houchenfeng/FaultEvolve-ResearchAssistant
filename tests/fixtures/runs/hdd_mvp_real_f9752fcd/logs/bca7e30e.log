@@ -1,0 +1,5 @@
+smoke_failed: ... [truncated]
+n pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'serial_number'
+
+The a

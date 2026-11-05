@@ -135,7 +135,7 @@
 
 /* -------------------------------------------------------- Fluent components */
 @layer components {
-  .fe-showcase-hero {
+  .fe-home-hero {
     animation: fe-hero-enter 550ms ease-out both;
   }
 
@@ -237,5 +237,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fe-showcase-hero { animation: none; }
+  .fe-home-hero { animation: none; }
 }

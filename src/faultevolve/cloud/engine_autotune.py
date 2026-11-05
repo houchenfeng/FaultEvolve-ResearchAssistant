@@ -23,7 +23,21 @@ if TYPE_CHECKING:
 def init_ledger(engine: "EvolutionEngine") -> None:
     cfg = engine.config.autotune.ledger
     if cfg.enabled:
-        engine._cost_ledger = CostLedger(full_eval_cap=cfg.full_eval_cap)
+        engine._cost_ledger = CostLedger(
+            full_eval_cap=cfg.full_eval_cap,
+            # Resume continues the stored sequence instead of restarting at 1:
+            # the ledger's key is (experiment_id, seq), so a fresh count would
+            # collide with the run's own history on the first record after a
+            # restart.
+            start_seq=engine.store.max_cost_seq(engine.experiment_id),
+        )
+        # And the stored rows come back with it: the cap gates real spend, so it
+        # counts what the run already did, not what this process happened to see.
+        # An in-memory-only view would hand a restarted run a second cap over the
+        # same work.
+        engine._cost_ledger.restore_rows(
+            engine.store.list_cost_records(engine.experiment_id)
+        )
     else:
         engine._cost_ledger = None
     engine._quota_counts: dict[str, int] = {"hpo": 0, "patch": 0, "draft": 0}
@@ -59,6 +73,9 @@ def ledger_record(
         stage=stage,
         fidelity=fidelity,
         node_id=node_id,
+        # The loop runs one island at a time, so the active island is the one that
+        # asked for this spend; "" is a shared or legacy single-tree call.
+        island_id=engine._active_island or "",
         prompt_tokens=prompt_tokens,
         completion_tokens=completion_tokens,
         model_fit_count=model_fit_count,

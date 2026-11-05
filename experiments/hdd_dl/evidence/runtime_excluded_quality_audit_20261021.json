@@ -1,0 +1,455 @@
+{
+  "scope": "archived_training_seed_stability_on_reused_validation",
+  "independent_generalization": false,
+  "excluded_from_gate": [
+    "run_time_s",
+    "combined_score"
+  ],
+  "quality_keys": [
+    "precision",
+    "recall",
+    "f1",
+    "f1_p10",
+    "auprc",
+    "recall_at_far",
+    "quality",
+    "false_alarm_rate",
+    "missed_detection_rate",
+    "f1_boot_std"
+  ],
+  "source_sha256": {
+    "verify_tail_risk_20261021": {
+      "manifest": "c0c3be8548aee8b853228c4aaef6d2d61ebdd8e5e99f03120b784e8920b89435",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "15a037bb35933b777cb87400f8e29800efb6fb209834bc0e4a73d7a2a3169a0a"
+    },
+    "verify_tail_refresh_20261021": {
+      "manifest": "6a07436e3c09e0ee801bf7217f020a605ca93f44c36c5b993215eb50f01afb4d",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "157832214e206ddc07ca51e99b23f18f4fe6ebef98ecd41693dc98b64e8de5da"
+    },
+    "verify_refreshed_vs_zero_20261021": {
+      "manifest": "85dd99d614f4e6f17b378859b90b0ffe460bee8f9cbf117211b118839b2bce8c",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "a7518be46b521a4b12c88a765de476647677bc59ba5f15d0f58c09f5e491a4e1"
+    },
+    "verify_shared_preprocessing_20261021": {
+      "manifest": "d72e87ca72479a51e98f879df2e043cb6b8ce7d42324106b538942eddc681655",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "ee090045f0100ad63b61dcc8043e180133bb1c47f5ec761543db03642aef2268"
+    },
+    "verify_shared_tree_20261021": {
+      "manifest": "f5da72f96b1040f9b400d43a81214fbef42bf49b294d03396b08c441cc61761d",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "7fa47b362c5007913b0dafdc22ccc7a6691fa923eceba7cab692bd2ee48aa24a"
+    },
+    "verify_combined_reuse_20261021": {
+      "manifest": "82653c113345c00134598b231fd01ebccd7437d1043dd03dc35c4ab034152878",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "b3ddc97a1638f42ed2ee3d50f4a7cece3f962f05d1054765c403bf19a3f96ffa"
+    },
+    "verify_fused_optimizer_20261021": {
+      "manifest": "10b72fc0f590a05949a23db306282d2afa98504dd3e731a1f76fd8a94d817947",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "7b8d81508a184899172221d041f291467063c03ca86cd2426edc0340d7bcb880"
+    },
+    "verify_reuse_replicas_20261021": {
+      "manifest": "bb724c8bac12aafeefaabd2c43aa261d86796fe604b41a00e6dc796853836199",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "a794e5949c1ddf253b000f52713d9b20181028fdc5aa4e57f4c0bc1b2fe4e657"
+    },
+    "verify_single_learning_rate_20261021": {
+      "manifest": "67ff47bba1edee0595cfeba456fc4e99d5eac52695bc2466f91864abc60d357b",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "8e45d661663a65c597014045ad61efd2824f277359ec9d0afe19575cd089dac9"
+    },
+    "verify_temporal_attention_20261021": {
+      "manifest": "be9230c8ffc6b492ce66416a6d77a9a59ee670782a3deb9b33805ef2fc3413cc",
+      "status": "81fd78edbc2fa59f8e6a8b52d91894ea53f99c871589dceeb0e4389effa19d60",
+      "records": "53218271e2399c76e5cd8e7cb39021ef36cb206757bea06f35854625fad48643"
+    }
+  },
+  "candidates": [
+    {
+      "campaign": "verify_tail_risk_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tail_risk_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f1_p10": 1,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 0,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_tail_risk_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tail_risk_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 3,
+        "quality": 1,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_tail_refresh_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tail_refresh_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 2,
+        "recall": 1,
+        "f1": 3,
+        "f1_p10": 3,
+        "auprc": 0,
+        "recall_at_far": 3,
+        "quality": 2,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_tail_refresh_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tail_refresh_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 2,
+        "recall": 1,
+        "f1": 1,
+        "f1_p10": 1,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 1,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_refreshed_vs_zero_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/refreshed_vs_zero_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 0,
+        "recall": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 1,
+        "false_alarm_rate": 0,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_refreshed_vs_zero_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/refreshed_vs_zero_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 2,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_shared_preprocessing_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/shared_preprocessing_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 2,
+        "f1": 2,
+        "f1_p10": 3,
+        "auprc": 0,
+        "recall_at_far": 3,
+        "quality": 1,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_shared_preprocessing_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/shared_preprocessing_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 0,
+        "recall": 3,
+        "f1": 3,
+        "f1_p10": 3,
+        "auprc": 0,
+        "recall_at_far": 3,
+        "quality": 1,
+        "false_alarm_rate": 0,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_shared_tree_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/shared_tree_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 0,
+        "recall": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 1,
+        "false_alarm_rate": 0,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_shared_tree_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/shared_tree_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 0,
+        "recall": 3,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 1,
+        "false_alarm_rate": 0,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_combined_reuse_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/combined_reuse_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 2,
+        "f1": 1,
+        "f1_p10": 1,
+        "auprc": 0,
+        "recall_at_far": 3,
+        "quality": 1,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_combined_reuse_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/combined_reuse_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 3,
+        "f1": 1,
+        "f1_p10": 1,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 0,
+        "false_alarm_rate": 0,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_fused_optimizer_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/fused_optimizer_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 0,
+        "recall": 1,
+        "f1": 0,
+        "f1_p10": 0,
+        "auprc": 0,
+        "recall_at_far": 1,
+        "quality": 0,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_fused_optimizer_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/fused_optimizer_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 0,
+        "recall": 2,
+        "f1": 0,
+        "f1_p10": 1,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 0,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_reuse_replicas_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/reuse_replicas_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 3,
+        "f1": 3,
+        "f1_p10": 3,
+        "auprc": 0,
+        "recall_at_far": 3,
+        "quality": 1,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 3,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_reuse_replicas_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/reuse_replicas_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 2,
+        "recall": 2,
+        "f1": 3,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 3,
+        "quality": 1,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_single_learning_rate_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/single_learning_rate_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 2,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 3,
+        "quality": 1,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_single_learning_rate_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/single_learning_rate_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 2,
+        "recall": 1,
+        "f1": 3,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 0,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 1,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_temporal_attention_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/temporal_attention_sources_20261021/without.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 2,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 1,
+        "quality": 2,
+        "false_alarm_rate": 1,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3
+      }
+    },
+    {
+      "campaign": "verify_temporal_attention_20261021",
+      "candidate": "/home/hcf/nas_hcf_data/faultevolve-dl/runs/temporal_attention_sources_20261021/with.py",
+      "seeds": 3,
+      "passing_seeds": 0,
+      "all_seeds_quality_pass": false,
+      "nonwinning_seed_counts": {
+        "precision": 1,
+        "recall": 2,
+        "f1": 2,
+        "f1_p10": 2,
+        "auprc": 0,
+        "recall_at_far": 2,
+        "quality": 2,
+        "false_alarm_rate": 2,
+        "missed_detection_rate": 2,
+        "f1_boot_std": 3
+      }
+    }
+  ],
+  "passing_candidates": 0
+}

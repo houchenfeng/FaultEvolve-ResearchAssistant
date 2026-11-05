@@ -7,12 +7,16 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from faultevolve.common.research import ResearchConfig
 
 _BUDGET_STAGE_KEYS = frozenset({"reflect", "repair", "knowledge", "jev", "mechanism", "crossover"})
+
+ISLAND_PROFILES = ("performance", "miss_alert", "efficiency", "custom")
 
 
 class SelectionValueConfig(BaseModel):
@@ -29,11 +33,19 @@ class SelectionValueConfig(BaseModel):
 
 
 class BudgetConfig(BaseModel):
-    """Budget constraints for evolution."""
+    """Budget constraints for evolution.
+
+    ``max_tokens`` / ``max_wall_hours`` may be set to null to express "no cost
+    limit"; stopping is then governed by the experiment protocol (attempt caps,
+    stall and infra rules), not by a budget. ``stage_caps`` are fractions of
+    ``max_tokens`` and are inert when no total token cap is set; explicit
+    absolute caps can still be given through ``stage_caps_absolute``.
+    """
     max_iterations: int = 50
-    max_tokens: int = 3_000_000
-    max_wall_hours: float = 6.0
+    max_tokens: int | None = Field(default=3_000_000, ge=0)
+    max_wall_hours: float | None = Field(default=6.0, ge=0)
     stage_caps: dict[str, float] = Field(default_factory=dict)
+    stage_caps_absolute: dict[str, int] = Field(default_factory=dict)
     stagnation_window: int = Field(default=0, ge=0)
     tokens_per_point_cap: float | None = Field(default=None, gt=0)
     min_iterations_before_stop: int = Field(default=5, ge=0)
@@ -52,6 +64,142 @@ class BudgetConfig(BaseModel):
             if not (0 < frac <= 1):
                 raise ValueError(f"stage_caps value for {key} must be in (0, 1]")
         return value
+
+    @field_validator("stage_caps_absolute")
+    @classmethod
+    def _validate_stage_caps_absolute(cls, value: dict[str, int]) -> dict[str, int]:
+        for key, cap in value.items():
+            if key not in _BUDGET_STAGE_KEYS:
+                raise ValueError(f"invalid stage_caps_absolute key: {key}")
+            if cap <= 0:
+                raise ValueError(f"stage_caps_absolute value for {key} must be > 0")
+        return value
+
+
+class IslandSpec(BaseModel):
+    """One island: an independent search tree with its own strategy focus.
+
+    ``profile`` is a soft strategy bias, not a hard restriction: every island
+    can still use any enabled operator. ``exploration_ratio`` reserves part of
+    operator choices for strategies outside the island's own focus.
+
+    The exact empty ``island_id`` is reserved for the implicit single island of
+    a pre-island run, whose ``node`` rows carry no label; the engine builds that
+    spec itself. Configured islands have to be named -- see
+    ``IslandsConfig._validate_islands``.
+    """
+    island_id: str
+    profile: str = Field(default="performance", pattern="^(performance|miss_alert|efficiency|custom)$")
+    focus: str = ""
+    operator_bias: list[str] = Field(default_factory=list)
+    knowledge_keywords: list[str] = Field(default_factory=list)
+    max_attempts: int = Field(default=50, ge=1)
+    exploration_ratio: float = Field(default=0.2, ge=0, le=1)
+
+    @field_validator("island_id")
+    @classmethod
+    def _validate_island_id(cls, value: str) -> str:
+        if value == "":
+            return value
+        if value != value.strip():
+            raise ValueError("island_id must be a non-empty name without surrounding whitespace")
+        return value
+
+    @model_validator(mode="after")
+    def _custom_requires_focus(self) -> "IslandSpec":
+        if self.profile == "custom" and not self.focus.strip():
+            raise ValueError(f"island {self.island_id}: profile=custom requires a focus description")
+        return self
+
+
+def default_islands() -> list[dict[str, Any]]:
+    """Default three-island layout (requirements §3)."""
+    return [
+        {
+            "island_id": "a",
+            "profile": "performance",
+            "focus": (
+                "Overall performance: maximize the composite task score, ranking quality, "
+                "and diversity of feature/model structures."
+            ),
+            "operator_bias": ["refine", "inject"],
+            "knowledge_keywords": ["temporal pattern", "nonlinear", "model family", "feature interaction"],
+        },
+        {
+            "island_id": "b",
+            "profile": "miss_alert",
+            "focus": (
+                "Missed vs false alarms: maximize recall under a low false-alarm constraint, "
+                "study error case structure and threshold calibration."
+            ),
+            "operator_bias": ["recall_focus", "threshold_calibrate"],
+            "knowledge_keywords": ["imbalanced learning", "hard positives", "threshold calibration", "grouped errors"],
+        },
+        {
+            "island_id": "c",
+            "profile": "efficiency",
+            "focus": (
+                "Efficiency and robustness: reduce runtime and model complexity, prefer sparse "
+                "features and lightweight models, stay robust to missing data."
+            ),
+            "operator_bias": ["refine", "inject"],
+            "knowledge_keywords": ["redundant features", "lightweight model", "stability", "simplification"],
+        },
+    ]
+
+
+class IslandsConfig(BaseModel):
+    """Three-island orchestration settings.
+
+    ``enabled=False`` (or a single explicit island) keeps the legacy one-tree
+    behavior; restored historical runs are always resolved to a single island
+    by the engine, never silently upgraded to three.
+    """
+    enabled: bool = True
+    exchange_interval: int = Field(default=5, ge=1)
+    max_positive_per_exchange: int = Field(default=1, ge=0)
+    max_negative_per_exchange: int = Field(default=2, ge=0)
+    max_summaries_in_context: int = Field(default=3, ge=0)
+    eval_concurrency: int = Field(default=1, ge=1)
+    min_valid_evals_before_stall: int = Field(default=10, ge=0)
+    stall_valid_evals: int = Field(default=15, ge=1)
+    infra_fail_pause: int = Field(default=5, ge=1)
+    stagnation_request_evals: int = Field(default=10, ge=1)
+    early_error_share: bool = True
+    islands: list[IslandSpec] = Field(default_factory=lambda: [IslandSpec(**s) for s in default_islands()])
+
+    @model_validator(mode="after")
+    def _validate_islands(self) -> "IslandsConfig":
+        if not self.islands:
+            raise ValueError("islands must contain at least one island")
+        seen: set[str] = set()
+        for spec in self.islands:
+            if not spec.island_id:
+                raise ValueError(
+                    "island_id must be non-empty in a configured run; "
+                    "the empty id is reserved for a legacy run's implicit island"
+                )
+            if spec.island_id in seen:
+                raise ValueError(f"duplicate island_id: {spec.island_id}")
+            seen.add(spec.island_id)
+        profiles = [spec.profile for spec in self.islands]
+        if len(set(profiles)) != len(profiles):
+            raise ValueError("duplicate island profile: an extra island must declare its own profile")
+        if not self.enabled and len(self.islands) != 1:
+            raise ValueError("islands.enabled=False requires exactly one island (legacy single-tree mode)")
+        return self
+
+    @classmethod
+    def legacy_single(cls) -> "IslandsConfig":
+        """Explicit single-island config for legacy runs and single-tree mode."""
+        return cls(
+            enabled=False,
+            islands=[IslandSpec(
+                island_id="default",
+                profile="performance",
+                focus="Single-tree legacy behavior: overall performance.",
+            )],
+        )
 
 
 class SelectionConfig(BaseModel):
@@ -169,6 +317,8 @@ class LLMConfig(BaseModel):
     max_concurrency: int = 4
     temperature: float = 0.7
     max_tokens: int = 8000
+    timeout_s: float = Field(default=600.0, gt=0)
+    stream: bool = False
 
 
 class ReflectionConfig(BaseModel):
@@ -354,6 +504,37 @@ class AutotuneConfig(BaseModel):
         return self
 
 
+class DataWorkflowConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    enabled: bool = False
+    drop_exact_duplicates: bool = True
+    nonfinite_to_missing: bool = True
+    accepted_issues: list[Literal["missing_feature", "constant_feature"]] = Field(
+        default_factory=lambda: ["missing_feature", "constant_feature"])
+
+
+class HierarchicalWorkflowConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    enabled: bool = True
+    mode: Literal["per_structure", "post_evolution"] = "per_structure"
+    max_trials: int = Field(default=24, ge=1, le=1000)
+    max_wall_seconds: int = Field(default=43200, ge=1)
+
+
+class WorkflowReportConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    enabled: bool = False
+
+
+class WorkflowConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    enabled: bool = False
+    cpu_limit: int = Field(default=4, ge=1)
+    data: DataWorkflowConfig = Field(default_factory=DataWorkflowConfig)
+    hierarchical: HierarchicalWorkflowConfig = Field(default_factory=HierarchicalWorkflowConfig)
+    reports: WorkflowReportConfig = Field(default_factory=WorkflowReportConfig)
+
+
 class EvolveConfig(BaseModel):
     """Complete evolution configuration."""
     task: TaskConfig = Field(default_factory=TaskConfig)
@@ -371,6 +552,9 @@ class EvolveConfig(BaseModel):
     analysis: AnalysisConfig = Field(default_factory=AnalysisConfig)
     discovery: DiscoveryConfig = Field(default_factory=DiscoveryConfig)
     autotune: AutotuneConfig = Field(default_factory=AutotuneConfig)
+    islands: IslandsConfig = Field(default_factory=IslandsConfig)
+    research: ResearchConfig | None = None
+    workflow: WorkflowConfig = Field(default_factory=WorkflowConfig)
     seed: int = 20260926
 
     @model_validator(mode="after")
@@ -431,6 +615,12 @@ class EvolveConfig(BaseModel):
             config.task = TaskConfig(**data["task"])
         if "autotune" in data:
             config.autotune = AutotuneConfig(**data["autotune"])
+        if "islands" in data:
+            config.islands = IslandsConfig(**(data["islands"] or {}))
+        if data.get("research") is not None:
+            config.research = ResearchConfig(**data["research"])
+        if "workflow" in data:
+            config.workflow = WorkflowConfig(**data["workflow"])
 
         return config
 

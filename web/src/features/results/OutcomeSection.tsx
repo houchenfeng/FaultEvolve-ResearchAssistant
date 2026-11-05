@@ -18,6 +18,8 @@ export interface OutcomeSectionProps {
   rows: SourceRow[];
   metrics: MetricRow[];
   metricsNodeId: string | null;
+  /** 指标节点所属岛（`岛 a`）；无岛标记或历史单树时 null。 */
+  metricsIslandLabel?: string | null;
   metricsState: MetricsState;
   metricsSkipReason: string | null;
   /** `metricsState === 'error'` 时的原始错误；其余状态传 null。 */
@@ -29,6 +31,7 @@ export function OutcomeSection({
   rows,
   metrics,
   metricsNodeId,
+  metricsIslandLabel = null,
   metricsState,
   metricsSkipReason,
   metricsError,
@@ -47,6 +50,7 @@ export function OutcomeSection({
         rows={rows}
         metrics={metrics}
         metricsNodeId={metricsNodeId}
+        metricsIslandLabel={metricsIslandLabel}
         metricsState={metricsState}
         metricsSkipReason={metricsSkipReason}
       />

@@ -80,20 +80,22 @@ def run_roots(settings: WebSettings) -> list[Path]:
 
 
 def resolve_run_dir(settings: WebSettings, run_id: str) -> Path:
-    """Resolve the directory of one run, or raise ``RunNotFoundError``.
+    """Resolve the report directory of one run, or raise ``RunNotFoundError``.
 
-    The lookup is a *scan of the immediate children* of each root, not a join:
-    the directory that is returned is one the server itself discovered. An id
-    therefore cannot name a path the server has not already seen.
+    The lookup is a *discovery scan*, never a join: the directory that comes
+    back is one the server itself found holding run artifacts (TODO D6.1), so an
+    id cannot name a path the server has not already seen -- and a run nested
+    below a date or batch folder is found even though it is not a direct child.
+    ``fe.db`` may live under a different root; callers that need it go through
+    ``replay_service.artifacts_for``, which resolves both halves.
     """
+    from faultevolve.webapi import run_discovery
+
     validate_id(run_id, kind="run_id", field="run_id")
-    for root in run_roots(settings):
-        candidate = root / run_id
-        if not settings.is_allowed(candidate):
-            continue
-        if candidate.is_dir():
-            return candidate.resolve()
-    raise RunNotFoundError(run_id)
+    location = run_discovery.find(settings, run_id)
+    if location is None or location.report_dir is None:
+        raise RunNotFoundError(run_id)
+    return location.report_dir
 
 
 def resolve_run_child(run_dir: Path, *parts: str) -> Path:
@@ -117,22 +119,16 @@ def resolve_run_child(run_dir: Path, *parts: str) -> Path:
 
 
 def list_run_ids(settings: WebSettings) -> list[str]:
-    """Run ids found one level below each root, sorted for stable output.
+    """Run ids the discovery scan accepts as runs, sorted for stable output.
 
-    Only the immediate children are scanned (TODO §2.4): no recursion, so a
-    stray nested directory can never be mistaken for a run.
+    A directory is a run because it holds a recognised artifact, not because of
+    how deep it sits (TODO D6.1); fixture-root runs are left out (TODO D6.2).
+    The ids returned are ``external_id`` values: identical to the directory name
+    unless two directories share a run id, in which case the later ones carry a
+    path digest so both stay reachable.
     """
-    found: list[str] = []
-    for root in run_roots(settings):
-        try:
-            children = list(root.iterdir())
-        except OSError:
-            continue
-        for child in children:
-            if not child.is_dir():
-                continue
-            name = child.name
-            if not is_valid_id(name) or name in found:
-                continue
-            found.append(name)
-    return sorted(found)
+    from faultevolve.webapi import run_discovery
+
+    return sorted(
+        location.external_id for location in run_discovery.listed_locations(settings)
+    )

@@ -21,6 +21,7 @@ import { RunTimelinePage } from '@/routes/RunTimelinePage';
 import { RunTreePage } from '@/routes/RunTreePage';
 import { RunWorkbenchPage } from '@/routes/RunWorkbenchPage';
 import { TaskDetailPage } from '@/routes/TaskDetailPage';
+import { ShowcasePage } from '@/features/presentation/ShowcasePage';
 
 function buildRouteTree() {
   const rootRoute = createRootRoute({
@@ -38,6 +39,11 @@ function buildRouteTree() {
     getParentRoute: () => rootRoute,
     path: '/overview/tasks/$taskId',
     component: TaskDetailPage,
+  });
+  const showcaseRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/overview/showcase',
+    component: ShowcasePage,
   });
   const newRunRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -90,6 +96,7 @@ function buildRouteTree() {
 
   return rootRoute.addChildren([
     indexRoute,
+    showcaseRoute,
     taskDetailRoute,
     newRunRoute,
     compareRoute,

@@ -160,6 +160,22 @@ class TaskAdapter(Protocol):
         ...
 
 
+@dataclass
+class PreparedWorkflowData:
+    """Optional adapter-owned input preparation for a local workflow."""
+    report: dict[str, Any]
+    environment: dict[str, str]
+    files: dict[str, str]
+    validation_files: dict[str, str]
+
+
+@runtime_checkable
+class WorkflowDataProvider(Protocol):
+    def prepare_workflow_data(self, task_spec: TaskSpec, workspace: Path, policy: Any) -> PreparedWorkflowData:
+        """Prepare declared task inputs without changing original task data."""
+        ...
+
+
 @runtime_checkable
 class ObjectiveSpec(Protocol):
     """Optional protocol for multi-objective selection metrics."""

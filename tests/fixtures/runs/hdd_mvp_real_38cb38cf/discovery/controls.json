@@ -1,0 +1,48 @@
+[
+  {
+    "neg_trials": 10,
+    "neg_false_positives": 0,
+    "neg_fpr": 0.0,
+    "planted": {
+      "0.2": {
+        "trials": 5.0,
+        "recovered": 5.0,
+        "rate": 1.0
+      },
+      "0.5": {
+        "trials": 5.0,
+        "recovered": 5.0,
+        "rate": 1.0
+      },
+      "1.0": {
+        "trials": 5.0,
+        "recovered": 5.0,
+        "rate": 1.0
+      }
+    },
+    "passed": true
+  },
+  {
+    "neg_trials": 5,
+    "neg_false_positives": 0,
+    "neg_fpr": 0.0,
+    "planted": {
+      "0.2": {
+        "trials": 5.0,
+        "recovered": 5.0,
+        "rate": 1.0
+      },
+      "0.5": {
+        "trials": 5.0,
+        "recovered": 5.0,
+        "rate": 1.0
+      },
+      "1.0": {
+        "trials": 5.0,
+        "recovered": 5.0,
+        "rate": 1.0
+      }
+    },
+    "passed": true
+  }
+]

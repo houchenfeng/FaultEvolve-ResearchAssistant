@@ -269,6 +269,8 @@ def verify_md(md: str, manifest: dict[str, Any]) -> list[str]:
         share = row.get("share_pct")
         if share is not None:
             allowed.add(f"{float(share):.4g}")
+            # render_md prints the raw rounded value (e.g. "100.0"), not .4g.
+            allowed.add(str(float(share)))
     funnel = manifest.get("funnel") or {}
     for key, val in funnel.items():
         if isinstance(val, int):

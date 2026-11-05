@@ -1,0 +1,78 @@
+{
+  "trials": 96,
+  "unique_configs": 76,
+  "valid": 96,
+  "proposals": [
+    {
+      "trial": 7,
+      "score": 40.358973077211616,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": false
+    },
+    {
+      "trial": 15,
+      "score": 40.057471219815746,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": false
+    },
+    {
+      "trial": 23,
+      "score": 40.057471219815746,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": true
+    },
+    {
+      "trial": 31,
+      "score": 40.057471219815746,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": true
+    },
+    {
+      "trial": 39,
+      "score": 42.139307352620094,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": true
+    },
+    {
+      "trial": 47,
+      "score": 39.571149550104664,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": false
+    },
+    {
+      "trial": 63,
+      "score": 40.49289713930866,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": false
+    },
+    {
+      "trial": 71,
+      "score": 40.49289713930866,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": true
+    },
+    {
+      "trial": 79,
+      "score": 40.49289713930866,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": true
+    },
+    {
+      "trial": 87,
+      "score": 39.531103490963574,
+      "parent": 1,
+      "parent_score": 40.93211572344718,
+      "duplicate_config": false
+    }
+  ],
+  "scope": "observational_search_audit_not_randomized_planner_ablation"
+}

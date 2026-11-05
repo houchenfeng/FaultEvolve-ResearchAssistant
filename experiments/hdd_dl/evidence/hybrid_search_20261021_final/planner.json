@@ -1,0 +1,163 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792517059.6962316,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 172,
+      "prompt_tokens": 4023,
+      "total_tokens": 4195
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "dropout": 0.25,
+        "tree_blend": 0.5
+      },
+      "hypothesis": "切换至双分支架构（dual）并提高树模型混合权重（tree_blend=0.5），同时增加Dropout以抑制过拟合。利用HDD-HYBRID-01中树模型在低误报率召回上的优势，结合双分支对时序趋势与静态特征的综合建模能力，预期能在保持AUPRC的同时显著提升recall_at_far指标。",
+      "knowledge_ids": [
+        "HDD-HYBRID-01",
+        "DL-TAB-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792517065.1199608
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792517176.6051428,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 142,
+      "prompt_tokens": 5258,
+      "total_tokens": 5400
+    },
+    "proposal": {
+      "changes": {
+        "positive_boost": 10.0,
+        "focal_gamma": 2.0
+      },
+      "hypothesis": "Increasing positive_boost to 10.0 and focal_gamma to 2.0 will significantly up-weight hard-to-classify failure samples and rare positives. This mechanism aims to improve recall and low-FAR recall by forcing the model to focus on difficult minority cases, potentially overcoming the current precision-recall trade-off plateau observed in high-scoring trials.",
+      "knowledge_ids": [
+        "DL-FOCAL-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792517180.7228925
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792517286.7131233,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 181,
+      "prompt_tokens": 5686,
+      "total_tokens": 5867
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "epochs": 100,
+        "lr": 0.001
+      },
+      "hypothesis": "采用 dual 架构（结合序列与表格特征）并延长训练周期至 100 epochs，配合较低的学习率 (0.001)，旨在更充分地捕捉 SMART 属性的长期退化趋势。相比单模型或短周期训练，这种配置预期能提升对早期故障信号的敏感度，从而在不显著增加误报率的前提下提高低 FAR 下的召回率 (recall_at_far) 和整体 AUPRC。",
+      "knowledge_ids": [
+        "HDD-TREND-02",
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792517298.6025908
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792517448.2169886,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 148,
+      "prompt_tokens": 5685,
+      "total_tokens": 5833
+    },
+    "proposal": {
+      "changes": {
+        "epochs": 60,
+        "tree_blend": 0.5
+      },
+      "hypothesis": "Increasing tree_blend to 0.5 leverages the proven benefit of hybrid ML+DL models (HDD-HYBRID-01) for low-FAR recall and AUPRC, while extending epochs to 60 allows the TCN backbone to better fit the temporal trends alongside the stronger tree component.",
+      "knowledge_ids": [
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": [
+        10,
+        29
+      ]
+    },
+    "finished_at": 1792517451.7316856
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792517592.936127,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 146,
+      "prompt_tokens": 5263,
+      "total_tokens": 5409
+    },
+    "proposal": {
+      "changes": {
+        "epochs": 60,
+        "tree_blend": 0.5
+      },
+      "hypothesis": "增加训练轮数至60以充分收敛，并提高树模型混合比例至0.5以增强对SMART趋势特征的利用。结合TCN的序列建模能力与树模型的稳健性，预期能提升低误报率下的召回率及整体AUPRC指标，同时保持运行时间在可接受范围内。",
+      "knowledge_ids": [
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": [
+        31
+      ]
+    },
+    "finished_at": 1792517599.8439744
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792517746.5406935,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 126,
+      "prompt_tokens": 5677,
+      "total_tokens": 5803
+    },
+    "proposal": {
+      "changes": {
+        "epochs": 60,
+        "tree_blend": 0.5
+      },
+      "hypothesis": "延长训练时间(epochs=60)以充分收敛模型，并增加树模型混合比例(tree_blend=0.5)以利用传统机器学习在特征工程上的优势，预期能提升AUPRC和召回率。",
+      "knowledge_ids": [
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": [
+        31
+      ]
+    },
+    "finished_at": 1792517749.8861027
+  }
+]

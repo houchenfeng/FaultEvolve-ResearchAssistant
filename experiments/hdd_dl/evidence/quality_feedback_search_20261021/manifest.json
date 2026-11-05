@@ -1,0 +1,177 @@
+{
+  "evaluator_sha256": "cddfaaab6dbe2ee661b634bf39f3585b3b5821c04e84944ea084455c333523a9",
+  "template_sha256": "0bbfe36e45074676a3d72ae42df49d5de92beaa6ea57b7773b74c9716a1d3cb9",
+  "knowledge_sha256": "19fc0348287e41691c3f13bfdf6f6cb800ecc86678e090aa72a478a81a200e90",
+  "seed": 20261020,
+  "controller_sha256": "485e53bf4bc23f7204479d67884973c6a0125c065016320d3e3a6fedc54706a1",
+  "context_sha256": "64ef6628e3801dee01addbc76db4b2ae01c0c812e7aad3bc50496ed2ad814745",
+  "planner_sha256": "b9baceb1a18ec3203b53912e6a7ebbb029ef47e4ac0d6978269cab8649e5bc88",
+  "planner": {
+    "enabled": true,
+    "model": "qwen3.8-flash",
+    "max_calls": 6
+  },
+  "retrieval_sha256": "b9712af07992ab7eca1aff9f140c3192b271b8f5bfaa842ea4d58cf0dde37436",
+  "seed_records_sha256": "878dcbb91ba7383a2839b31683e81fdf638aa88fa9b657b739cfd88b9ed85e41",
+  "packages": {
+    "torch": "2.11.0+cu128",
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "lightgbm": "4.7.0",
+    "tabm": "0.0.3",
+    "rtdl_num_embeddings": "0.0.12"
+  },
+  "search_space": {
+    "family": [
+      "mlp",
+      "tcn",
+      "gru",
+      "dual"
+    ],
+    "width": [
+      64,
+      128,
+      256
+    ],
+    "depth": [
+      1,
+      2,
+      3
+    ],
+    "dropout": [
+      0.0,
+      0.1,
+      0.25,
+      0.4
+    ],
+    "lr": [
+      0.0003,
+      0.001,
+      0.003
+    ],
+    "weight_decay": [
+      1e-05,
+      0.001,
+      0.01
+    ],
+    "batch_size": [
+      256,
+      512,
+      1024
+    ],
+    "epochs": [
+      30,
+      60,
+      100
+    ],
+    "positive_boost": [
+      1.0,
+      3.0,
+      10.0,
+      30.0
+    ],
+    "threshold_scale": [
+      0.8,
+      0.9,
+      1.0,
+      1.05,
+      1.1,
+      1.15,
+      1.2
+    ],
+    "normalization": [
+      "standard",
+      "quantile"
+    ],
+    "folds": [
+      1,
+      3
+    ],
+    "feature_set": [
+      "basic",
+      "trends"
+    ],
+    "focal_gamma": [
+      0.0,
+      1.0,
+      2.0
+    ],
+    "model_identity": [
+      false,
+      true
+    ],
+    "smart_subset": [
+      "all",
+      "reliability"
+    ],
+    "epoch_objective": [
+      "auprc",
+      "operational_proxy"
+    ],
+    "replicas": [
+      1,
+      3
+    ],
+    "ranking_weight": [
+      0.0,
+      0.1,
+      0.3
+    ],
+    "device_context": [
+      false,
+      true
+    ],
+    "tree_blend": [
+      0.0,
+      0.25,
+      0.5
+    ],
+    "fold_calibration": [
+      "raw",
+      "threshold_ratio"
+    ],
+    "tabm_members": [
+      0,
+      8
+    ],
+    "tabm_embedding": [
+      "none",
+      "periodic"
+    ],
+    "share_fold_preprocessing": [
+      false,
+      true
+    ],
+    "share_fold_tree": [
+      false,
+      true
+    ]
+  },
+  "backend_quota": true,
+  "resource_selection": false,
+  "quality_selection": true,
+  "quality_selection_policy": "worst-quality-gap-v1",
+  "resource_selection_policy": "predictive-feasible-first-v2",
+  "public_data_sha256": {
+    "train_history.csv.gz": "f033f35b786108567351b3b5d9882bc171679c75c2e24e300f11df95e1505624",
+    "train_labels.csv": "64b798410d78302ff77e4312b6c930edceee60c56d820f927be1b6804d503b27",
+    "val_history.csv.gz": "0b8e75b409c28c8ee1a45a6e187c8e01bf7829c830727e3cff4850a035bc9091",
+    "val_index.csv": "9abf34bcb5bbbc9cf8f2fdeabad505959418ed0aaed3ab61d5d72552820a44d8"
+  },
+  "baselines": {
+    "/home/hcf/faultevolve-dl/code-v76/benchmark/hdd_mvp/init.py": "91744b4ba390ed377b8eb8884a5c0b19e1407765824f00aec5e857aad208caf2",
+    "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py": "63cfb5addbf97f972a81c0f9096548c5c8685fec9f842062f0af4063ad04ba55",
+    "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py": "005004ea2c4957a514dee4c25036562341bccb2273487bf1c0a9cf3c073ab835"
+  },
+  "gpu": 0,
+  "protocol": "unchanged-hdd-val-900s-training-included",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "staging_policy": "local-bounded-1GiB-input-5GiB-scratch",
+  "scope": "validation_search_not_independent_test"
+}

@@ -209,6 +209,10 @@ app.add_typer(data_app, name="data")
 web_app = typer.Typer(help="Web API commands")
 app.add_typer(web_app, name="web")
 
+from faultevolve.research import app as research_app
+
+app.add_typer(research_app, name="research")
+
 
 @web_app.command("serve")
 def web_serve(
@@ -270,6 +274,7 @@ def report(
     as_md: Annotated[bool, typer.Option("--md")] = False,
     artifacts_dir: Annotated[Optional[Path], typer.Option("--artifacts-dir")] = None,
     runs_dir: Annotated[Optional[Path], typer.Option("--runs-dir")] = None,
+    workflow: Annotated[bool, typer.Option("--workflow", help="独立导出结构调优报告；只读已存评估结果")] = False,
 ) -> None:
     """Build discovery/tournament report from run artifacts."""
     from faultevolve.discovery.report import (
@@ -283,6 +288,14 @@ def report(
     try:
         runs = get_runs_dir(runs_dir, task_dir)
         art_dir = get_artifacts_dir(artifacts_dir, runs, run_id)
+        if workflow:
+            from faultevolve.cloud.engine import _validate_experiment_id
+            from faultevolve.reporting import export_workflow_reports
+            run_id = _validate_experiment_id(run_id)
+            result = export_workflow_reports(art_dir, runs / run_id / "fe.db")
+            payload = {k: result[k] for k in ("run_id", "state", "best_score", "iterations_done")}
+            typer.echo(json.dumps(payload, ensure_ascii=False) if as_json else f"报告已导出：{art_dir / 'reports'}")
+            return
         manifest = build_manifest(art_dir, run_id)
         use_json = as_json or not as_md
         if use_json:
@@ -1077,40 +1090,30 @@ def data_checkup(
     task_dir: Annotated[Path, typer.Argument(...)],
     json_output: Annotated[bool, typer.Option("--json")] = False,
     out: Annotated[Optional[Path], typer.Option("--out")] = None,
+    strict: Annotated[bool, typer.Option("--strict", help="存在阻断质量问题时以退出码 2 结束")] = False,
+    config_file: Annotated[Optional[Path], typer.Option("--config-file", help="使用与运行相同的有效配置")] = None,
 ) -> None:
     try:
         from faultevolve.config import EvolveConfig
         from faultevolve.tasks import create_benchmark_adapter
+        from faultevolve.tasks.data_checkup import analyze_frames, render_report
 
         task_path = task_dir.resolve()
-        config = EvolveConfig.from_yaml(task_path / "evolve.yaml")
+        config = EvolveConfig.from_yaml(config_file or task_path / "evolve.yaml")
         adapter = create_benchmark_adapter(config)
         task_spec = adapter.load_task(task_path)
         frames = adapter.discovery_frames(task_spec)
-        import pandas as pd
-
-        labels = frames.labels if isinstance(frames.labels, pd.DataFrame) else pd.DataFrame(frames.labels)
-        n_pos = int((labels[frames.label_col] == 1).sum())
-        n_samples = len(labels)
+        facts, quality, coverage = analyze_frames(frames)
         out_dir = out or (task_path / ".fe" / "datacheck")
+        if out_dir.resolve().is_relative_to((task_path / "data").resolve()):
+            raise ValueError("Checkup output must be outside the task data directory")
         out_dir.mkdir(parents=True, exist_ok=True)
-        facts = {
-            "n_samples": n_samples,
-            "n_positive": n_pos,
-            "label_semantics": "1=failure",
-            "columns": list(frames.history.columns) if hasattr(frames.history, "columns") else [],
-            "min_detectable_effect": 0.05,
-        }
         with (out_dir / "data_facts.json").open("w", encoding="utf-8") as f:
-            json.dump(facts, f, indent=2)
-        hist = frames.history
-        coverage_rows = []
-        for col in hist.columns:
-            if col in (frames.unit_col, frames.time_col):
-                continue
-            rate = float(hist[col].notna().mean())
-            coverage_rows.append({"column": col, "non_null_rate": rate})
-        pd.DataFrame(coverage_rows).to_csv(out_dir / "field_coverage.csv", index=False)
+            json.dump(facts, f, indent=2, ensure_ascii=False, allow_nan=False)
+        with (out_dir / "data_quality.json").open("w", encoding="utf-8") as f:
+            json.dump(quality, f, indent=2, ensure_ascii=False, allow_nan=False)
+        (out_dir / "data_report.md").write_text(render_report(facts, quality), encoding="utf-8")
+        coverage.to_csv(out_dir / "field_coverage.csv", index=False, encoding="utf-8-sig")
         silent_header = ["subset", "stat"]
         silent_path = out_dir / "silent_subset_stats.csv"
         extras = None
@@ -1121,9 +1124,18 @@ def data_checkup(
         else:
             silent_path.write_text(",".join(silent_header) + "\n", encoding="utf-8")
         payload = {"ok": True, "out_dir": str(out_dir), **facts}
-        typer.echo(json.dumps(payload, ensure_ascii=False))
+        if json_output:
+            typer.echo(json.dumps(payload, ensure_ascii=False, allow_nan=False))
+        else:
+            typer.echo(render_report(facts, quality))
+            typer.echo(f"报告目录：{out_dir}")
+        if strict and quality["quality_status"] == "blocked":
+            raise typer.Exit(2)
+    except typer.Exit:
+        raise
     except FileNotFoundError:
-        typer.echo(json.dumps({"ok": False, "error_type": "DataMissing"}))
+        typer.echo(json.dumps({"ok": False, "error_type": "DataMissing",
+                               "message": "训练数据缺失，请先检查 prepare_data.py 的准备结果。"}, ensure_ascii=False))
         raise typer.Exit(1) from None
     except Exception:
         typer.echo(json.dumps({"ok": False, "error_type": "CheckupError"}))
@@ -1234,10 +1246,25 @@ def doctor(
     json_output: Annotated[bool, typer.Option("--json", help="Output as JSON")] = False,
     task_dir: Annotated[Optional[Path], typer.Option("--task-dir", help="Task dir to check network FS")] = None,
     env_file: Annotated[Optional[Path], typer.Option("--env-file", help="Load env vars from file")] = None,
+    config_file: Annotated[Optional[Path], typer.Option("--config-file", help="Effective config YAML, instead of <task_dir>/evolve.yaml")] = None,
 ) -> None:
     """Check environment: Python version, dependencies, API keys (presence only)."""
+    if config_file and not task_dir:
+        typer.echo(
+            "Error: --config-file needs --task-dir (it only selects the adapter "
+            "and data of a task that is being checked).",
+            err=True,
+        )
+        raise typer.Exit(2)
+    if config_file and not Path(config_file).exists():
+        typer.echo(f"Error: config file not found: {config_file}", err=True)
+        raise typer.Exit(2)
     if env_file:
         load_env_file(env_file)
+
+    # The run itself resolves its adapter from --config-file when one is given,
+    # so a preflight that ignored it would check a different adapter's data.
+    cfg_source = Path(config_file).resolve() if config_file else None
 
     checks: list[dict] = []
 
@@ -1261,11 +1288,10 @@ def doctor(
     from faultevolve.config import EvolveConfig
 
     judge_api_key_env = "TYPESAFE_API_KEY"
-    if task_dir:
-        evolve_yaml = task_dir / "evolve.yaml"
-        if evolve_yaml.exists():
-            cfg = EvolveConfig.from_yaml(evolve_yaml)
-            judge_api_key_env = cfg.judge.api_key_env
+    evolve_yaml = cfg_source or (task_dir / "evolve.yaml" if task_dir else None)
+    if evolve_yaml is not None and evolve_yaml.exists():
+        cfg = EvolveConfig.from_yaml(evolve_yaml)
+        judge_api_key_env = cfg.judge.api_key_env
 
     env_keys = ["DASHSCOPE_API_KEY", judge_api_key_env, "FE_API_KEY"]
     seen = set()
@@ -1316,9 +1342,8 @@ def doctor(
         tf_ok = not missing_tf
         tf_msg = "task files ok" if tf_ok else f"missing task files: {missing_tf}"
         if missing_tf:
-            evolve_yaml = task_path / "evolve.yaml"
             adapter_name = "hdd"
-            if evolve_yaml.exists():
+            if evolve_yaml is not None and evolve_yaml.exists():
                 adapter_name = EvolveConfig.from_yaml(evolve_yaml).task.adapter
             doc = stub_doc_for(adapter_name)
             if doc:
@@ -1326,8 +1351,11 @@ def doctor(
         checks.append({"name": "task_files", "ok": tf_ok, "message": tf_msg})
 
         try:
-            evolve_yaml = task_path / "evolve.yaml"
-            cfg = EvolveConfig.from_yaml(evolve_yaml) if evolve_yaml.exists() else EvolveConfig()
+            cfg = (
+                EvolveConfig.from_yaml(evolve_yaml)
+                if evolve_yaml is not None and evolve_yaml.exists()
+                else EvolveConfig()
+            )
             adapter = create_adapter(cfg)
             checks.append({
                 "name": "task_adapter",
@@ -1348,6 +1376,48 @@ def doctor(
                 "name": "task_data",
                 "ok": ds.ok,
                 "message": ds.message,
+            })
+
+        # The engine ignores keys it does not recognise, so a typo in an island
+        # block would silently run the defaults instead of failing. Surfacing it
+        # here is what lets an operator trust the config they just wrote.
+        config_path = evolve_yaml if evolve_yaml is not None and evolve_yaml.exists() else None
+        try:
+            cfg_view = EvolveConfig.from_yaml(config_path) if config_path else EvolveConfig()
+        except Exception as exc:
+            checks.append({
+                "name": "config_islands",
+                "ok": False,
+                "message": f"config invalid: {str(exc).splitlines()[0]}",
+            })
+            cfg_view = None
+        if cfg_view is not None:
+            raw_keys: list[str] = []
+            if config_path:
+                import yaml
+
+                loaded = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+                if isinstance(loaded, dict):
+                    raw_keys = sorted(set(loaded) - set(EvolveConfig.model_fields))
+            checks.append({
+                "name": "config_keys",
+                "ok": not raw_keys,
+                "message": (
+                    f"config {config_path.name if config_path else 'defaults'}: all keys recognised"
+                    if not raw_keys
+                    else f"unknown config keys {raw_keys} are ignored by the engine"
+                ),
+            })
+            islands = cfg_view.islands
+            checks.append({
+                "name": "config_islands",
+                "ok": True,
+                "message": (
+                    f"islands {'on' if islands.enabled else 'off'}: "
+                    f"{len(islands.islands)} tree(s) "
+                    f"[{', '.join(f'{s.island_id}:{s.profile}' for s in islands.islands)}], "
+                    f"exchange every {islands.exchange_interval} attempts"
+                ),
             })
 
         if os.environ.get("HDD_BENCH_DATA_ROOT"):
@@ -1376,12 +1446,16 @@ def doctor(
     raise typer.Exit(0 if all_ok else 1)
 
 
+@app.command("run")
 @evolve_app.command("local")
 def evolve_local(
     task_dir: Annotated[Path, typer.Argument(help="Path to task directory (e.g., benchmark/hdd_mvp)")],
+    ctx: typer.Context,
     mock: Annotated[bool, typer.Option("--mock", help="Use mock LLM for offline testing")] = False,
-    iterations: Annotated[int, typer.Option("--iterations", "-n", help="Maximum iterations")] = 50,
+    iterations: Annotated[Optional[int], typer.Option("--iterations", "-n", min=1, help="进化轮数上限；未指定时读取配置中的 budget.max_iterations")] = None,
     resume: Annotated[Optional[str], typer.Option("--resume", help="Resume from experiment ID")] = None,
+    resume_from: Annotated[Optional[Path], typer.Option("--resume-from", help="Copy this run directory first and continue the copy; the source is read only")] = None,
+    report_only: Annotated[bool, typer.Option("--report-only", help="Rebuild a run's report from its database: no evaluator, no LLM, no new score")] = False,
     run_id: Annotated[Optional[str], typer.Option("--run-id", help="Pre-assigned ID for a new run")] = None,
     config_file: Annotated[Optional[Path], typer.Option("--config-file", help="Effective config YAML, instead of <task_dir>/evolve.yaml")] = None,
     target_score: Annotated[Optional[float], typer.Option("--target-score", help="Stop when reaching this score")] = None,
@@ -1390,8 +1464,9 @@ def evolve_local(
     runs_dir: Annotated[Optional[Path], typer.Option("--runs-dir", help="Directory for DB and metadata")] = None,
     artifacts_dir: Annotated[Optional[Path], typer.Option("--artifacts-dir", help="Directory for large artifacts")] = None,
     env_file: Annotated[Optional[Path], typer.Option("--env-file", help="Load env vars from file")] = None,
+    workflow: Annotated[Optional[bool], typer.Option("--workflow/--no-workflow", help="启用数据处理、复检、演化与分层调优；默认读取 workflow.enabled")] = None,
 ) -> None:
-    """Run local evolution loop on a task directory.
+    """运行数据处理、复检、代码演化与分层调优。
 
     The task directory must contain: evaluator.py, init.py, problem.md, prompt.md.
     Optionally: evolve.yaml for configuration overrides.
@@ -1401,6 +1476,8 @@ def evolve_local(
     """
     if env_file:
         load_env_file(env_file)
+    if ctx.info_name == "run" and workflow is None:
+        workflow = True
 
     from faultevolve.cloud.engine import run_local_evolution
 
@@ -1434,11 +1511,43 @@ def evolve_local(
         typer.echo("Error: --resume and --run-id are mutually exclusive.", err=True)
         raise typer.Exit(1)
 
+    if (resume_from or report_only) and not resume:
+        # Both names a run that already exists; without --resume there is nothing
+        # to copy or rebuild, and guessing an id would invent a run directory.
+        typer.echo(
+            "Error: --resume-from and --report-only need --resume ID (the run they act on).",
+            err=True,
+        )
+        raise typer.Exit(1)
+
     resolved_runs_dir = get_runs_dir(runs_dir, task_path)
     resolved_artifacts_dir = get_base_artifacts_dir(artifacts_dir, resolved_runs_dir)
 
     if not resume:
         check_db_path_network_fs(resolved_runs_dir / "test.db")
+
+    if report_only:
+        from faultevolve.cloud.engine import rebuild_run_report
+        from faultevolve.cloud.store import Store
+
+        db_path = resolved_runs_dir / resume / "fe.db"
+        if not db_path.exists():
+            typer.echo(f"Error: no run database at {db_path}", err=True)
+            raise typer.Exit(1)
+        # The same rule the run itself uses: an artifact home is either the one it
+        # was given or the run directory, never a path built from None.
+        art_dir = (resolved_artifacts_dir or resolved_runs_dir) / resume
+        summary = rebuild_run_report(Store(db_path, read_only=True), resume, art_dir)
+        if json_output:
+            typer.echo(json.dumps(summary, indent=2, ensure_ascii=False))
+        else:
+            typer.echo("\nReport rebuilt from the stored run (nothing was evaluated):")
+            typer.echo(f"  Experiment ID: {summary['experiment_id']}")
+            typer.echo(f"  Status: {summary['status']}")
+            typer.echo(f"  Nodes: {summary['node_count']}")
+            typer.echo(f"  Best score: {summary['best_score']:.2f}")
+            typer.echo(f"  Results: {art_dir}")
+        raise typer.Exit(0)
 
     try:
         result = run_local_evolution(
@@ -1452,6 +1561,8 @@ def evolve_local(
             artifacts_dir=resolved_artifacts_dir,
             experiment_id=run_id,
             config_path=config_file,
+            resume_source=resume_from,
+            workflow=workflow,
         )
         if json_output:
             typer.echo(json.dumps(result, indent=2, ensure_ascii=False))
@@ -1459,7 +1570,10 @@ def evolve_local(
             typer.echo(f"\nEvolution completed: {result['status']}")
             typer.echo(f"  Experiment ID: {result['experiment_id']}")
             typer.echo(f"  Iterations: {result['iterations_done']}")
-            typer.echo(f"  Best score: {result['best_score']:.2f}")
+            score = result.get("final_best_score", result["best_score"])
+            typer.echo(f"  最终最佳评分：{score:.4f}" if score is not None else "  最终最佳评分：未知")
+            if result.get("workflow"):
+                typer.echo(f"  分层试验：{result['workflow']['completed_trials']}；来源：{result['workflow']['best_origin']}")
             typer.echo(f"  Results: {result['output_dir']}")
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)

@@ -1,0 +1,4 @@
+[
+  "<intent>降低阈值以提高召回率</intent>\n```python\nTHRESHOLD = 0.3\n```",
+  "<intent>提高阈值以消除误告，同时保留故障召回</intent>\n```python\nTHRESHOLD = 0.5\n```"
+]

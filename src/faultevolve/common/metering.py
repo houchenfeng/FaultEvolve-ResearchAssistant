@@ -9,11 +9,19 @@ from typing import Any
 
 @dataclass
 class CallMetrics:
-    """Metrics for a single LLM or judge call."""
+    """Metrics for a single LLM or judge call.
+
+    ``request_id`` identifies the logical request the client sent, and
+    ``attempts`` says how many transport tries it took. A call that failed after
+    retries still has both, so the run can record that the spend is unknown rather
+    than pretending nothing was sent.
+    """
     prompt_tokens: int = 0
     completion_tokens: int = 0
     latency_ms: int = 0
     cached: bool = False
+    request_id: str = ""
+    attempts: int = 1
 
 
 @dataclass

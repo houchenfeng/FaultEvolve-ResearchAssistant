@@ -1,0 +1,8 @@
+seed: 20260926
+budget: {max_iterations: 50, max_tokens: 3000000, max_wall_hours: 6}
+operators: {bandit: false, enabled: [refine], crossover: {enabled: false}}
+discovery: {enabled: false, tournament: {enabled: false}}
+analysis: {enabled: false}
+judge: {provider: none}
+autotune:
+  ledger: {enabled: true, full_eval_cap: 50}

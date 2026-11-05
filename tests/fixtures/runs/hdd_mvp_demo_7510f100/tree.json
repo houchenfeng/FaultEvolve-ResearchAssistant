@@ -1,0 +1,105 @@
+{
+  "experiment_id": "7510f100",
+  "nodes": [
+    {
+      "id": "62d6cf09",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 5,
+      "adopted_cards": []
+    },
+    {
+      "id": "43d93d40",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.3509875376792024,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.00",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "3f91cdad",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.3423444130944324,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.01",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "8a7c8524",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.37349139153694455,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Intentionally use wrong LightGBM parameter to trigger repair",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "43a763cc",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.43947752801016415,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.04",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "M01"
+      ]
+    },
+    {
+      "id": "d8543dee",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.3495763668218367,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Mock improvement: adjust threshold by 0.05",
+      "visit_count": 0,
+      "adopted_cards": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "62d6cf09",
+      "target": "43d93d40"
+    },
+    {
+      "source": "62d6cf09",
+      "target": "3f91cdad"
+    },
+    {
+      "source": "62d6cf09",
+      "target": "8a7c8524"
+    },
+    {
+      "source": "62d6cf09",
+      "target": "43a763cc"
+    },
+    {
+      "source": "62d6cf09",
+      "target": "d8543dee"
+    }
+  ]
+}

@@ -4,6 +4,10 @@
  * 三块内容：闭环汇总（评估/改进/噪声/修复）、树（内嵌）、预算与算力。
  * 树在这里也显示，因为 PRD §9.2 的"评估—反思—纠错闭环"离开树就没法讲。
  *
+ * 阶段 9（TODO D6.4）在这里加了「三岛概览」与「摘要交换」两个面板：岛级记账
+ * 全部来自 `/api/runs/{id}` 的 `islands` 块与 `/api/runs/{id}/summaries`，
+ * 页面不参与判定，判定在 `features/islands/island-view.ts`。
+ *
  * ## 为什么"制品还没产生"不是 `ApiErrorPanel`
  *
  * 阶段 7 之后，这个页面**刚刚被自己创建出来**的运行是常态：点了「启动运行」
@@ -25,13 +29,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { HddCaseOverview } from '@/features/showcase/HddCaseOverview';
-import { SHOWCASE_RUN_ID } from '@/features/showcase/hdd-showcase-data';
 import {
   getEventsApiRunsRunIdEventsGet,
   getRunApiRunsRunIdGet,
   getTreeApiRunsRunIdTreeGet,
 } from '@/generated/api';
+import { ExchangePanel } from '@/features/islands/ExchangePanel';
+import { IslandOverview } from '@/features/islands/IslandOverview';
 import { BudgetPanel } from '@/features/workbench/BudgetPanel';
 import { EventStream } from '@/features/workbench/EventStream';
 import { RunControls } from '@/features/workbench/RunControls';
@@ -45,7 +49,20 @@ import { toApiError, unwrap } from '@/lib/api';
 import { queryKeys, runScopedKeys } from '@/lib/query-keys';
 import { useUiStore } from '@/stores/ui-store';
 
-type Panel = 'tree' | 'loop' | 'budget';
+type Panel = 'tree' | 'islands' | 'exchange' | 'loop' | 'budget';
+
+/**
+ * 标签页顺序即阅读顺序：先看树，再看它分几个岛、岛之间换了什么，最后看
+ * 事件与钱。「三岛概览」和「摘要交换」对历史单树运行也**保留**：切过去读到的
+ * 是 `state=missing` 的说明（早于多岛引擎），而不是"这个运行坏掉了"。
+ */
+const PANELS: Array<{ id: Panel; label: string }> = [
+  { id: 'tree', label: '进化树' },
+  { id: 'islands', label: '三岛概览' },
+  { id: 'exchange', label: '摘要交换' },
+  { id: 'loop', label: '事件流' },
+  { id: 'budget', label: '预算与算力' },
+];
 
 /** 制品每 3 秒重试的间隔。只在进程还活着时用。 */
 const ARTIFACT_POLL_MS = 3_000;
@@ -57,6 +74,13 @@ export function RunWorkbenchPage() {
   const setSelectedNodeId = useUiStore((state) => state.setSelectedNodeId);
   const [filter, setFilter] = useState<TreeFilter>(EMPTY_TREE_FILTER);
   const [panel, setPanel] = useState<Panel>('tree');
+
+  // 岛卡与交换面板上的节点跳转：选中之后必须把面板切回树，否则用户点了个
+  // 分数却停在概览页，看不出"跳转"发生了什么。
+  const openNode = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+    setPanel('tree');
+  };
 
   // 进程态先取：它决定制品查询要不要轮询，也决定"读不到制品"该说成什么。
   // 轮询由控制条拥有（同一 queryKey 只该有一个 interval），这里只读缓存。
@@ -121,7 +145,6 @@ export function RunWorkbenchPage() {
     }
   }, [status, queryClient, runId]);
 
-  if (runId === SHOWCASE_RUN_ID) return <HddCaseOverview />;
 
   // 用联合类型自己的判别式（isPending/isError）来判断，别把它们合成一个
   // 布尔量：合成之后 TS 就收窄不出 `data` 已定义了。
@@ -219,6 +242,29 @@ export function RunWorkbenchPage() {
         />
       ) : null}
 
+      {panel === 'islands' ? (
+        <div className="min-h-0 flex-1 overflow-y-auto bg-surface">
+          <IslandOverview
+            islands={run.islands}
+            nodes={tree.nodes}
+            edges={tree.edges}
+            runStatus={status ?? run.outcome?.status ?? null}
+            iterationsDone={run.outcome?.iterations_done ?? null}
+            globalBest={{
+              nodeId: run.outcome?.best_node_id ?? null,
+              score: run.outcome?.best_score ?? null,
+            }}
+            onSelectNode={openNode}
+          />
+        </div>
+      ) : null}
+
+      {panel === 'exchange' ? (
+        <div className="min-h-0 flex-1 overflow-y-auto bg-surface">
+          <ExchangePanel runId={runId} poll={running} onSelectNode={openNode} />
+        </div>
+      ) : null}
+
       {panel === 'loop' ? (
         <EventStream events={events} onLocateNode={setSelectedNodeId} highlightNodeId={selectedNodeId} />
       ) : null}
@@ -238,7 +284,7 @@ export function RunWorkbenchPage() {
   );
 }
 
-/** 顶部条：运行名、进程态徽章、数据状态、闭环摘要、三块面板的切换。 */
+/** 顶部条：运行名、进程态徽章、数据状态、闭环摘要、面板切换（顺序见 PANELS）。 */
 function WorkbenchHeader({
   live,
   dataState,
@@ -282,19 +328,20 @@ function WorkbenchHeader({
       {loopLine !== null ? <span className="text-[11px] text-fg-muted">{loopLine}</span> : null}
       <span className="flex-1" />
       {showPanels
-        ? (['tree', 'loop', 'budget'] as const).map((item) => (
+        ? PANELS.map((item) => (
             <button
-              key={item}
+              key={item.id}
               type="button"
-              onClick={() => onPanelChange(item)}
-              aria-current={panel === item}
+              onClick={() => onPanelChange(item.id)}
+              aria-current={panel === item.id}
+              data-panel={item.id}
               className={`rounded-card px-2 py-0.5 text-[11px] ${
-                panel === item
+                panel === item.id
                   ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300'
                   : 'text-fg-muted hover:text-fg'
               }`}
             >
-              {item === 'tree' ? '进化树' : item === 'loop' ? '事件流' : '预算与算力'}
+              {item.label}
             </button>
           ))
         : null}

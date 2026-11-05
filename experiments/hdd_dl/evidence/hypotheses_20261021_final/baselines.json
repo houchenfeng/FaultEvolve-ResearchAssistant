@@ -1,0 +1,80 @@
+[
+  {
+    "path": "/home/hcf/faultevolve-dl/code-v4/benchmark/hdd_mvp/init.py",
+    "sha256": "91744b4ba390ed377b8eb8884a5c0b19e1407765824f00aec5e857aad208caf2",
+    "result": {
+      "validity": 1.0,
+      "combined_score": 22.807355886970594,
+      "cost_time": 1.8914551734924316,
+      "error_info": "",
+      "metric": {
+        "precision": 0.19826,
+        "recall": 0.33598,
+        "f1": 0.24937,
+        "f1_p10": 0.22935,
+        "f1_boot_std": 0.01652,
+        "auprc": 0.19546,
+        "recall_at_far": 0.27381,
+        "false_alarm_rate": 0.0034,
+        "missed_detection_rate": 0.66402,
+        "alarms_per_1k_disks": 4.23,
+        "quality": 0.22807,
+        "run_time_s": 1.89,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    }
+  },
+  {
+    "path": "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py",
+    "sha256": "63cfb5addbf97f972a81c0f9096548c5c8685fec9f842062f0af4063ad04ba55",
+    "result": {
+      "validity": 1.0,
+      "combined_score": 40.72413860816145,
+      "cost_time": 6.0609893798828125,
+      "error_info": "",
+      "metric": {
+        "precision": 0.38198,
+        "recall": 0.47751,
+        "f1": 0.42444,
+        "f1_p10": 0.39583,
+        "f1_boot_std": 0.02141,
+        "auprc": 0.37148,
+        "recall_at_far": 0.48942,
+        "false_alarm_rate": 0.001933,
+        "missed_detection_rate": 0.52249,
+        "alarms_per_1k_disks": 3.121,
+        "quality": 0.40724,
+        "run_time_s": 6.06,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    }
+  },
+  {
+    "path": "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py",
+    "sha256": "005004ea2c4957a514dee4c25036562341bccb2273487bf1c0a9cf3c073ab835",
+    "result": {
+      "validity": 1.0,
+      "combined_score": 38.139345971596875,
+      "cost_time": 7.662947654724121,
+      "error_info": "",
+      "metric": {
+        "precision": 0.33178,
+        "recall": 0.4828,
+        "f1": 0.39329,
+        "f1_p10": 0.36672,
+        "f1_boot_std": 0.02047,
+        "auprc": 0.36117,
+        "recall_at_far": 0.44841,
+        "false_alarm_rate": 0.002433,
+        "missed_detection_rate": 0.5172,
+        "alarms_per_1k_disks": 3.633,
+        "quality": 0.38139,
+        "run_time_s": 7.66,
+        "time_factor": 1.0,
+        "split": "val"
+      }
+    }
+  }
+]

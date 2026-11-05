@@ -73,9 +73,26 @@ const CATEGORY_MEMBERS: Record<EventCategory, readonly string[]> = {
     'run_stalled',
     'expand_redirected_budget',
     'invalid_generation',
+    // 三岛调度：岛是搜索的运行单位，它的启停与基础设施失败都是运行状态改变，
+    // 不是节点或评估事件。`infra_failure` 指评估器/环境抛异常，算法判定无效不算。
+    'island_stopped',
+    'all_islands_stopped',
+    'island_attempt_cap_hit',
+    'infra_failure',
+    // 断点恢复是运行状态的改变，不是节点事件：`run_resumed` 说明这一次是从哪个
+    // 中断点接着跑的（含恢复到的成本行与岛状态），`run_interrupted` 说明上一份
+    // 进程死了但留下了认领记录，`run_resume_refused` 说明任务/数据指纹/岛数/代码
+    // schema 对不上因而拒绝续跑。三者都只描述"这个运行现在处于什么状态"。
+    'run_resumed',
+    'run_interrupted',
+    'run_resume_refused',
+    'research_contract',
+    'research_goal_reached',
   ],
   init: [
     'init_evaluated',
+    // 初始评估失败时正式实验不允许继续，0 分无效根不能当基线。
+    'init_evaluation_invalid',
     'smoke_data_built',
     'smoke_data_build_failed',
     'smoke_passed',
@@ -92,6 +109,8 @@ const CATEGORY_MEMBERS: Record<EventCategory, readonly string[]> = {
     'perf_rejected',
     'operator_selected',
     'operator_fallback',
+    // 岛画像对本岛算子池的偏好（含带种子的多样探索逃逸），与算子选择同源。
+    'operator_bias_applied',
     'patch_applied',
     'patch_fallback_draft',
     'patch_proposed',
@@ -100,20 +119,31 @@ const CATEGORY_MEMBERS: Record<EventCategory, readonly string[]> = {
     'quota_slot',
     'crossover_parents',
     'crossover_reflection_skipped',
+    // 知识卡注入属于"这次生成本岛被给了什么先验"，与算子选择同源。空选择也发事
+    // 件：没有这一条，报告分不清"库里没有适用的卡"和"知识功能被关掉了"。
+    'knowledge_injected',
+    // 跨岛交叉是"本岛父方案 + 兄弟岛结论"的单亲生成：算子被摘要选中、以及据
+    // 摘要嫁接出新节点，都属于节点状态改变，与 operator_selected /
+    // crossover_parents 同源。它不是双亲交叉，所以没有第二个 parent。
+    'summary_cross_selected',
+    'summary_crossover',
     'repair_success',
     'repair_failed',
     'repair_perf_rejected',
     'repair_smoke_failed',
   ],
-  // 引擎没有独立的"评估开始"事件：评估结果随 iteration_complete / node 状态
-  // 一起到。这一类目前只有"完成"侧，如实反映，不补造事件。
-  evaluation: [],
-  iteration: ['iteration_complete'],
+  // 逐结构调优单独记录开始、参数试验与选中版本；外层轮次仍由 iteration_complete 计数。
+  evaluation: ['structure_tuning_started', 'structure_tuning_trial', 'structure_tuning_complete'],
+  // 三岛调度下"一次尝试"归属某个岛并带配额，是迭代生命周期的开始侧；
+  // 结束侧仍是 `iteration_complete`。
+  iteration: ['iteration_complete', 'attempt_started'],
   // 「最佳节点改变」同理：由 iteration_complete 载荷的 best_node_id/best_score
   // 承载，不是独立事件。留空而不是拿 iteration_complete 顶替——那会让
   // "最佳节点改变"在筛选器里和"迭代完成"完全等价，而它们不是一回事。
   best_node: [],
-  llm: ['llm_error'],
+  // `llm_call_lost` 与 `llm_error` 同源，但记账含义不同：前者是"请求已发出、
+  // 回应没拿到"，花费未知而非零，因此必须能在时间线上被筛出来。
+  llm: ['llm_error', 'llm_call_lost'],
   insight: [
     'insight_extracted',
     'hypothesis_refuted',
@@ -121,6 +151,18 @@ const CATEGORY_MEMBERS: Record<EventCategory, readonly string[]> = {
     'reflection_design',
     'reflection_implementation',
     'reflection_mechanism',
+    // 三岛摘要通道：一条结论从发布、送达、采纳到被候选使用，全程都是洞察的
+    // 生命周期，而不是节点的评估结果。`exchange_check` 是"本轮无可发送"也要
+    // 留痕的记账事件，与它同源。
+    'exchange_check',
+    'exchange_summary_published',
+    'exchange_summary_replicated',
+    'exchange_summary_failed',
+    'exchange_delivered',
+    // 中断修复：摘要已落库但进程在投递前退出，下一轮补齐投递时留痕。
+    'exchange_delivery_backfilled',
+    'exchange_rejected',
+    'exchange_applied',
   ],
   discovery: [
     'discovery_round_finished',
@@ -141,7 +183,7 @@ const CATEGORY_MEMBERS: Record<EventCategory, readonly string[]> = {
   // 预算类在 run_state 里也有一份（引擎复用同一批类型表达"因为预算而停"）。
   // 一个类型只能属于一个粗类，所以预算以 run_state 为准，这里不重复收。
   budget: [],
-  run_finished: ['run_finished'],
+  run_finished: ['run_finished', 'run_aborted_invalid_init'],
 };
 
 /** 类型 → 粗类的反查表。构造时发现重复会直接抛，不静默取最后一个。 */

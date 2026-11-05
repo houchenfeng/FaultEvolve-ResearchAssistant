@@ -1,0 +1,282 @@
+[
+  {
+    "id": "M-38cb38cf-0001-cl",
+    "claim_id": "C-38cb38cf-0001",
+    "role": "claim",
+    "title": "Adding time-window delta features for critical SMART attributes improves disk failure prediction",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": 1,
+      "temporal": 1,
+      "dose_response": 1,
+      "mediation": 1,
+      "heterogeneity": -1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0001"
+  },
+  {
+    "id": "M-38cb38cf-0001-cf",
+    "claim_id": "C-38cb38cf-0001",
+    "role": "confound",
+    "title": "confound rival",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": -1,
+      "temporal": 1,
+      "dose_response": 1,
+      "mediation": -1,
+      "heterogeneity": 1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0001"
+  },
+  {
+    "id": "M-38cb38cf-0001-af",
+    "claim_id": "C-38cb38cf-0001",
+    "role": "artifact",
+    "title": "artifact rival",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": -1,
+      "temporal": 1,
+      "dose_response": -1,
+      "mediation": -1,
+      "heterogeneity": 1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0001"
+  },
+  {
+    "id": "M-38cb38cf-0001-ce",
+    "claim_id": "C-38cb38cf-0001",
+    "role": "censor",
+    "title": "censor rival",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": 1,
+      "temporal": -1,
+      "dose_response": 1,
+      "mediation": -1,
+      "heterogeneity": -1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0001"
+  },
+  {
+    "id": "M-38cb38cf-0001-ot",
+    "claim_id": "C-38cb38cf-0001",
+    "role": "other",
+    "title": "other rival",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": -1,
+      "temporal": -1,
+      "dose_response": -1,
+      "mediation": -1,
+      "heterogeneity": -1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0001"
+  },
+  {
+    "id": "M-38cb38cf-0002-cl",
+    "claim_id": "C-38cb38cf-0002",
+    "role": "claim",
+    "title": "Adding temporal trend features and switching to LightGBM improves disk failure prediction recall",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": 1,
+      "temporal": 1,
+      "dose_response": 1,
+      "mediation": 1,
+      "heterogeneity": -1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0002"
+  },
+  {
+    "id": "M-38cb38cf-0002-cf",
+    "claim_id": "C-38cb38cf-0002",
+    "role": "confound",
+    "title": "confound rival",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": -1,
+      "temporal": 1,
+      "dose_response": 1,
+      "mediation": -1,
+      "heterogeneity": 1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0002"
+  },
+  {
+    "id": "M-38cb38cf-0002-af",
+    "claim_id": "C-38cb38cf-0002",
+    "role": "artifact",
+    "title": "artifact rival",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": -1,
+      "temporal": 1,
+      "dose_response": -1,
+      "mediation": -1,
+      "heterogeneity": 1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0002"
+  },
+  {
+    "id": "M-38cb38cf-0002-ce",
+    "claim_id": "C-38cb38cf-0002",
+    "role": "censor",
+    "title": "censor rival",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": 1,
+      "temporal": -1,
+      "dose_response": 1,
+      "mediation": -1,
+      "heterogeneity": -1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0002"
+  },
+  {
+    "id": "M-38cb38cf-0002-ot",
+    "claim_id": "C-38cb38cf-0002",
+    "role": "other",
+    "title": "other rival",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      [
+        "X",
+        "Y",
+        "+"
+      ]
+    ],
+    "predictions": {
+      "env_invariance": -1,
+      "temporal": -1,
+      "dose_response": -1,
+      "mediation": -1,
+      "heterogeneity": -1
+    },
+    "patch_count": 0,
+    "status": "undetermined",
+    "parent_id": null,
+    "family_id": "F-38cb38cf-C-38cb38cf-0002"
+  }
+]

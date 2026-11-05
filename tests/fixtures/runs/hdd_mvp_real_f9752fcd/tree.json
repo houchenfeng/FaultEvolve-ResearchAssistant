@@ -1,0 +1,197 @@
+{
+  "experiment_id": "f9752fcd",
+  "nodes": [
+    {
+      "id": "b181f169",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 10,
+      "adopted_cards": []
+    },
+    {
+      "id": "d8f34173",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 38.139345971596875,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "1.引入LightGBM模型替代LogisticRegression 2.添加趋势和变化特征 3.使用3折交叉验证选择阈值",
+      "visit_count": 5,
+      "adopted_cards": [
+        "M01",
+        "T01",
+        "E01"
+      ]
+    },
+    {
+      "id": "d588f3c1",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "1. 添加14天窗口内的delta特征(最后-第一个值) 2. 添加3天和7天前的对比特征 3. 添加首次变为非零的标志特征",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "0c4c6124",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 26.251557822444394,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "1. 添加关键SMART计数器在14天窗口内的增量特征 2. 添加首次出现非零值的标志特征 3. 处理计数器重置情况",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "FE03"
+      ]
+    },
+    {
+      "id": "bca7e30e",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "1. 添加模型作为分类特征并计算模型级别的目标编码 2. 实现分层交叉验证进行阈值选择 3. 使用目标编码后的模型特征训练LightGBM",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "ad5e6027",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 33.633947649355825,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "1.将模型从LogisticRegression改为LightGBMClassifier 2.提取14天历史数据的趋势特征如斜率、变化幅度等 3.保留厂商特征并加入模型特征",
+      "visit_count": 0,
+      "adopted_cards": [
+        "M01",
+        "FE09"
+      ]
+    },
+    {
+      "id": "1f0d4e19",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "添加模型目标编码特征并改进阈值选择方法",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "bf667d11",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 26.39618576585314,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "1.引入LightGBM模型并添加SMART值的趋势和变化特征 2.使用3折分层交叉验证获取样本外预测分数 3.基于验证集OOF预测选择最优阈值",
+      "visit_count": 0,
+      "adopted_cards": [
+        "T01",
+        "E01",
+        "FE09",
+        "M01"
+      ]
+    },
+    {
+      "id": "0aaa3951",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "实现FE08知识卡片中的按型号排名归一化功能，在extract_features函数中添加对smart_1/7/9/193/240/241/242等关键原始属性的模型内排名归一化处理",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "bd244920",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 21.99211552972043,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "1.将模型从LogisticRegression替换为LightGBM 2.实现3折交叉验证获取OOF预测 3.基于OOF预测选择最优阈值",
+      "visit_count": 0,
+      "adopted_cards": [
+        "T01",
+        "E01"
+      ]
+    },
+    {
+      "id": "1d333523",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "1. 添加模型作为LightGBM类别特征 2. 实现跨折的目标编码以避免泄露 3. 使用平滑的目标编码公式降低噪声影响",
+      "visit_count": 0,
+      "adopted_cards": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "b181f169",
+      "target": "d8f34173"
+    },
+    {
+      "source": "d8f34173",
+      "target": "d588f3c1"
+    },
+    {
+      "source": "d8f34173",
+      "target": "0c4c6124"
+    },
+    {
+      "source": "d8f34173",
+      "target": "bca7e30e"
+    },
+    {
+      "source": "b181f169",
+      "target": "ad5e6027"
+    },
+    {
+      "source": "d8f34173",
+      "target": "1f0d4e19"
+    },
+    {
+      "source": "b181f169",
+      "target": "bf667d11"
+    },
+    {
+      "source": "d8f34173",
+      "target": "0aaa3951"
+    },
+    {
+      "source": "b181f169",
+      "target": "bd244920"
+    },
+    {
+      "source": "d8f34173",
+      "target": "1d333523"
+    }
+  ]
+}

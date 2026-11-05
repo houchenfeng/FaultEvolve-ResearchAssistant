@@ -1,0 +1,162 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792528802.2116961,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 171,
+      "prompt_tokens": 8198,
+      "total_tokens": 8369
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.25
+      },
+      "hypothesis": "结合HDD-CAPACITY-01和HDD-HYBRID-01的证据，增加网络宽度至256并降低树模型混合权重至0.25。假设更宽的TCN能更好地捕捉SMART属性的复杂时序模式（提升AUPRC和Precision），而较低的树混合比例减少了对简单特征的依赖，从而在保持低误报率的同时提高召回率和综合得分。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792528805.484931
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792528953.99938,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 186,
+      "prompt_tokens": 9464,
+      "total_tokens": 9650
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "lr": 0.001,
+        "epochs": 30
+      },
+      "hypothesis": "HDD-CAPACITY-01显示增加宽度至256能提升AUPRC和精度，但降低召回率。HDD-EFFICIENCY-01表明在候选配置中联合使用lr=0.001和epochs=30可提升ROS和F1并减少运行时间。结合两者可能通过更宽的表示能力和更快的收敛来平衡精度与召回，同时保持低误报率下的性能。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-EFFICIENCY-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792528957.4816594
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792529106.0487177,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 181,
+      "prompt_tokens": 9880,
+      "total_tokens": 10061
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "threshold_scale": 1.0
+      },
+      "hypothesis": "增加网络宽度（width=256）能提升特征表达能力，从而在保持或提高AUPRC的同时改善整体预测性能。同时，降低阈值缩放因子（threshold_scale=1.0）旨在通过放宽报警触发条件来显著提高召回率（Recall），以弥补宽网络可能带来的精度权衡，并尝试在不牺牲过多精度的情况下最大化低误报率下的召回能力。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-WIDE-THRESHOLD-01"
+      ],
+      "evidence_trials": [
+        0,
+        1
+      ]
+    },
+    "finished_at": 1792529111.5561867
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792529267.668765,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 210,
+      "prompt_tokens": 9454,
+      "total_tokens": 9664
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.25
+      },
+      "hypothesis": "基于HDD-CAPACITY-01，将宽度从128增加到256在所有匹配的种子中提高了ROS、精度、F1和AUPRC，并降低了误报率（FAR），尽管召回率略有下降。结合HDD-HYBRID-01的证据，在25%的树混合比例下，相比当前配置中的50%，进一步提升了低FAR下的召回率和整体性能。此组合旨在通过增加模型容量来改善排序质量，同时优化混合权重以平衡精确度和召回率，从而在不牺牲运行效率的情况下提升综合预测指标。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792529271.6712694
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792529408.5162375,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 188,
+      "prompt_tokens": 9839,
+      "total_tokens": 10027
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.25
+      },
+      "hypothesis": "在候选配置中，将网络宽度从128增加到256能提升模型容量以捕捉更复杂的SMART趋势模式（依据HDD-CAPACITY-01），同时降低树模型混合权重至0.25可平衡神经分支的主导地位并引入互补的梯度提升特征交互（依据HDD-HYBRID-01）。这种组合旨在通过增强非线性表达能力和集成多样性来提高AUPRC和低FAR下的召回率，尽管可能伴随一定的精度权衡。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792529411.9358191
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792529569.7115924,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 134,
+      "prompt_tokens": 9871,
+      "total_tokens": 10005
+    },
+    "proposal": {
+      "changes": {
+        "width": 256,
+        "tree_blend": 0.25
+      },
+      "hypothesis": "增加网络宽度至256能提升特征提取容量，结合降低树模型混合权重至0.25以平衡神经与树分支的贡献，旨在同时提高AUPRC、F1和低误报率下的召回率。",
+      "knowledge_ids": [
+        "HDD-CAPACITY-01",
+        "HDD-HYBRID-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792529572.5677574
+  }
+]

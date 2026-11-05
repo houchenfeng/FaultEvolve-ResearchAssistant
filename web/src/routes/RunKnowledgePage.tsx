@@ -14,6 +14,10 @@
  * - 发现制品来自 `/discovery`，读 `discovery/*.json`；
  * - 采用汇总、辩论赛计数与制品状态来自 `RunLayout` 已经取好的 `/api/runs/{id}`
  *   （读 `run_summary.json`），同一个 query key，TanStack Query 会复用，不额外发请求。
+ *
+ * 第五节「岛间摘要」（TODO D6.4）把**运行内**跨岛结论与知识卡分开显示：
+ * 摘要只在本运行内流转，不会自动登记成知识卡（需求 §6），置信度按 API 原值
+ * 翻译，`single_observation` 永远不会显示成"已确认"。
  */
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from '@tanstack/react-router';
@@ -48,6 +52,7 @@ import {
 } from '@/features/discovery/discovery-logic';
 import { MechanismTournament } from '@/features/discovery/MechanismTournament';
 import { PhenomenonList } from '@/features/discovery/PhenomenonList';
+import { SummaryDigest } from '@/features/islands/SummaryDigest';
 import {
   getDiscoveryApiRunsRunIdDiscoveryGet,
   getEventsApiRunsRunIdEventsGet,
@@ -57,8 +62,6 @@ import {
 import { toApiError, unwrap } from '@/lib/api';
 import { queryKeys } from '@/lib/query-keys';
 import { useUiStore } from '@/stores/ui-store';
-import { HddKnowledgeCase } from '@/features/showcase/HddKnowledgeCase';
-import { SHOWCASE_RUN_ID } from '@/features/showcase/hdd-showcase-data';
 
 /**
  * 制品状态只在契约的三种取值上断言，其余一律 `unknown`。
@@ -144,9 +147,6 @@ export function RunKnowledgePage() {
     void navigate({ to: '/runs/$runId/tree', params: { runId } });
   };
 
-  if (runId === SHOWCASE_RUN_ID) {
-    return <HddKnowledgeCase />;
-  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -320,6 +320,11 @@ export function RunKnowledgePage() {
           certificates={certificates}
         />
       </section>
+
+      {/* 三样东西在这页上必须能被分开读：知识卡（任务知识库的先验）、
+          运行经验（上面的现象层/机制层/本轮沉淀）、岛间摘要（这条）。
+          摘要不是知识卡，也不自动入库 —— 需求 §6 的另一半。 */}
+      <SummaryDigest runId={runId} onOpenNode={openNode} />
     </div>
   );
 }

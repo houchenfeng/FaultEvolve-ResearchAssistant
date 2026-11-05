@@ -1,0 +1,40 @@
+{
+  "scope": "training_oof_diagnostic_not_benchmark",
+  "seeds": [
+    20270420,
+    20270421,
+    20270422
+  ],
+  "config": {
+    "family": "tcn",
+    "width": 128,
+    "depth": 1,
+    "dropout": 0.1,
+    "lr": 0.0003,
+    "weight_decay": 0.001,
+    "batch_size": 512,
+    "epochs": 60,
+    "positive_boost": 3.0,
+    "threshold_scale": 1.2,
+    "seed": 20261020,
+    "train_seconds": 240,
+    "normalization": "quantile",
+    "folds": 3,
+    "feature_set": "trends",
+    "focal_gamma": 0.0,
+    "model_identity": false,
+    "smart_subset": "all",
+    "epoch_objective": "auprc",
+    "replicas": 3,
+    "ranking_weight": 0.0,
+    "device_context": true,
+    "tree_blend": 0.5,
+    "fold_calibration": "raw",
+    "tail_risk_weight": 0.01,
+    "tail_warmup_epochs": 10,
+    "tail_beta": 0.002,
+    "tail_step_size": 0.0001
+  },
+  "candidate_sha256": "ad02c0d107c191beec29ff8f8b4a7e57aba19bc20fe3342634fdc6d9bbebc455",
+  "source_candidate_sha256": "5bcdc23b7b9eaaf3605d08449cd660f1b02b540f5ee5cdbcc8545d0b55e8a414"
+}

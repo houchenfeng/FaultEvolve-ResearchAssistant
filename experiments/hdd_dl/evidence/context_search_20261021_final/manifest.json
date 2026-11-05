@@ -1,0 +1,44 @@
+{
+  "evaluator_sha256": "cddfaaab6dbe2ee661b634bf39f3585b3b5821c04e84944ea084455c333523a9",
+  "template_sha256": "009b49d399871392090d01391c564a24ddf4c6a0ade1d64921349a2373f3d0c0",
+  "knowledge_sha256": "e6a58cf771fc8c4e03943ef24b881f1c132ae036410efcaa3135b9b479e54be1",
+  "seed": 20261020,
+  "controller_sha256": "74d2a59bb72a0d272f8381dc6731d21d680b85c5efebfacfb57de6aec158e03b",
+  "context_sha256": "64ef6628e3801dee01addbc76db4b2ae01c0c812e7aad3bc50496ed2ad814745",
+  "planner_sha256": "7ed4c176143616a30f2d50eb4ea787d65fef4d7d1e01f05c69c91114d20bf484",
+  "planner": {
+    "enabled": true,
+    "model": "qwen3.8-flash",
+    "max_calls": 6
+  },
+  "retrieval_sha256": "267ee32ed83f5bfed50e0de49b2bc19d6181820d65552234f7e6c0bb04f43f85",
+  "seed_records_sha256": "261d70df64625e23df4fe37145f030894362bdcad4a5824bdb7bea818f5a6e65",
+  "packages": {
+    "torch": "2.11.0+cu128",
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "lightgbm": "4.7.0"
+  },
+  "public_data_sha256": {
+    "train_history.csv.gz": "f033f35b786108567351b3b5d9882bc171679c75c2e24e300f11df95e1505624",
+    "train_labels.csv": "64b798410d78302ff77e4312b6c930edceee60c56d820f927be1b6804d503b27",
+    "val_history.csv.gz": "0b8e75b409c28c8ee1a45a6e187c8e01bf7829c830727e3cff4850a035bc9091",
+    "val_index.csv": "9abf34bcb5bbbc9cf8f2fdeabad505959418ed0aaed3ab61d5d72552820a44d8"
+  },
+  "baselines": {
+    "/home/hcf/faultevolve-dl/code-v10/benchmark/hdd_mvp/init.py": "91744b4ba390ed377b8eb8884a5c0b19e1407765824f00aec5e857aad208caf2",
+    "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py": "63cfb5addbf97f972a81c0f9096548c5c8685fec9f842062f0af4063ad04ba55",
+    "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py": "005004ea2c4957a514dee4c25036562341bccb2273487bf1c0a9cf3c073ab835"
+  },
+  "gpu": 0,
+  "protocol": "unchanged-hdd-val-900s-training-included",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "staging_policy": "local-bounded-1GiB-input-5GiB-scratch",
+  "scope": "validation_search_not_independent_test"
+}

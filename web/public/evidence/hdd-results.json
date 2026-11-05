@@ -1,0 +1,72 @@
+{
+  "source": "experiments/hdd_dl/evidence/verified_search_20261021",
+  "sourceCommit": "5ee57ba89b24866ed014e3bf6eb8ff16bba2e123",
+  "split": "val",
+  "trials": 48,
+  "independentReplication": false,
+  "caveat": "验证集参与候选搜索，尚未独立复验；以下为归档实验结果，不是当前运行或私有测试成绩。",
+  "config": {
+    "family": "tcn",
+    "treeBlend": 0.5,
+    "replicas": 3,
+    "epochs": 60
+  },
+  "models": [
+    {
+      "id": "initial",
+      "label": "初始逻辑回归",
+      "phase": "起点",
+      "metrics": {
+        "combined_score": 22.807355886970594,
+        "precision": 0.19826,
+        "recall": 0.33598,
+        "f1": 0.24937,
+        "auprc": 0.19546,
+        "false_alarm_rate": 0.0034,
+        "run_time_s": 1.86
+      }
+    },
+    {
+      "id": "preliminary",
+      "label": "初赛最佳方案",
+      "phase": "初赛",
+      "metrics": {
+        "combined_score": 38.139345971596875,
+        "precision": 0.33178,
+        "recall": 0.4828,
+        "f1": 0.39329,
+        "auprc": 0.36117,
+        "false_alarm_rate": 0.002433,
+        "run_time_s": 7.67
+      }
+    },
+    {
+      "id": "islands",
+      "label": "三岛 ML 方案",
+      "phase": "多岛演化",
+      "metrics": {
+        "combined_score": 40.72413860816145,
+        "precision": 0.38198,
+        "recall": 0.47751,
+        "f1": 0.42444,
+        "auprc": 0.37148,
+        "false_alarm_rate": 0.001933,
+        "run_time_s": 6.11
+      }
+    },
+    {
+      "id": "hybrid",
+      "label": "TCN + 树模型",
+      "phase": "混合建模",
+      "metrics": {
+        "combined_score": 42.53068134644748,
+        "precision": 0.38672,
+        "recall": 0.50397,
+        "f1": 0.43763,
+        "auprc": 0.40271,
+        "false_alarm_rate": 0.002,
+        "run_time_s": 25.8
+      }
+    }
+  ]
+}

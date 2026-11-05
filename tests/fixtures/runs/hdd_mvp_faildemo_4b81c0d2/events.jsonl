@@ -1,0 +1,16 @@
+{"id": 1, "experiment_id": "4b81c0d2", "type": "init_evaluated", "payload": {"node_id": "c0ffee01", "score": 22.807355886970594, "metric": {"f1_p10": 0.22935, "auprc": 0.19546, "recall_at_far": 0.27381, "run_time_s": 3.66, "split": "val"}}, "ts": "2026-10-03T09:00:09+00:00"}
+{"id": 2, "experiment_id": "4b81c0d2", "type": "smoke_data_built", "payload": {"path": "<REDACTED_PATH>", "sample_fraction": 0.02}, "ts": "2026-10-03T09:00:13+00:00"}
+{"id": 3, "experiment_id": "4b81c0d2", "type": "node_created", "payload": {"node_id": "fa11ed01", "operator": "refine", "parent_id": "c0ffee01"}, "ts": "2026-10-03T09:00:17+00:00"}
+{"id": 4, "experiment_id": "4b81c0d2", "type": "smoke_failed", "payload": {"node_id": "fa11ed01", "error_class": "sandbox_error", "reason": "LightGBM 参数 'num_leavs' 未知，候选进程退出码 1"}, "ts": "2026-10-03T09:00:21+00:00"}
+{"id": 5, "experiment_id": "4b81c0d2", "type": "iteration_complete", "payload": {"node_id": "fa11ed01", "status": "invalid", "score": 0.0}, "ts": "2026-10-03T09:00:25+00:00"}
+{"id": 6, "experiment_id": "4b81c0d2", "type": "node_created", "payload": {"node_id": "f1xed001", "operator": "repair", "repair_parent_id": "fa11ed01"}, "ts": "2026-10-03T09:00:29+00:00"}
+{"id": 7, "experiment_id": "4b81c0d2", "type": "repair_success", "payload": {"node_id": "f1xed001", "repair_parent_id": "fa11ed01", "attempt": 1, "score": 18.5124}, "ts": "2026-10-03T09:00:33+00:00"}
+{"id": 8, "experiment_id": "4b81c0d2", "type": "iteration_complete", "payload": {"node_id": "f1xed001", "status": "done", "score": 18.5124}, "ts": "2026-10-03T09:00:37+00:00"}
+{"id": 9, "experiment_id": "4b81c0d2", "type": "node_created", "payload": {"node_id": "fa11ed02", "operator": "refine", "parent_id": "c0ffee01"}, "ts": "2026-10-03T09:00:41+00:00"}
+{"id": 10, "experiment_id": "4b81c0d2", "type": "smoke_failed", "payload": {"node_id": "fa11ed02", "error_class": "timeout", "reason": "候选在 900s 内未写出 pred.csv"}, "ts": "2026-10-03T09:00:45+00:00"}
+{"id": 11, "experiment_id": "4b81c0d2", "type": "iteration_complete", "payload": {"node_id": "fa11ed02", "status": "invalid", "score": 0.0}, "ts": "2026-10-03T09:00:49+00:00"}
+{"id": 12, "experiment_id": "4b81c0d2", "type": "node_created", "payload": {"node_id": "f1xed002", "operator": "repair", "repair_parent_id": "fa11ed02"}, "ts": "2026-10-03T09:00:53+00:00"}
+{"id": 13, "experiment_id": "4b81c0d2", "type": "repair_smoke_failed", "payload": {"node_id": "f1xed002", "repair_parent_id": "fa11ed02", "attempt": 1}, "ts": "2026-10-03T09:00:57+00:00"}
+{"id": 14, "experiment_id": "4b81c0d2", "type": "repair_failed", "payload": {"node_id": "f1xed002", "repair_parent_id": "fa11ed02", "reason": "达到最大修复次数（3），链根已标记 exhausted"}, "ts": "2026-10-03T09:01:01+00:00"}
+{"id": 15, "experiment_id": "4b81c0d2", "type": "iteration_complete", "payload": {"node_id": "f1xed002", "status": "invalid", "score": 0.0}, "ts": "2026-10-03T09:01:05+00:00"}
+{"id": 16, "experiment_id": "4b81c0d2", "type": "run_finished", "payload": {"status": "finished", "stop_reason": "max_iterations", "best_node_id": "c0ffee01", "best_score": 22.807355886970594}, "ts": "2026-10-03T09:01:09+00:00"}

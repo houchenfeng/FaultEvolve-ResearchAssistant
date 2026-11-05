@@ -17,12 +17,14 @@ from fastapi import FastAPI, Request
 from faultevolve.webapi import replay_service, run_control
 from faultevolve.webapi.contracts import (
     AppendRoundsRequest,
+    RunProvenanceResponse,
     RunControlResponse,
     RunCreateRequest,
     RunCreateResponse,
     RunDetailResponse,
     RunLiveResponse,
     RunSummaryResponse,
+    WorkflowResponse,
 )
 from faultevolve.webapi.paths import validate_id
 from faultevolve.webapi.settings import WebSettings
@@ -35,6 +37,12 @@ def _settings(request: Request) -> WebSettings:
 def register(app: FastAPI) -> None:
     """Attach ``/api/runs`` endpoints."""
 
+    @app.get("/api/runs/{run_id}/workflow", response_model=WorkflowResponse,
+             tags=["runs"], summary="读取数据处理复检与分层搜索记录")
+    async def get_workflow(request: Request, run_id: str) -> WorkflowResponse:
+        from faultevolve.webapi.workflow_service import workflow
+        return workflow(_settings(request), run_id)
+
     @app.get(
         "/api/runs",
         response_model=list[RunSummaryResponse],
@@ -42,12 +50,29 @@ def register(app: FastAPI) -> None:
         summary="列出可回放的运行",
     )
     async def list_runs(request: Request) -> list[RunSummaryResponse]:
-        """Every run directory one level below the configured roots.
+        """Every run the bounded discovery scan found, fixtures excluded.
 
         An unreadable run still appears, marked ``unreadable``: hiding it would
         make a broken run look like a run that never existed.
         """
         return replay_service.list_runs(_settings(request))
+
+    # Declared before ``/api/runs/{run_id}``: a literal segment has to win over
+    # the path parameter, and ``provenance`` is itself an id-shaped word.
+    @app.get(
+        "/api/runs/provenance",
+        response_model=RunProvenanceResponse,
+        tags=["runs"],
+        summary="列出运行的来源清单",
+    )
+    async def get_run_provenance(request: Request) -> RunProvenanceResponse:
+        """What the scan looked at, what it found, and how each run was judged.
+
+        TODO D6.2: real / fixture / unverified come from evidence, and the counts
+        reconcile, so an operator can see a run was skipped rather than trusting
+        a listing that quietly left it out.
+        """
+        return replay_service.discovery_manifest(_settings(request))
 
     @app.post(
         "/api/runs",

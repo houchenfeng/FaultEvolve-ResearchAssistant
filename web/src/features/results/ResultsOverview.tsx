@@ -17,6 +17,11 @@ export interface ResultsOverviewProps {
   metrics: MetricRow[];
   /** 分项指标取自哪个节点；null 表示还没有最佳节点。 */
   metricsNodeId: string | null;
+  /**
+   * 该节点所属岛的显示名（`岛 a`）；历史单树 / 节点没有岛标记时传 null。
+   * 三岛运行下"这个分数来自哪个岛"和分数本身一样是结论的一部分。
+   */
+  metricsIslandLabel?: string | null;
   metricsState: MetricsState;
   /** `metricsState === 'skipped'` 时显示的原因，由路由给出（它才知道为什么跳过）。 */
   metricsSkipReason: string | null;
@@ -26,6 +31,7 @@ export function ResultsOverview({
   rows,
   metrics,
   metricsNodeId,
+  metricsIslandLabel = null,
   metricsState,
   metricsSkipReason,
 }: ResultsOverviewProps) {
@@ -66,7 +72,8 @@ export function ResultsOverview({
               免得同一件事在两处各说一遍、措辞还可能不一致。 */}
           {metricsNodeId ? (
             <span className="text-[11px] text-fg-subtle">
-              取自最佳节点 <code className="font-mono">{metricsNodeId}</code> 的
+              取自{metricsIslandLabel ? `${metricsIslandLabel}的` : ''}最佳节点{' '}
+              <code className="font-mono">{metricsNodeId}</code> 的
               <code className="ml-1 font-mono">metric</code> 字典
             </span>
           ) : null}

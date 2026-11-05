@@ -74,6 +74,15 @@ export function PresetSelector({
   const maxIterations = presetValue(selectedPreset, ['budget', 'max_iterations']);
   const maxWallHours = presetValue(selectedPreset, ['budget', 'max_wall_hours']);
   const maxTokens = presetValue(selectedPreset, ['budget', 'max_tokens']);
+  const effective = (path: string[]) => {
+    let value: unknown = patch;
+    for (const key of path) value = value && typeof value === 'object' ? (value as Record<string, unknown>)[key] : undefined;
+    return value ?? presetValue(selectedPreset, path);
+  };
+  const changeAlgorithm = (fragment: Record<string, unknown>) => {
+    applyPatch(fragment);
+    previewMutation.reset();
+  };
 
   const preview = previewMutation.data;
   const showIntensity = section !== 'advanced';
@@ -191,6 +200,25 @@ export function PresetSelector({
             })}
           </div>
         )
+      ) : null}
+
+      {showIntensity && selectedPreset ? (
+        <fieldset className="mt-2 rounded-xl border border-brand-200 bg-brand-50/40 p-4 dark:border-brand-500/30 dark:bg-brand-500/5">
+          <legend className="px-2 text-xs font-semibold text-fg">算法与执行流程</legend>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex items-start gap-2 text-xs text-fg">
+              <input type="checkbox" checked={effective(['islands', 'enabled']) === true}
+                onChange={event => changeAlgorithm({ islands: { enabled: event.target.checked } })} />
+              <span>多岛协作<span className="mt-1 block text-[11px] leading-5 text-fg-muted">性能、误漏报、效率独立探索，轮转调度并交换策略摘要。关闭后使用单树搜索。</span></span>
+            </label>
+            <label className="flex items-start gap-2 text-xs text-fg">
+              <input type="checkbox" checked={effective(['workflow', 'hierarchical', 'enabled']) === true}
+                onChange={event => changeAlgorithm({ workflow: { enabled: true, hierarchical: { enabled: event.target.checked } } })} />
+              <span>分层参数调优<span className="mt-1 block text-[11px] leading-5 text-fg-muted">在候选结构内继续搜索参数，增加本地评估次数与耗时；结果单独记账。</span></span>
+            </label>
+          </div>
+          <p className="mt-3 border-t border-border-subtle pt-2 text-[10px] text-fg-muted">配置由服务端校验后执行。真实分数和各岛状态将在工作台展示；42.53 为历史专项实验成绩，不是新任务的预期保证。</p>
+        </fieldset>
       ) : null}
 
       {showAdvanced && section === 'all' ? (

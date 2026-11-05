@@ -198,6 +198,68 @@
         "title": "ControlAction",
         "type": "string"
       },
+      "ConvergencePointResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "best_so_far": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best So Far"
+          },
+          "elapsed_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elapsed S"
+          },
+          "round": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "trial": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trial"
+          }
+        },
+        "title": "ConvergencePointResponse",
+        "type": "object"
+      },
       "DeploymentMode": {
         "description": "How the engine gets executed. P0 ships cloud-only modes.",
         "enum": [
@@ -370,6 +432,696 @@
         "title": "DiscoveryResponse",
         "type": "object"
       },
+      "EffectAutomationResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "automatic_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Automatic Coverage"
+          },
+          "end_to_end_unattended": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End To End Unattended"
+          },
+          "evolution_attempts": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evolution Attempts"
+          },
+          "hpo_trials": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hpo Trials"
+          },
+          "manual_interventions": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manual Interventions"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "self_recovered_failures": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Self Recovered Failures"
+          },
+          "stages": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stages"
+          },
+          "total_steps": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Steps"
+          },
+          "unrecovered_adapter_errors": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unrecovered Adapter Errors"
+          }
+        },
+        "title": "EffectAutomationResponse",
+        "type": "object"
+      },
+      "EffectComplexityResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "ast_nodes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ast Nodes"
+          },
+          "branch_points": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branch Points"
+          },
+          "ensemble_fits": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ensemble Fits"
+          },
+          "estimated_parameters": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Parameters"
+          },
+          "evaluation_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation Seconds"
+          },
+          "functions": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Functions"
+          },
+          "model_families": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Model Families",
+            "type": "array"
+          },
+          "parameter_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parameter Note"
+          },
+          "source_lines": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Lines"
+          }
+        },
+        "title": "EffectComplexityResponse",
+        "type": "object"
+      },
+      "EffectConvergenceResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "evolution_curve": {
+            "items": {
+              "$ref": "#/components/schemas/ConvergencePointResponse"
+            },
+            "title": "Evolution Curve",
+            "type": "array"
+          },
+          "evolution_rounds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evolution Rounds"
+          },
+          "evolution_stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evolution Stop Reason"
+          },
+          "hpo_best_trial": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hpo Best Trial"
+          },
+          "hpo_curve": {
+            "items": {
+              "$ref": "#/components/schemas/ConvergencePointResponse"
+            },
+            "title": "Hpo Curve",
+            "type": "array"
+          },
+          "hpo_elapsed_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hpo Elapsed S"
+          },
+          "hpo_stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hpo Stop Reason"
+          },
+          "hpo_trials": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hpo Trials"
+          },
+          "rounds_to_target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rounds To Target"
+          },
+          "target_reached": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Reached"
+          },
+          "target_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Score"
+          },
+          "time_to_target_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time To Target S"
+          },
+          "tokens_to_target": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tokens To Target"
+          }
+        },
+        "title": "EffectConvergenceResponse",
+        "type": "object"
+      },
+      "EffectPerformanceResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "alarms_per_1k_disks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alarms Per 1K Disks"
+          },
+          "auprc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auprc"
+          },
+          "combined_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Combined Score"
+          },
+          "f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F1"
+          },
+          "f1_p10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F1 P10"
+          },
+          "false_alarm_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "False Alarm Rate"
+          },
+          "missed_detection_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missed Detection Rate"
+          },
+          "precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precision"
+          },
+          "recall": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recall"
+          },
+          "recall_at_far": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recall At Far"
+          }
+        },
+        "title": "EffectPerformanceResponse",
+        "type": "object"
+      },
+      "EffectReportResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "automation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EffectAutomationResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "convergence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EffectConvergenceResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "solutions": {
+            "items": {
+              "$ref": "#/components/schemas/EffectSolutionResponse"
+            },
+            "title": "Solutions",
+            "type": "array"
+          },
+          "token_usage": {
+            "$ref": "#/components/schemas/EffectTokenUsageResponse"
+          }
+        },
+        "title": "EffectReportResponse",
+        "type": "object"
+      },
+      "EffectSolutionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "complexity": {
+            "$ref": "#/components/schemas/EffectComplexityResponse"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "performance": {
+            "$ref": "#/components/schemas/EffectPerformanceResponse"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "EffectSolutionResponse",
+        "type": "object"
+      },
+      "EffectTokenUsageResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "generate_tokens": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generate Tokens"
+          },
+          "hierarchical_tokens": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hierarchical Tokens"
+          },
+          "iterations_done": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iterations Done"
+          },
+          "jev_tokens": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jev Tokens"
+          },
+          "knowledge_tokens": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Knowledge Tokens"
+          },
+          "reflect_tokens": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reflect Tokens"
+          },
+          "repair_tokens": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Repair Tokens"
+          },
+          "tokens_per_score_gain": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tokens Per Score Gain"
+          },
+          "total_eval_time_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Eval Time S"
+          },
+          "total_llm_latency_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Llm Latency Ms"
+          },
+          "total_tokens": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Tokens"
+          },
+          "wall_time_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wall Time S"
+          }
+        },
+        "title": "EffectTokenUsageResponse",
+        "type": "object"
+      },
       "EventPageResponse": {
         "additionalProperties": false,
         "description": "Incremental event page for polling / SSE catch-up.",
@@ -473,6 +1225,218 @@
         "title": "EventResponse",
         "type": "object"
       },
+      "ExchangeDeliveryResponse": {
+        "additionalProperties": false,
+        "description": "One island's decision about one foreign summary.",
+        "properties": {
+          "delivery_id": {
+            "title": "Delivery Id",
+            "type": "string"
+          },
+          "reason": {
+            "default": "",
+            "title": "Reason",
+            "type": "string"
+          },
+          "source_island_id": {
+            "title": "Source Island Id",
+            "type": "string"
+          },
+          "status": {
+            "default": "",
+            "title": "Status",
+            "type": "string"
+          },
+          "summary_id": {
+            "title": "Summary Id",
+            "type": "string"
+          },
+          "target_island_id": {
+            "title": "Target Island Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "delivery_id",
+          "summary_id",
+          "source_island_id",
+          "target_island_id"
+        ],
+        "title": "ExchangeDeliveryResponse",
+        "type": "object"
+      },
+      "ExchangeSummaryResponse": {
+        "additionalProperties": false,
+        "description": "A published conclusion about one island, with its evidence and its fate.",
+        "properties": {
+          "applications": {
+            "items": {
+              "$ref": "#/components/schemas/SummaryApplicationResponse"
+            },
+            "title": "Applications",
+            "type": "array"
+          },
+          "conditions": {
+            "default": "",
+            "title": "Conditions",
+            "type": "string"
+          },
+          "confidence_status": {
+            "default": "",
+            "title": "Confidence Status",
+            "type": "string"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Created At"
+          },
+          "deliveries": {
+            "items": {
+              "$ref": "#/components/schemas/ExchangeDeliveryResponse"
+            },
+            "title": "Deliveries",
+            "type": "array"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Metrics",
+            "type": "object"
+          },
+          "source_island_id": {
+            "title": "Source Island Id",
+            "type": "string"
+          },
+          "source_node_id": {
+            "default": "",
+            "title": "Source Node Id",
+            "type": "string"
+          },
+          "summary_id": {
+            "title": "Summary Id",
+            "type": "string"
+          },
+          "summary_text": {
+            "default": "",
+            "title": "Summary Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "summary_id",
+          "source_island_id"
+        ],
+        "title": "ExchangeSummaryResponse",
+        "type": "object"
+      },
+      "ExchangeViewResponse": {
+        "additionalProperties": false,
+        "description": "The four separate facts of the summary channel, never collapsed into one.\n\nPublished -> delivered -> accepted/rejected -> applied, where\n``applications`` can exceed ``accepted`` because one adopted summary may\nproduce several candidates, and only ``evaluated_applications`` were scored by\nthe receiving island's own evaluator.",
+        "properties": {
+          "accepted": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Accepted"
+          },
+          "applications": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Applications"
+          },
+          "by_kind": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "By Kind",
+            "type": "object"
+          },
+          "deliveries": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Deliveries"
+          },
+          "evaluated_applications": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Evaluated Applications"
+          },
+          "rejected": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rejected"
+          },
+          "summaries": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Summaries"
+          }
+        },
+        "title": "ExchangeViewResponse",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -504,6 +1468,312 @@
           "contract_version"
         ],
         "title": "HealthResponse",
+        "type": "object"
+      },
+      "HierarchicalRouteResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Score"
+          },
+          "default_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Default Score"
+          },
+          "route_id": {
+            "title": "Route Id",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source"
+          },
+          "visits": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Visits"
+          }
+        },
+        "required": [
+          "route_id"
+        ],
+        "title": "HierarchicalRouteResponse",
+        "type": "object"
+      },
+      "HierarchicalSearchResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "best_candidate_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Candidate Id"
+          },
+          "best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Score"
+          },
+          "completed_trials": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Completed Trials"
+          },
+          "contract_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Contract Hash"
+          },
+          "default_barrier_open": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Default Barrier Open"
+          },
+          "max_trials": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Trials"
+          },
+          "routes": {
+            "items": {
+              "$ref": "#/components/schemas/HierarchicalRouteResponse"
+            },
+            "title": "Routes",
+            "type": "array"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stop Reason"
+          },
+          "trials": {
+            "items": {
+              "$ref": "#/components/schemas/HierarchicalTrialResponse"
+            },
+            "title": "Trials",
+            "type": "array"
+          }
+        },
+        "title": "HierarchicalSearchResponse",
+        "type": "object"
+      },
+      "HierarchicalTrialResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "changed_parameter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Changed Parameter"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Decision"
+          },
+          "depth": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Depth"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Duration Seconds"
+          },
+          "parameters": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Parameters",
+            "type": "object"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Parent Id"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reason"
+          },
+          "reward": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reward"
+          },
+          "route_id": {
+            "title": "Route Id",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Score"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "trial_number": {
+            "title": "Trial Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "trial_number",
+          "candidate_id",
+          "route_id"
+        ],
+        "title": "HierarchicalTrialResponse",
         "type": "object"
       },
       "HypothesisStatus": {
@@ -648,6 +1918,168 @@
           "available"
         ],
         "title": "InsightsResponse",
+        "type": "object"
+      },
+      "IslandCostResponse": {
+        "additionalProperties": false,
+        "description": "One island's share of the spend.",
+        "properties": {
+          "by_stage": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "By Stage",
+            "type": "object"
+          },
+          "cached_calls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cached Calls"
+          },
+          "calls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Calls"
+          },
+          "tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tokens"
+          },
+          "unresolved_calls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unresolved Calls"
+          }
+        },
+        "title": "IslandCostResponse",
+        "type": "object"
+      },
+      "IslandViewResponse": {
+        "additionalProperties": false,
+        "description": "One island's own lifecycle, as the engine recorded it.\n\nMirrors the ``islands`` block of ``run_summary.json`` field for field. Every\ncounter stays ``None`` when the run did not record it, so the UI renders\n\"未记录\" instead of a zero that would look like an island that never worked.\n``best_score`` is the best score inside *this* island's tree, not the run's\nglobal best, and ``stop_reason`` explains only why this island stopped: a run\ncan finish while an island still has quota left.",
+        "properties": {
+          "attempts": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Attempts"
+          },
+          "best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Score"
+          },
+          "invalid_evaluations": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Invalid Evaluations"
+          },
+          "island_id": {
+            "title": "Island Id",
+            "type": "string"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Profile"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stop Reason"
+          },
+          "valid_evaluations": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Valid Evaluations"
+          }
+        },
+        "required": [
+          "island_id"
+        ],
+        "title": "IslandViewResponse",
         "type": "object"
       },
       "KnowledgeCardResponse": {
@@ -1372,6 +2804,7 @@
           "inject",
           "transplant",
           "crossover",
+          "summary_cross",
           "repair",
           "hpo",
           "patch"
@@ -1510,6 +2943,53 @@
           "display_name_zh"
         ],
         "title": "PresetResponse",
+        "type": "object"
+      },
+      "QwenConfigRequest": {
+        "additionalProperties": false,
+        "description": "Runtime Qwen endpoint configuration. Secrets remain environment-only.",
+        "properties": {
+          "base_url": {
+            "title": "Base Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "base_url"
+        ],
+        "title": "QwenConfigRequest",
+        "type": "object"
+      },
+      "QwenConfigResponse": {
+        "additionalProperties": false,
+        "description": "Safe Qwen configuration status for the Web UI.",
+        "properties": {
+          "base_url": {
+            "title": "Base Url",
+            "type": "string"
+          },
+          "configured": {
+            "title": "Configured",
+            "type": "boolean"
+          },
+          "reachable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reachable"
+          }
+        },
+        "required": [
+          "base_url",
+          "configured"
+        ],
+        "title": "QwenConfigResponse",
         "type": "object"
       },
       "ReportFileResponse": {
@@ -2088,6 +3568,17 @@
             ],
             "default": null
           },
+          "islands": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunIslandsResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "judge": {
             "anyOf": [
               {
@@ -2539,6 +4030,146 @@
           }
         },
         "title": "RunDiscoveryResponse",
+        "type": "object"
+      },
+      "RunIslandCostResponse": {
+        "additionalProperties": false,
+        "description": "Cost attributed per island, plus what could not be attributed.\n\n``by_island`` tokens plus ``shared_tokens`` must equal ``total_tokens``;\n``shared_tokens`` holds calls with no island context. ``cost_usd`` is a number\nonly when ``cost_basis`` is ``recorded`` -- a model that does not quote a price\nnever gets an invented one.",
+        "properties": {
+          "by_island": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/IslandCostResponse"
+            },
+            "title": "By Island",
+            "type": "object"
+          },
+          "cost_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cost Basis"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cost Usd"
+          },
+          "shared_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Shared Tokens"
+          },
+          "total_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total Tokens"
+          },
+          "unresolved_calls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unresolved Calls"
+          }
+        },
+        "title": "RunIslandCostResponse",
+        "type": "object"
+      },
+      "RunIslandsResponse": {
+        "additionalProperties": false,
+        "description": "The island/exchange/cost view of one run.\n\n``state`` carries the whole story for a historical single-tree run: those runs\npredate the island engine and recorded nothing, so ``state`` is ``MISSING`` and\nthe ring is empty. The UI must then show one tree, not invent three islands.",
+        "properties": {
+          "attempt_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Attempt Total"
+          },
+          "cost": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunIslandCostResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "exchange": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExchangeViewResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "islands": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/IslandViewResponse"
+            },
+            "title": "Islands",
+            "type": "object"
+          },
+          "source": {
+            "default": "",
+            "title": "Source",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ArtifactState"
+          }
+        },
+        "required": [
+          "state"
+        ],
+        "title": "RunIslandsResponse",
         "type": "object"
       },
       "RunJudgeResponse": {
@@ -3296,6 +4927,112 @@
         "title": "RunOutcomeResponse",
         "type": "object"
       },
+      "RunProvenanceEntry": {
+        "additionalProperties": false,
+        "description": "Where one run was found and what the server concluded from that.",
+        "properties": {
+          "external_id": {
+            "title": "External Id",
+            "type": "string"
+          },
+          "markers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Markers",
+            "type": "array"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "relative_path": {
+            "title": "Relative Path",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "run_type": {
+            "title": "Run Type",
+            "type": "string"
+          },
+          "split_layout": {
+            "default": false,
+            "title": "Split Layout",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "external_id",
+          "run_id",
+          "origin",
+          "run_type",
+          "relative_path"
+        ],
+        "title": "RunProvenanceEntry",
+        "type": "object"
+      },
+      "RunProvenanceResponse": {
+        "additionalProperties": false,
+        "description": "The source manifest of the run listing (TODO D6.2).\n\n``scanned == len(runs) + paired`` and ``len(runs) == listed +\nexcluded_fixtures``: a run never disappears between the scan and the list.",
+        "properties": {
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ScanErrorDTO"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "errors_truncated": {
+            "default": false,
+            "title": "Errors Truncated",
+            "type": "boolean"
+          },
+          "excluded_fixtures": {
+            "title": "Excluded Fixtures",
+            "type": "integer"
+          },
+          "listed": {
+            "title": "Listed",
+            "type": "integer"
+          },
+          "paired": {
+            "title": "Paired",
+            "type": "integer"
+          },
+          "runs": {
+            "items": {
+              "$ref": "#/components/schemas/RunProvenanceEntry"
+            },
+            "title": "Runs",
+            "type": "array"
+          },
+          "scanned": {
+            "title": "Scanned",
+            "type": "integer"
+          },
+          "unverified": {
+            "title": "Unverified",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "contract_version",
+          "scanned",
+          "paired",
+          "listed",
+          "excluded_fixtures",
+          "unverified"
+        ],
+        "title": "RunProvenanceResponse",
+        "type": "object"
+      },
       "RunRepairResponse": {
         "additionalProperties": false,
         "description": "Repair / pre-check / smoke accounting (TODO §5.5).",
@@ -3412,6 +5149,62 @@
         "title": "RunRepairResponse",
         "type": "object"
       },
+      "RunSummariesResponse": {
+        "additionalProperties": false,
+        "description": "``GET /api/runs/{run_id}/summaries``: a run's whole exchange layer.\n\nThe four counts stay four separate facts (TODO D3.1): published, delivered,\napplied, applied-and-evaluated. None of them is derived from another.",
+        "properties": {
+          "application_count": {
+            "default": 0,
+            "title": "Application Count",
+            "type": "integer"
+          },
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "delivery_count": {
+            "default": 0,
+            "title": "Delivery Count",
+            "type": "integer"
+          },
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "evaluated_application_count": {
+            "default": 0,
+            "title": "Evaluated Application Count",
+            "type": "integer"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ArtifactState"
+          },
+          "summaries": {
+            "items": {
+              "$ref": "#/components/schemas/ExchangeSummaryResponse"
+            },
+            "title": "Summaries",
+            "type": "array"
+          },
+          "summary_count": {
+            "default": 0,
+            "title": "Summary Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "state"
+        ],
+        "title": "RunSummariesResponse",
+        "type": "object"
+      },
       "RunSummaryResponse": {
         "additionalProperties": false,
         "description": "One row of the run listing (TODO §2.4).",
@@ -3442,6 +5235,11 @@
           },
           "data_state": {
             "$ref": "#/components/schemas/RunDataState"
+          },
+          "external_id": {
+            "default": "",
+            "title": "External Id",
+            "type": "string"
           },
           "finished_at": {
             "anyOf": [
@@ -3479,9 +5277,33 @@
             "default": null,
             "title": "Iterations Done"
           },
+          "origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Origin"
+          },
           "run_id": {
             "title": "Run Id",
             "type": "string"
+          },
+          "run_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Run Type"
           },
           "status": {
             "anyOf": [
@@ -3532,6 +5354,26 @@
           "data_state"
         ],
         "title": "RunSummaryResponse",
+        "type": "object"
+      },
+      "ScanErrorDTO": {
+        "additionalProperties": false,
+        "description": "One directory the run scan could not read, relative to its root.",
+        "properties": {
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "relative_path": {
+            "title": "Relative Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "relative_path",
+          "reason"
+        ],
+        "title": "ScanErrorDTO",
         "type": "object"
       },
       "ScorePointResponse": {
@@ -4312,6 +6154,93 @@
         "title": "ServerProfileResponse",
         "type": "object"
       },
+      "SummaryApplicationResponse": {
+        "additionalProperties": false,
+        "description": "One candidate that was built with one summary in its context.\n\n``score`` is that candidate's *own* evaluator result. It is never presented as\nthe gain the summary caused: several summaries can be applied to one candidate\nand the evaluator answers once (TODO D3.4).",
+        "properties": {
+          "application_id": {
+            "title": "Application Id",
+            "type": "string"
+          },
+          "candidate_node_id": {
+            "title": "Candidate Node Id",
+            "type": "string"
+          },
+          "delivery_id": {
+            "title": "Delivery Id",
+            "type": "string"
+          },
+          "evaluated": {
+            "default": false,
+            "title": "Evaluated",
+            "type": "boolean"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Score"
+          },
+          "target_island_id": {
+            "default": "",
+            "title": "Target Island Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "application_id",
+          "delivery_id",
+          "candidate_node_id"
+        ],
+        "title": "SummaryApplicationResponse",
+        "type": "object"
+      },
+      "SummaryDetailResponse": {
+        "additionalProperties": false,
+        "description": "``GET /api/runs/{run_id}/summaries/{summary_id}``: one summary, in full.",
+        "properties": {
+          "contract_version": {
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ArtifactState"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExchangeSummaryResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "contract_version",
+          "run_id",
+          "state"
+        ],
+        "title": "SummaryDetailResponse",
+        "type": "object"
+      },
       "TaskCardMetrics": {
         "additionalProperties": false,
         "description": "Score contract of one dataset, as shown on its overview card.\n\n``score_source`` exists so the UI can never invent a number: a score is\nonly rendered when it came from the evaluator or from a finished baseline\nrun. PRD 7.3 forbids showing an assumed score for an untested ``init.py``.",
@@ -4699,7 +6628,8 @@
         "enum": [
           "parent",
           "crossover_second_parent",
-          "repair"
+          "repair",
+          "summary_cross"
         ],
         "title": "TreeEdgeKind",
         "type": "string"
@@ -4775,6 +6705,11 @@
             "default": false,
             "title": "Is On Best Path",
             "type": "boolean"
+          },
+          "island_id": {
+            "default": "",
+            "title": "Island Id",
+            "type": "string"
           },
           "noise_delta": {
             "anyOf": [
@@ -5021,13 +6956,294 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "WorkflowDataResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted_issues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Accepted Issues",
+            "type": "array"
+          },
+          "after_rows": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "After Rows"
+          },
+          "after_samples": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "After Samples"
+          },
+          "before_rows": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Before Rows"
+          },
+          "before_samples": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Before Samples"
+          },
+          "derived_sha256": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Derived Sha256",
+            "type": "object"
+          },
+          "source_sha256": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Source Sha256",
+            "type": "object"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "State"
+          },
+          "transformations": {
+            "items": {
+              "$ref": "#/components/schemas/WorkflowTransformationResponse"
+            },
+            "title": "Transformations",
+            "type": "array"
+          },
+          "unresolved_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unresolved Codes",
+            "type": "array"
+          }
+        },
+        "title": "WorkflowDataResponse",
+        "type": "object"
+      },
+      "WorkflowResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "best_artifact_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Artifact Id"
+          },
+          "best_origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Best Origin"
+          },
+          "contract_version": {
+            "default": "1.15.0",
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WorkflowDataResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "data_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "effect": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EffectReportResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "effect_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "evolution_best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Evolution Best Score"
+          },
+          "final_best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Final Best Score"
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Phase"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "search": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HierarchicalSearchResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "search_state": {
+            "$ref": "#/components/schemas/ArtifactState",
+            "default": "missing"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "State"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContractWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "title": "WorkflowResponse",
+        "type": "object"
+      },
+      "WorkflowTransformationResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "affected": {
+            "title": "Affected",
+            "type": "integer"
+          },
+          "column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Column"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "rule": {
+            "title": "Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule",
+          "affected",
+          "reason"
+        ],
+        "title": "WorkflowTransformationResponse",
+        "type": "object"
       }
     }
   },
   "info": {
     "description": "Read-only control and replay surface for the FaultEvolve engine. Scores are produced by the task evaluator and only ever read back here.",
     "title": "FaultEvolve Web API",
-    "version": "1.11.0"
+    "version": "1.15.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -5194,9 +7410,69 @@
         ]
       }
     },
+    "/api/qwen/config": {
+      "get": {
+        "operationId": "get_qwen_config_api_qwen_config_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QwenConfigResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Qwen Config",
+        "tags": [
+          "meta"
+        ]
+      },
+      "post": {
+        "operationId": "update_qwen_config_api_qwen_config_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QwenConfigRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QwenConfigResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Qwen Config",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
     "/api/runs": {
       "get": {
-        "description": "Every run directory one level below the configured roots.\n\nAn unreadable run still appears, marked ``unreadable``: hiding it would\nmake a broken run look like a run that never existed.",
+        "description": "Every run the bounded discovery scan found, fixtures excluded.\n\nAn unreadable run still appears, marked ``unreadable``: hiding it would\nmake a broken run look like a run that never existed.",
         "operationId": "list_runs_api_runs_get",
         "responses": {
           "200": {
@@ -5255,6 +7531,28 @@
           }
         },
         "summary": "创建并启动一次运行",
+        "tags": [
+          "runs"
+        ]
+      }
+    },
+    "/api/runs/provenance": {
+      "get": {
+        "description": "What the scan looked at, what it found, and how each run was judged.\n\nTODO D6.2: real / fixture / unverified come from evidence, and the counts\nreconcile, so an operator can see a run was skipped rather than trusting\na listing that quietly left it out.",
+        "operationId": "get_run_provenance_api_runs_provenance_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunProvenanceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "列出运行的来源清单",
         "tags": [
           "runs"
         ]
@@ -6069,6 +8367,101 @@
         ]
       }
     },
+    "/api/runs/{run_id}/summaries": {
+      "get": {
+        "description": "Every published summary with its deliveries and applications.\n\nA run without an exchange layer answers ``missing`` with a reason instead\nof an empty list that would look like \"three islands, nothing exchanged\".",
+        "operationId": "get_summaries_api_runs__run_id__summaries_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunSummariesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "本运行的跨岛摘要",
+        "tags": [
+          "exchange"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/summaries/{summary_id}": {
+      "get": {
+        "description": "One summary. An unknown id is a structured ``missing``, not a 500.",
+        "operationId": "get_summary_api_runs__run_id__summaries__summary_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "summary_id",
+            "required": true,
+            "schema": {
+              "title": "Summary Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "单条摘要的投递与采用记录",
+        "tags": [
+          "exchange"
+        ]
+      }
+    },
     "/api/runs/{run_id}/tree": {
       "get": {
         "description": "Nodes, edges and the best path.\n\nParent links are joined onto each node because ``tree.json`` stores them\nas a separate edge list; the database's own ``parent_id`` wins when the\ntwo disagree, and the disagreement is reported.",
@@ -6109,6 +8502,48 @@
         "summary": "整棵进化树",
         "tags": [
           "tree"
+        ]
+      }
+    },
+    "/api/runs/{run_id}/workflow": {
+      "get": {
+        "operationId": "get_workflow_api_runs__run_id__workflow_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取数据处理复检与分层搜索记录",
+        "tags": [
+          "runs"
         ]
       }
     },

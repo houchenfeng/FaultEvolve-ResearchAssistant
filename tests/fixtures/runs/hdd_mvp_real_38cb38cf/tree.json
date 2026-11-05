@@ -1,0 +1,197 @@
+{
+  "experiment_id": "38cb38cf",
+  "nodes": [
+    {
+      "id": "d7570abd",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 10,
+      "adopted_cards": []
+    },
+    {
+      "id": "fbc129e2",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "1. 替换模型为LightGBM分类器 2. 实现last_snapshot函数提取截止日期前14天的历史数据 3. 添加趋势特征如SMART值变化率和差值",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "4e9d8f78",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 26.790288460708855,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "1. 替换模型为LightGBM分类器 2. 添加基于14天窗口的趋势特征 3. 使用5折交叉验证选择报警阈值",
+      "visit_count": 3,
+      "adopted_cards": [
+        "M01",
+        "T01",
+        "E01"
+      ]
+    },
+    {
+      "id": "66d34cfb",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "实现FE01中的窗口差值特征：计算smart_5/187/188/197/198/199在14天窗口内的last-first、last-value_3days_before、last-value_7days_before差值",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "0bd20a46",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 32.56098386156334,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "1. 添加SMART_5/187/188/197/198/199在窗口内的delta特征(最后-最初，最后-3天前，最后-7天前) 2. 添加首次非零标志特征捕获错误首次出现模式(FE03)",
+      "visit_count": 1,
+      "adopted_cards": [
+        "FE01",
+        "FE03"
+      ]
+    },
+    {
+      "id": "de3966a3",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "实现一个基于训练集的模型级别目标编码，并将其作为特征加入到模型中",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "eb4b8266",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "1. 在extract_features中添加模型目标编码特征 2. 实现跨CV折的目标编码以防止泄露 3. 将模型作为分类特征输入LightGBM",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "36f08d3f",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 33.47173234257588,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "1. 添加14天窗口内的SMART计数器变化特征 2. 添加关键错误计数器首次出现非零的标志 3. 使用LightGBM替换逻辑回归并采用交叉验证选择阈值",
+      "visit_count": 2,
+      "adopted_cards": [
+        "FE01",
+        "FE03",
+        "M01",
+        "T01"
+      ]
+    },
+    {
+      "id": "9718c068",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "1. 添加滑动窗口统计特征（均值、标准差、斜率）来捕捉SMART指标的变化趋势 2. 优化LightGBM参数并使用更精细的阈值选择策略 3. 增加更多厂商特定的交互特征",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "1b4814d7",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 35.03258526409924,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "1. 增加厂商与关键SMART特征的交互项 2. 添加更多厂商特定的统计特征 3. 调整LightGBM参数以更好处理类别不平衡",
+      "visit_count": 0,
+      "adopted_cards": [
+        "E01",
+        "E05"
+      ]
+    },
+    {
+      "id": "71282846",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 30.660729942492264,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "1. 添加模型目标编码特征到特征工程中 2. 在交叉验证中正确计算目标编码防止泄露 3. 将模型作为分类特征输入LightGBM",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE09",
+        "T02"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "d7570abd",
+      "target": "fbc129e2"
+    },
+    {
+      "source": "d7570abd",
+      "target": "4e9d8f78"
+    },
+    {
+      "source": "4e9d8f78",
+      "target": "66d34cfb"
+    },
+    {
+      "source": "4e9d8f78",
+      "target": "0bd20a46"
+    },
+    {
+      "source": "0bd20a46",
+      "target": "de3966a3"
+    },
+    {
+      "source": "0bd20a46",
+      "target": "eb4b8266"
+    },
+    {
+      "source": "d7570abd",
+      "target": "36f08d3f"
+    },
+    {
+      "source": "36f08d3f",
+      "target": "9718c068"
+    },
+    {
+      "source": "36f08d3f",
+      "target": "1b4814d7"
+    },
+    {
+      "source": "1b4814d7",
+      "target": "71282846"
+    }
+  ]
+}

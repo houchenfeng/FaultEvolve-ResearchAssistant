@@ -1,0 +1,581 @@
+[
+  {
+    "id": "DL-TAB-01",
+    "source": "https://arxiv.org/abs/2106.11959",
+    "title": "Revisiting Deep Learning Models for Tabular Data",
+    "type": "paper_prior",
+    "claim": "ResNet-like tabular models are useful competitive baselines; this is not evidence of HDD superiority.",
+    "action": {
+      "family": "mlp"
+    },
+    "hypothesis": "Residual blocks on compressed SMART window summaries can learn nonlinear interactions."
+  },
+  {
+    "id": "DL-SEQ-01",
+    "source": "https://arxiv.org/abs/1803.01271",
+    "title": "An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling",
+    "type": "paper_prior",
+    "claim": "Convolutional sequence models warrant comparison with recurrent models across sequence tasks.",
+    "action": {
+      "family": "tcn"
+    },
+    "hypothesis": "A small dilated temporal convolution plus SMART summaries captures short-term degradation. The implementation is an adaptation, not a paper reproduction."
+  },
+  {
+    "id": "HDD-MISSING-01",
+    "source": "benchmark/hdd_mvp/problem.md",
+    "type": "task_prior",
+    "claim": "SMART attribute availability varies by vendor, and daily history can have gaps.",
+    "action": {
+      "features": "signed_log_summary_and_calendar_sequence_with_observation_mask"
+    },
+    "hypothesis": "Observation masks and vendor indicators distinguish missing counters from observed zero counters."
+  },
+  {
+    "id": "HDD-TREND-02",
+    "source": "historical-run:hdd_mvp_formal2b_20261009/programs/4016914b.py",
+    "source_sha256": "63cfb5addbf97f972a81c0f9096548c5c8685fec9f842062f0af4063ad04ba55",
+    "type": "implementation_prior",
+    "claim": "Historical ML supplies critical-counter growth features. A three-seed paired ablation on reused HDD validation improved ROS and F1 in all three seeds, but mean precision and AUPRC fell and false alarms rose. This supports an optional feature branch, not universal superiority.",
+    "empirical_evidence": {
+      "path": "experiments/hdd_dl/evidence/verify_knowledge_20261021/paired.json",
+      "seeds": [
+        20261027,
+        20261028,
+        20261029
+      ],
+      "scope": "fixed_configuration_training_seed_ablation_on_reused_validation",
+      "independent_generalization": false,
+      "mean_ros_delta": 1.2756968182492159,
+      "ros_strict_wins": 3,
+      "limitations": "Only one architecture/configuration tested; no full-paper causal or held-out generalization claim."
+    },
+    "action": {
+      "feature_set": "trends"
+    },
+    "hypothesis": "Critical-counter growth and nonzero frequency can help a neural model distinguish degradation from vendor-specific absolute levels."
+  },
+  {
+    "id": "HDD-CALIBRATION-01",
+    "source": "experiments/hdd_dl/evidence/verify_calibration_20261021/paired_alignment_only.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Threshold-ratio fold alignment at threshold_scale=1 improved mean ROS by only 0.0822 against raw scores at the same scale, while AUPRC fell in all seeds. Against original raw scale1.2, aligned scale1 reduced mean ROS by 0.6213 and increased FAR. Keep raw calibration as default; do not attribute scale changes to alignment.",
+    "action": {
+      "fold_calibration": "threshold_ratio"
+    },
+    "hypothesis": "Retain only as an optional experimental branch, not a demonstrated default improvement."
+  },
+  {
+    "id": "HDD-EFFICIENCY-01",
+    "source": "experiments/hdd_dl/evidence/verify_efficiency_20261021/paired_single_fast.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "For frozen hybrid candidate 31, jointly using replicas=1, lr=0.001 and epochs=30 improved ROS and F1 in all three matched seeds and reduced mean runtime from 25.40 to 10.63 seconds. Mean precision fell and FAR rose. This tests a joint alternative, not a causal effect of any one parameter.",
+    "action": {
+      "replicas": 1,
+      "epochs": 30
+    },
+    "hypothesis": "Prefer testing this cheaper starting point while retaining predictive and runtime comparisons."
+  },
+  {
+    "id": "HDD-HYBRID-01",
+    "source": "experiments/hdd_dl/candidate.py",
+    "type": "engineering_hypothesis",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "At 25% tree blending, ROS, AUPRC and low-FAR recall improved in all three matched seeds; mean deltas +1.0650, +0.01805, +0.00750. Mean precision fell by 0.00457, FAR rose by 0.0000553, runtime rose by 1.27 seconds. This is ML+DL, not pure DL or a reproduction of historical ML.",
+    "empirical_evidence": {
+      "path": "experiments/hdd_dl/evidence/verify_hybrid_20261021/paired_0.25.json",
+      "seeds": [
+        20261108,
+        20261109,
+        20261110
+      ],
+      "independent_generalization": false
+    },
+    "action": {
+      "tree_blend": [
+        0.25,
+        0.5
+      ]
+    },
+    "hypothesis": "Check whether tree partitions and neural temporal features make complementary errors; report added training cost."
+  },
+  {
+    "id": "HDD-CONTEXT-01",
+    "source": "historical-run:hdd_mvp_formal2b_20261009/programs/4016914b.py",
+    "source_sha256": "63cfb5addbf97f972a81c0f9096548c5c8685fec9f842062f0af4063ad04ba55",
+    "type": "implementation_prior",
+    "claim": "A three-seed fixed-config ablation on reused validation improved ROS, F1 and F1_p10 in all seeds. Mean ROS +1.1251, precision +0.00826, recall +0.01191, AUPRC +0.00398, FAR -0.000111. Low-FAR recall improved in only one seed despite positive mean; runtime increased in all seeds. Promising initial features, not universal superiority.",
+    "empirical_evidence": {
+      "path": "experiments/hdd_dl/evidence/verify_context_20261021/paired.json",
+      "seeds": [
+        20261102,
+        20261103,
+        20261104
+      ],
+      "independent_generalization": false
+    },
+    "action": {
+      "device_context": true
+    },
+    "hypothesis": "Expose device scale and observation gaps explicitly while distinguishing counter resets from degradation."
+  },
+  {
+    "id": "HDD-RANK-01",
+    "source": "experiments/hdd_dl/evidence/verify_ranking_20261021",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Weighted hard-negative ranking increased recall but reduced precision and increased false alarms in all three matched seeds. Mean ROS changed by -1.4172 at weight 0.1 and -0.3471 at 0.3. Weight 0.3 improved mean AUPRC by 0.00659, so further calibration is an unverified possibility, not a demonstrated overall gain.",
+    "action": {
+      "ranking_weight": [
+        0.1,
+        0.3
+      ]
+    },
+    "hypothesis": "Only retain ranking as an optional branch; investigate precision/recall tradeoffs without claiming it solves low-FAR recall."
+  },
+  {
+    "id": "HDD-SEED-STABILITY-01",
+    "source": "experiments/hdd_dl/evidence/verified_search_20261021/verification/summary.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Frozen search candidate 25 exceeded all predictive metrics of three ML baselines at search seed 20261020, but failed that gate on new seeds 20261201..20261203. Mean ROS 40.6940, recall 0.41799, F1 0.41628 and low-FAR recall 0.47795 fell below the strong ML baseline; precision 0.41540 and FAR 0.001478 remained favorable. Candidate 0 also failed the all-seed gate, with mean ROS 40.9457 and low-FAR recall 0.47972. Lowering the final threshold alone cannot repair ranking at a fixed FAR.",
+    "action": {
+      "tree_blend": [
+        0.25,
+        0.5
+      ]
+    },
+    "hypothesis": "Treat single-seed comprehensive wins as provisional. Test ranking improvements and train-only calibration separately, then freeze configurations before new training-seed checks; do not select seeds using validation outcomes."
+  },
+  {
+    "id": "HDD-EARLY-STOP-01",
+    "source": "experiments/hdd_dl/evidence/verify_objective_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Changing only frozen candidate 25 epoch selection from AUPRC to operational_proxy reduced ROS, recall and F1 in all three matched seeds. Mean deltas were ROS -0.62746, F1 -0.00912 and low-FAR recall -0.00794. Mean precision improved 0.01422 and FAR fell 0.000345, but this did not solve the comprehensive-metric objective.",
+    "action": {
+      "epoch_objective": "auprc"
+    },
+    "hypothesis": "Keep AUPRC as the default epoch criterion; investigate representation quality rather than assuming the composite early-stop proxy improves deployment metrics."
+  },
+  {
+    "id": "HDD-ARCHITECTURE-01",
+    "source": "experiments/hdd_dl/evidence/verify_architecture_20261021/paired_dual.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Replacing TCN with dual TCN+GRU at otherwise identical candidate-25 settings improved precision, low-FAR recall and FAR in all three matched seeds: mean deltas +0.01474, +0.00397, -0.000278. Recall fell in every seed (mean -0.03351), and mean ROS fell 0.08428. GRU alone improved AUPRC in all seeds but not comprehensive performance. No architecture passed all-seed superiority.",
+    "action": {
+      "family": "dual"
+    },
+    "hypothesis": "Test train-only threshold calibration for dual as a separate paired intervention; the observed ranking gains do not establish comprehensive superiority."
+  },
+  {
+    "id": "HDD-DUAL-THRESHOLD-01",
+    "source": "experiments/hdd_dl/evidence/verify_dual_threshold_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Reducing dual threshold_scale from 1.2 to 1.0 raised recall in all three matched seeds (mean +0.07055), but lowered precision in all seeds (-0.05715) and raised FAR (+0.0008). Mean ROS fell 0.41902 and F1 fell 0.00948. AUPRC and low-FAR recall were exactly unchanged, consistent with unchanged scores.",
+    "action": {
+      "threshold_scale": 1.2
+    },
+    "hypothesis": "Retain the original threshold for this configuration. Further gains require better ranking or representation, not merely relaxing alarms."
+  },
+  {
+    "id": "HDD-BOOTSTRAP-THRESHOLD-01",
+    "source": "experiments/hdd_dl/evidence/verify_bootstrap_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "For frozen candidate 10, stratified training-OOF bootstrap median thresholds produced mean ROS -0.04751, precision -0.01625, recall +0.01587 and FAR +0.000155 versus empirical thresholds. ROS improved in no seed. AUPRC and low-FAR recall were unchanged. This did not establish better comprehensive performance or reduced between-seed instability.",
+    "action": {
+      "threshold_scale": 1.2
+    },
+    "hypothesis": "Retain empirical thresholds. Test informative representations instead of assuming threshold smoothing improves model quality."
+  },
+  {
+    "id": "HDD-IDENTITY-01",
+    "source": "experiments/hdd_dl/evidence/verify_identity_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Adding model-identity one-hot features to candidate 10 increased recall in all three matched seeds, but mean ROS fell 0.37068, AUPRC fell 0.00159 and low-FAR recall fell 0.00882. FAR did not improve in any seed. Explicit model identity did not establish a comprehensive benefit for this configuration.",
+    "action": {
+      "model_identity": false
+    },
+    "hypothesis": "Keep model identity optional and disabled by default; investigate measurement features without assuming categorical metadata helps."
+  },
+  {
+    "id": "HDD-SMART-SUBSET-01",
+    "source": "experiments/hdd_dl/evidence/verify_subset_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Restricting candidate 10 to fixed SMART IDs 5/9/187/188/194/197/198/199 reduced ROS, precision, F1, AUPRC and low-FAR recall in all three matched seeds. Mean deltas: ROS -2.66493, F1 -0.02627, AUPRC -0.03001, low-FAR recall -0.02028. Runtime fell 4.74 seconds on average, but predictive performance deteriorated. This tests a fixed subset, not all possible feature selection methods.",
+    "action": {
+      "smart_subset": "all"
+    },
+    "hypothesis": "Keep all SMART measurements for this configuration; do not treat domain familiarity as proof that omitted attributes are irrelevant."
+  },
+  {
+    "id": "HDD-POSITIVE-WEIGHT-01",
+    "source": "experiments/hdd_dl/evidence/verify_weight_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Changing candidate 10 positive_boost from 3 to 1 in both neural and tree branches reduced mean ROS 0.46950, F1 0.01142 and recall 0.03704. AUPRC fell in all three seeds (mean -0.00487). Mean precision improved 0.02110, FAR fell 0.0002 and low-FAR recall rose 0.00705, so the intervention changes tradeoffs but does not establish comprehensive superiority. Original entity weights were preserved.",
+    "action": {
+      "positive_boost": 3.0
+    },
+    "hypothesis": "Retain the existing joint weighting for this configuration; any branch-specific weighting experiment must be evaluated separately."
+  },
+  {
+    "id": "HDD-BRANCH-WEIGHT-01",
+    "source": "experiments/hdd_dl/evidence/verify_branch_weight_20261021",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "At candidate-10 settings, changing only tree positive boost from 3 to 1 yielded mean ROS -0.02324, F1 +0.00356, AUPRC -0.00644, recall -0.02116; ROS improved in two seeds. Changing only neural positive boost from 3 to 1 yielded mean ROS +0.01427 but improved ROS in only one seed and reduced AUPRC in all three (mean -0.00272). Neither intervention establishes comprehensive benefit or stable improvement.",
+    "action": {
+      "positive_boost": 3.0
+    },
+    "hypothesis": "Retain joint boost 3 by default. Independent branch weighting remains an optional hypothesis, not an empirically established improvement."
+  },
+  {
+    "id": "HDD-SEQUENCE-DELTA-01",
+    "source": "experiments/hdd_dl/evidence/verify_delta_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Appending daily log-value differences with adjacent-day observation masks to candidate 10 produced mean ROS -0.03306, F1 +0.00215, AUPRC +0.00029 and precision -0.02355. Low-FAR recall improved in no seed (mean -0.00662), and runtime increased in all seeds (+1.14 seconds). One higher ROS seed does not establish a stable comprehensive gain.",
+    "action": {
+      "feature_set": "trends"
+    },
+    "hypothesis": "Keep the new delta channels disabled by default; retain existing tabular trend features and evaluate other temporal representations separately."
+  },
+  {
+    "id": "HDD-MAX-POOL-01",
+    "source": "experiments/hdd_dl/evidence/verify_pool_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Adding temporal maximum activation pooling to candidate 10 reduced mean ROS 0.23140, precision 0.01110, F1 0.00129 and AUPRC 0.00082. Low-FAR recall improved in no seed (mean -0.00265), and runtime increased in all seeds (mean +1.02 seconds). Mean recall rose 0.01544 but FAR rose 0.000167. Keeping peaks did not establish a comprehensive gain.",
+    "action": {
+      "family": "tcn"
+    },
+    "hypothesis": "Retain mean-and-last temporal aggregation by default; more aggregation features are not automatically better."
+  },
+  {
+    "id": "HDD-WINDOW-CONTRAST-01",
+    "source": "experiments/hdd_dl/evidence/verify_contrast_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Transferring window range and last-minus-mean features from the inspected strong ML program to candidate 10 yielded mean ROS -0.57468, F1 -0.00830, recall -0.02028 and AUPRC -0.00420. AUPRC fell in all three matched seeds. Mean precision and low-FAR recall improved slightly, but runtime rose in every seed (+1.87 seconds). Useful features in the source ML model did not establish benefit in this hybrid configuration.",
+    "action": {
+      "feature_set": "trends"
+    },
+    "hypothesis": "Keep window contrasts disabled by default; transferred priors must remain testable hypotheses, not automatic promotions."
+  },
+  {
+    "id": "HDD-CAPACITY-01",
+    "source": "experiments/hdd_dl/evidence/verify_capacity_20261021/paired_large.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "At candidate-10 settings, width 256 versus 128 improved ROS, precision, F1 and AUPRC in all three matched seeds (mean +0.31942, +0.03021, +0.00487, +0.00296). FAR fell in all seeds (-0.000367), as did runtime (-1.80 seconds), but recall fell in all seeds (-0.03219). Width 64 reduced mean ROS and F1. The larger network is a promising branch, not comprehensive superiority.",
+    "action": {
+      "width": 256
+    },
+    "hypothesis": "Evaluate a modest train-only threshold adjustment for the larger network while preserving all baseline and seed checks."
+  },
+  {
+    "id": "HDD-WIDE-THRESHOLD-01",
+    "source": "experiments/hdd_dl/evidence/verify_wide_threshold_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "At width 256, reducing threshold_scale from 1.2 to 1.1 raised recall in every matched seed (mean +0.03395) but lowered precision in every seed (-0.02408) and raised FAR (+0.000356). Mean ROS fell 0.01960 and F1 fell 0.00220. AUPRC and low-FAR recall remained identical. The modest adjustment did not deliver comprehensive improvement.",
+    "action": {
+      "threshold_scale": 1.2
+    },
+    "hypothesis": "Preserve the existing threshold; focus subsequent work on ranking quality rather than trading precision for recall."
+  },
+  {
+    "id": "HDD-EMA-01",
+    "source": "experiments/hdd_dl/evidence/verify_ema_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Parameter EMA decay 0.99 versus disabled at candidate-10 settings reduced mean ROS by 0.06790 and F1 by 0.00123. AUPRC fell in every matched seed (mean -0.00132); runtime increased in every seed (+3.16 seconds). Mean precision increased 0.01211 and low-FAR recall increased 0.00221, but recall fell 0.00882. Only one seed improved ROS. This does not establish stable or comprehensive benefit.",
+    "action": {
+      "family": "tcn"
+    },
+    "hypothesis": "Keep EMA disabled by default. Prioritize stronger predictive representations or branch training over repeating this unsupported averaging intervention."
+  },
+  {
+    "id": "HDD-TREE-ROUNDS-01",
+    "source": "experiments/hdd_dl/evidence/verify_tree_rounds_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Increasing the hybrid tree branch from 150 to 300 rounds at candidate-10 settings gave mean ROS +0.09443, F1 +0.00415 and AUPRC +0.00118, but ROS improved in only one matched seed. Mean precision fell 0.00653, low-FAR recall fell 0.00573, FAR rose 0.000078 and runtime increased in all seeds (+2.88 seconds). This does not establish comprehensive superiority.",
+    "action": {
+      "tree_blend": 0.5
+    },
+    "hypothesis": "Keep 150 rounds as default. More rounds alone are not a reliable improvement; evaluate complementary tree structure or representation separately."
+  },
+  {
+    "id": "HDD-TREE-LEAVES-01",
+    "source": "experiments/hdd_dl/evidence/verify_tree_leaves_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Increasing tree leaves from 15 to 31 at fixed 150 rounds reduced ROS and recall in all three matched seeds (mean -0.83133 and -0.03659). Mean F1 fell 0.01400, AUPRC fell 0.00189 and low-FAR recall fell 0.00088. Precision improved in all seeds (+0.00725) and FAR fell in all seeds (-0.000178), but runtime increased in all seeds (+1.48 seconds). This is a tradeoff, not comprehensive improvement.",
+    "action": {
+      "tree_blend": 0.5
+    },
+    "hypothesis": "Retain 15 leaves by default; larger tree capacity has not established a benefit at the current hybrid settings."
+  },
+  {
+    "id": "HDD-FUSION-01",
+    "source": "experiments/hdd_dl/evidence/verify_fusion_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "At fixed candidate-10 models and weights, logit versus probability fusion reduced ROS, precision and F1 in every matched seed (mean -0.34555, -0.01070, -0.00499). Recall increased in every seed (+0.00573), but FAR also increased in every seed (+0.000122). Mean AUPRC fell 0.00285 and low-FAR recall fell 0.00088. Changing the fusion rule did not establish ranking or comprehensive benefit.",
+    "action": {
+      "tree_blend": 0.5
+    },
+    "hypothesis": "Retain probability fusion by default. Do not interpret increased recall at worse false alarms as comprehensive improvement."
+  },
+  {
+    "id": "HDD-TREE-INPUT-01",
+    "source": "experiments/hdd_dl/evidence/verify_tree_input_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Feeding the tree pre-normalization engineered features instead of the neural normalized features reduced ROS, recall, F1 and F1-p10 in every matched seed (mean -0.42875, -0.00926, -0.00632, -0.00679). Mean AUPRC fell 0.00032 and low-FAR recall fell 0.00397. Runtime improved in all seeds (-0.75 seconds), but this did not compensate for predictive degradation.",
+    "action": {
+      "normalization": "quantile"
+    },
+    "hypothesis": "Retain normalized tree input by default. The suspected preprocessing bottleneck was not supported by this controlled experiment."
+  },
+  {
+    "id": "HDD-HYBRID-SELECTION-01",
+    "source": "experiments/hdd_dl/evidence/verify_hybrid_selection_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Selecting neural checkpoints by blended inner AP instead of standalone neural AP reduced recall, F1 and AUPRC in all three matched seeds (mean -0.03131, -0.00838, -0.00502). Mean ROS fell 0.36695, improving in only one seed. FAR fell in every seed (-0.000189), and mean precision rose 0.00995, but the result is a tradeoff rather than comprehensive gain.",
+    "action": {
+      "epoch_objective": "auprc"
+    },
+    "hypothesis": "Keep standalone neural checkpoint selection by default. Improving the blended inner objective did not translate into improved external ranking in this experiment."
+  },
+  {
+    "id": "HDD-SEQUENCE-SCALE-01",
+    "source": "experiments/hdd_dl/evidence/verify_sequence_scale_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Replacing train-only maximum absolute temporal channel scaling with the 99th percentile reduced ROS, F1, F1-p10 and AUPRC in all three matched seeds (mean -0.70695, -0.01180, -0.01015, -0.00605). Mean recall rose 0.02116, but precision fell 0.03643 and FAR rose 0.000345. Runtime increased in every seed (+1.20 seconds). Robust scaling did not establish ranking or comprehensive benefit here.",
+    "action": {
+      "family": "tcn"
+    },
+    "hypothesis": "Retain max-absolute sequence scaling by default. The suspected outlier compression bottleneck was not supported by this intervention."
+  },
+  {
+    "id": "HDD-CONSOLIDATED-VERIFY-01",
+    "source": "experiments/hdd_dl/evidence/consolidated_search_20261021/verification/summary.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "A 48-candidate search with updated evidence did not improve the incumbent configurations. Both selected incumbents failed all-seed comprehensive predictive and resource gates on seeds 20270210-20270212. Candidate 0 mean F1/AUPRC/recall/low-FAR recall were 0.42371/0.39120/0.42372/0.47619; candidate 1 means were 0.40565/0.39048/0.44224/0.47266. Single-search-seed gains remain unstable; new training seeds are not independent generalization evidence.",
+    "action": {
+      "epoch_objective": "auprc"
+    },
+    "hypothesis": "The current search has plateaued. Investigate a materially different training or representation mechanism rather than repeat the same local search and claim progress from selected seeds."
+  },
+  {
+    "id": "HDD-TREE-RESIDUAL-01",
+    "source": "experiments/hdd_dl/evidence/verify_tree_residual_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Training neural log-odds corrections to a fixed tree versus separate probability averaging reduced AUPRC in all three matched seeds (mean -0.01029). Mean ROS fell 0.32697, precision fell 0.01641 and low-FAR recall fell 0.00397. F1 rose 0.00451 and recall rose 0.00882 on average, but ROS improved in only one seed. In-sample tree priors did not establish comprehensive benefit.",
+    "action": {
+      "tree_blend": 0.5
+    },
+    "hypothesis": "Keep residual training disabled. A further residual experiment should address in-sample tree-prior optimism rather than assume that additive correction improves ranking."
+  },
+  {
+    "id": "HDD-RESIDUAL-CROSSFIT-01",
+    "source": "experiments/hdd_dl/evidence/verify_residual_crossfit_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Cross-fitted versus in-sample tree priors for residual learning reduced F1 and F1-p10 in all three matched seeds (mean -0.01132 and -0.01029). Mean ROS fell 0.61162 and AUPRC fell 0.00323; ROS improved in only one seed. Runtime increased in every seed (+2.93 seconds). Bootstrap F1 variability fell in every seed, but predictive performance did not comprehensively improve. This comparison also changes tree training size and query ensembling.",
+    "action": {
+      "tree_blend": 0.5
+    },
+    "hypothesis": "Keep cross-fitted residual learning disabled; neither tested residual approach establishes a replacement for separate model averaging."
+  },
+  {
+    "id": "DL-TABM-01",
+    "source": "https://arxiv.org/abs/2410.24210v3",
+    "implementation_source": "https://github.com/yandex-research/tabm",
+    "title": "TabM: Advancing Tabular Deep Learning with Parameter-Efficient Ensembling",
+    "type": "paper_prior",
+    "verification": "primary_paper_and_official_usage_reviewed_not_hdd_validated",
+    "claim": "TabM shares most parameters among implicit MLP ensemble members. Official guidance requires averaging individual member losses during training and averaging class probabilities at inference. Published tabular benchmark results do not establish HDD superiority. Official tabm 0.0.3 passed a small GPU forward/backward compatibility check in this environment.",
+    "action": {
+      "family": "mlp"
+    },
+    "hypothesis": "Test an optional official TabM backend on the existing engineered HDD inputs with fixed folds, train-only calibration and explicit runtime accounting. Do not substitute the loss of averaged predictions for memberwise training."
+  },
+  {
+    "id": "HDD-TABM-01",
+    "source": "experiments/hdd_dl/evidence/verify_tabm_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "The first TCN plus official TabM-8 backend comparison retained three outer replicas and used two TabM blocks versus the original residual block. Recall rose in all seeds (+0.02690), but precision fell in all seeds (-0.02494), FAR rose in all seeds (+0.000311), and runtime increased in all seeds (+12.56 seconds). Mean ROS/F1/AUPRC changed -0.14799/-0.00409/-0.00242. No comprehensive benefit was established; this is not a pure member-count ablation or a tuned TabM benchmark.",
+    "action": {
+      "family": "tcn"
+    },
+    "hypothesis": "Keep the original backend as default. Evaluate an explicitly budgeted TabM-specific training configuration before drawing broad conclusions about the architecture."
+  },
+  {
+    "id": "HDD-TABM-OPTIMIZER-01",
+    "source": "experiments/hdd_dl/evidence/verify_tabm_optimizer_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "For the fixed TCN+TabM-8 configuration, official optimizer starting values lr=0.002 and weight_decay=0.0003 versus inherited 0.0003/0.001 reduced ROS and F1-p10 in every matched seed (mean -0.19997 and -0.00537). Mean F1/AUPRC changed -0.00448/-0.00242; low-FAR recall rose 0.00705 on average. Runtime fell in every seed (-9.86 seconds). This is a speed versus predictive tradeoff, not comprehensive improvement or evidence against all TabM tuning.",
+    "action": {
+      "lr": 0.0003
+    },
+    "hypothesis": "Retain inherited optimizer values for the current comparison; treat the official starting point as an optional efficiency branch, not a universally better setting."
+  },
+  {
+    "id": "HDD-TABM-EMBEDDING-01",
+    "source": "experiments/hdd_dl/evidence/verify_tabm_embedding_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "For fixed TCN+TabM-8, periodic numerical embeddings improved ROS and low-FAR recall in all three seeds (mean +0.41796 and +0.01146). Mean precision/F1/AUPRC changed +0.02189/+0.00447/+0.00097, but recall fell in two seeds and tied once (mean -0.01852). FAR improved twice and tied once. Bootstrap F1 spread and runtime worsened in every seed (+0.00121 and +23.77 seconds). This is not comprehensive improvement; embeddings also affect official backend initialization.",
+    "action": {
+      "tabm_embedding": "periodic"
+    },
+    "hypothesis": "Keep embeddings experimental. Since TabM already ensembles internal members, test reducing outer replicas with a fixed paired budget to investigate overhead, while explicitly checking recall and all baseline gates. Do not infer independent generalization from reused validation seeds."
+  },
+  {
+    "id": "HDD-TABM-REPLICAS-01",
+    "source": "experiments/hdd_dl/evidence/verify_tabm_replicas_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "For periodic-embedding TCN+TabM-8 at fixed total training budget, reducing outer replicas from three to one improved AUPRC in every seed (+0.00292 mean) and reduced runtime in every seed (-38.57 seconds). Mean ROS changed +0.07713 but won only once; precision/F1/low-FAR recall changed -0.01070/-0.00066/-0.00176, while recall rose +0.02469 and FAR rose +0.000244. Low-FAR recall never strictly improved. This is an efficiency tradeoff, not comprehensive superiority. Per-model time allowance increases when replicas decrease.",
+    "action": {
+      "replicas": 1
+    },
+    "hypothesis": "Keep the single-replica TabM branch as an explicit efficiency candidate; compare a fixed standalone TabM input against the TCN hybrid before adding complexity. Retain all predictive and resource gates."
+  },
+  {
+    "id": "HDD-TABM-SEQUENCE-01",
+    "source": "experiments/hdd_dl/evidence/verify_tabm_sequence_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "Removing the TCN branch from single-replica periodic TabM-8 with unchanged tree fusion reduced runtime in all seeds (-3.08 seconds mean). ROS won twice but averaged -0.05401; mean F1/AUPRC changed -0.00173/-0.00220. Recall and low-FAR recall rose +0.01499/+0.00529 on average, while precision fell -0.01633 and FAR rose +0.000155. This does not establish comprehensive superiority for either branch and includes changed input dimensions and initialization.",
+    "action": {
+      "tabm_members": 8
+    },
+    "hypothesis": "Retain both explicit candidates without promoting either on ROS alone. Evaluate whether internal ensemble size improves the single-replica TCN TabM branch under the same total budget before extending automatic search."
+  },
+  {
+    "id": "HDD-TABM-MEMBERS-01",
+    "source": "experiments/hdd_dl/evidence/verify_tabm_members_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "For single-replica periodic TCN+TabM at fixed total training budget, increasing internal members from 8 to 16 reduced ROS/F1/F1-p10 in every seed (mean -0.33141/-0.00644/-0.00629) and increased runtime in every seed (+9.65 seconds). Mean AUPRC changed +0.00061, low-FAR recall -0.00176, precision -0.00975 and recall -0.00309. Larger internal ensemble did not establish comprehensive benefit.",
+    "action": {
+      "tabm_members": 8
+    },
+    "hypothesis": "Keep eight members as the current experimental starting point. Before further model-size changes, compare a bounded learning-rate adjustment for the single-replica periodic backend; do not transfer the earlier three-replica optimizer result as proof for this configuration."
+  },
+  {
+    "id": "HDD-TABM-LR-01",
+    "source": "experiments/hdd_dl/evidence/verify_tabm_lr_20261021/paired.json",
+    "type": "experiment_prior",
+    "verification": "three_training_seeds_on_reused_validation",
+    "claim": "For single-replica periodic TCN+TabM-8, changing only lr from 0.0003 to 0.001 improved precision and FAR in all three seeds (+0.02187 and -0.000267 mean) and reduced runtime in all seeds (-4.71 seconds), but recall declined in every seed (-0.02822) and F1 bootstrap spread increased in every seed (+0.00085). Mean ROS/AUPRC changed +0.06894/+0.00410, while F1/F1-p10 changed -0.00025/-0.00108. Low-FAR recall mean was unchanged. No comprehensive benefit was established.",
+    "action": {
+      "lr": 0.0003
+    },
+    "hypothesis": "Retain the original learning rate as the reference. The faster setting is a precision/recall tradeoff, not a default upgrade. Consolidate TabM evidence before further isolated parameter changes, and require paired baseline gates for any promoted candidate."
+  },
+  {
+    "id": "DL-FOCAL-01",
+    "source": "https://arxiv.org/abs/1708.02002",
+    "title": "Focal Loss for Dense Object Detection",
+    "type": "paper_prior",
+    "claim": "Focal loss reduces the contribution of well-classified examples in an imbalanced detection task. Transfer to HDD is unverified.",
+    "action": {
+      "focal_gamma": [
+        1.0,
+        2.0
+      ]
+    },
+    "hypothesis": "Test whether concentrating training on difficult disks improves the low-false-alarm operating region."
+  },
+  {
+    "id": "AUTO-4747e5ca4a",
+    "source": "https://doi.org/10.1109/iccc55456.2022.9880794",
+    "title": "Hard Disk Drive Failure Prediction Based on GRU Neural Network",
+    "type": "retrieval_lead",
+    "verification": "bibliographic_metadata_only",
+    "action": {
+      "family": "gru"
+    },
+    "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+    "hypothesis": "Evaluate the supported gru family locally; this is not a reproduction of this paper."
+  },
+  {
+    "id": "AUTO-4b15bf39ee",
+    "source": "https://doi.org/10.1109/ijcnn52387.2021.9534457",
+    "title": "Disk Failure Prediction with Multiple Channel Convolutional Neural Network",
+    "type": "retrieval_lead",
+    "verification": "bibliographic_metadata_only",
+    "action": {
+      "family": "tcn"
+    },
+    "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+    "hypothesis": "Evaluate the supported tcn family locally; this is not a reproduction of this paper."
+  },
+  {
+    "id": "AUTO-1701bc6b70",
+    "source": "https://doi.org/10.1155/2022/7832117",
+    "title": "Convolution-LSTM-Based Mechanical Hard Disk Failure Prediction by Sensoring S.M.A.R.T. Indicators",
+    "type": "retrieval_lead",
+    "verification": "bibliographic_metadata_only",
+    "action": {
+      "family": "tcn"
+    },
+    "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+    "hypothesis": "Evaluate the supported tcn family locally; this is not a reproduction of this paper."
+  },
+  {
+    "id": "AUTO-b200202968",
+    "source": "https://doi.org/10.1109/bracis.2018.00023",
+    "title": "Evaluation of Recurrent Neural Networks for Hard Disk Drives Failure Prediction",
+    "type": "retrieval_lead",
+    "verification": "bibliographic_metadata_only",
+    "action": {
+      "family": "gru"
+    },
+    "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+    "hypothesis": "Evaluate the supported gru family locally; this is not a reproduction of this paper."
+  },
+  {
+    "id": "AUTO-d993ab45fc",
+    "source": "https://doi.org/10.1007/978-3-031-94892-3_50",
+    "title": "Hard Disk Failure Prediction Model Based on Multilayer Convolution, Attention Mechanism and TSMixer",
+    "type": "retrieval_lead",
+    "verification": "bibliographic_metadata_only",
+    "action": {
+      "family": "tcn"
+    },
+    "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+    "hypothesis": "Evaluate the supported tcn family locally; this is not a reproduction of this paper."
+  },
+  {
+    "id": "AUTO-63b6681045",
+    "source": "https://doi.org/10.1155/2023/9756794",
+    "title": "Retracted: Convolution‐LSTM‐Based Mechanical Hard Disk Failure Prediction by Sensoring S.M.A.R.T. Indicators",
+    "type": "retrieval_lead",
+    "verification": "bibliographic_metadata_only",
+    "action": {
+      "family": "tcn"
+    },
+    "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+    "hypothesis": "Evaluate the supported tcn family locally; this is not a reproduction of this paper."
+  }
+]

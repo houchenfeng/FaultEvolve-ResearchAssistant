@@ -8,9 +8,12 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 
 import { ComparisonSection } from '@/features/results/ComparisonSection';
+import { IslandBestsSection } from '@/features/results/IslandBestsSection';
 import { OutcomeSection } from '@/features/results/OutcomeSection';
 import { ReportSection } from '@/features/results/ReportSection';
 import { TopKSection } from '@/features/results/TopKSection';
+import { SolutionComparison } from '@/features/results/SolutionComparison';
+import { WorkflowResults } from '@/features/results/WorkflowResults';
 import {
   DEFAULT_TOP_K,
   metricRows,
@@ -19,12 +22,11 @@ import {
   outcomeRows,
   reportRows,
 } from '@/features/results/results-logic';
+import { islandTitle } from '@/features/islands/island-view';
 import { useResultsData } from '@/features/results/use-results-data';
 import { toApiError } from '@/lib/api';
 import { sectionState } from '@/lib/section-state';
 import { useUiStore } from '@/stores/ui-store';
-import { HddResultsCase } from '@/features/showcase/HddResultsCase';
-import { SHOWCASE_RUN_ID } from '@/features/showcase/hdd-showcase-data';
 
 export function RunResultsPage() {
   const view = useResultsData();
@@ -32,9 +34,6 @@ export function RunResultsPage() {
   const setSelectedNodeId = useUiStore((state) => state.setSelectedNodeId);
   const { runId } = view;
 
-  if (runId === SHOWCASE_RUN_ID) {
-    return <HddResultsCase />;
-  }
 
   const openNode = (nodeId: string) => {
     setSelectedNodeId(nodeId);
@@ -61,14 +60,46 @@ export function RunResultsPage() {
         </p>
       ) : null}
 
+      <SolutionComparison
+        {...view.solutionComparison}
+        bestNodeId={view.bestNodeId}
+        initialNodeId={view.initialNodeId}
+        intent={view.bestNode?.intent ?? null}
+        onOpenNode={openNode}
+        baselineError={view.initialNodeQuery.isError}
+        onRetryBaseline={() => void view.initialNodeQuery.refetch()}
+      />
+
       <OutcomeSection
         rows={outcomeRows(view.detailQuery.data)}
         metrics={metricRows(view.metric)}
         metricsNodeId={view.bestNodeId}
+        metricsIslandLabel={
+          view.bestNode?.island_id ? islandTitle(view.bestNode.island_id) : null
+        }
         metricsState={view.metricsState}
         metricsSkipReason={view.metricsSkipReason}
         metricsError={view.nodeQuery.error}
         onRetryMetrics={() => void view.nodeQuery.refetch()}
+      />
+
+      <WorkflowResults runId={runId} data={view.workflowQuery.data}
+        pending={view.workflowQuery.isPending} error={view.workflowQuery.error}
+        onRetry={() => void view.workflowQuery.refetch()} />
+
+      <IslandBestsSection
+        islands={view.detailQuery.data?.islands}
+        nodes={view.treeQuery.data?.nodes ?? []}
+        edges={view.treeQuery.data?.edges ?? []}
+        treeState={
+          view.treeQuery.isPending ? 'pending' : view.treeQuery.isError ? 'error' : 'ready'
+        }
+        runStatus={view.detailQuery.data?.outcome?.status ?? null}
+        globalBest={{
+          nodeId: view.detailQuery.data?.outcome?.best_node_id ?? null,
+          score: view.detailQuery.data?.outcome?.best_score ?? null,
+        }}
+        onOpenNode={openNode}
       />
 
       <TopKSection

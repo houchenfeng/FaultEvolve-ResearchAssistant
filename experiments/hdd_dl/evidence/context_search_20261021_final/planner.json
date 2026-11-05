@@ -1,0 +1,165 @@
+[
+  {
+    "trial": 7,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792515856.633493,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 143,
+      "prompt_tokens": 4481,
+      "total_tokens": 4624
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "width": 256,
+        "depth": 2
+      },
+      "hypothesis": "采用双分支架构（结合卷积与循环网络）并增加模型深度，旨在同时捕捉SMART数据的局部突变趋势和长期时序依赖。相比单一TCN或GRU，这种混合结构有望在保持低误报率的同时提升召回率和AUPRC，通过更丰富的特征交互改善对早期故障模式的识别能力。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792515865.4618268
+  },
+  {
+    "trial": 15,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792515965.1887016,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 135,
+      "prompt_tokens": 4483,
+      "total_tokens": 4618
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "depth": 2,
+        "epochs": 100
+      },
+      "hypothesis": "TCN depth=1 may lack sufficient temporal receptive field for complex degradation patterns. GRU with depth=2 and longer training (100 epochs) can better capture long-range dependencies in SMART trends, potentially improving recall at low false alarm rates without the overfitting risk seen in deeper TCNs.",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792515969.0342963
+  },
+  {
+    "trial": 23,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792516063.039341,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 128,
+      "prompt_tokens": 5694,
+      "total_tokens": 5822
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "depth": 2,
+        "dropout": 0.25
+      },
+      "hypothesis": "GRU模型通过门控机制更好地捕捉SMART属性的时间序列依赖，增加深度和适度正则化以平衡偏差-方差，预期提升低误报率下的召回率。",
+      "knowledge_ids": [
+        "DL-SEQ-01",
+        "AUTO-b200202968"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792516067.277306
+  },
+  {
+    "trial": 31,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792516185.4078746,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 231,
+      "prompt_tokens": 4490,
+      "total_tokens": 4721
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "depth": 2,
+        "dropout": 0.25
+      },
+      "hypothesis": "当前TCN模型在低误报率下的召回率（recall_at_far）表现不佳，且增加epochs或调整threshold_scale未能显著提升综合得分。引入GRU架构并加深网络层数（depth=2），同时提高Dropout（0.25）以抑制过拟合，旨在利用循环神经网络对时序依赖的更强建模能力来捕捉故障前的细微趋势变化，从而在不牺牲精度的前提下提升早期预警能力。参考DL-SEQ-01关于卷积与循环网络对比的研究，以及AUTO系列文献中GRU在HDD预测中的应用线索。",
+      "knowledge_ids": [
+        "DL-SEQ-01",
+        "AUTO-4747e5ca4a"
+      ],
+      "evidence_trials": [
+        29,
+        10,
+        30
+      ]
+    },
+    "finished_at": 1792516190.7904963
+  },
+  {
+    "trial": 39,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792516317.10125,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 172,
+      "prompt_tokens": 6090,
+      "total_tokens": 6262
+    },
+    "proposal": {
+      "changes": {
+        "family": "dual",
+        "depth": 2,
+        "width": 256
+      },
+      "hypothesis": "在TCN表现良好的基础上，切换到双分支架构（dual）并增加网络容量（width=256, depth=2），旨在同时利用序列时序特征和静态上下文特征。更深的网络有助于捕捉复杂的SMART属性演变模式，而双分支结构可能通过融合不同视角的特征来提升低误报率下的召回率（recall_at_far），从而改善整体F1和AUPRC指标。",
+      "knowledge_ids": [
+        "HDD-CONTEXT-01",
+        "DL-TAB-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792516321.7988021
+  },
+  {
+    "trial": 47,
+    "model": "qwen3.8-flash",
+    "status": "accepted",
+    "created_at": 1792516444.32084,
+    "verification": "unverified_hypothesis",
+    "cost_usd": null,
+    "usage": {
+      "completion_tokens": 158,
+      "prompt_tokens": 6099,
+      "total_tokens": 6257
+    },
+    "proposal": {
+      "changes": {
+        "family": "gru",
+        "depth": 2,
+        "lr": 0.001
+      },
+      "hypothesis": "将模型族从TCN切换为GRU并增加深度至2，同时降低学习率以稳定训练。机制假设：GRU的循环门控结构能更有效地捕捉SMART属性随时间演变的非线性依赖关系（如磨损累积），相比TCN的局部感受野可能提供更强的时序建模能力，从而在保持低误报率的同时提升召回率和AUPRC。",
+      "knowledge_ids": [
+        "DL-SEQ-01"
+      ],
+      "evidence_trials": []
+    },
+    "finished_at": 1792516468.8074853
+  }
+]

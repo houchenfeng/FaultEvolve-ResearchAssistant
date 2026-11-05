@@ -67,7 +67,7 @@ def compute_baseline_metrics(
     )
     if n_generation_requests == 0:
         n_generation_requests = sum(
-            1 for n in nodes if json.loads(n["operator"]) if False else n.get("operator") in gen_ops
+            1 for n in nodes if n.get("operator") in gen_ops
         )
 
     reject_types = {

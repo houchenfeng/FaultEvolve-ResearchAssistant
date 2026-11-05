@@ -11,6 +11,17 @@ description: 管理 FaultEvolve 本地进化实验。当用户要运行、监控
 - 配置存储路径和知识注入
 - 排查进化失败问题
 
+### 与 `fe-island-evolution` 的分工
+
+三岛（多棵独立进化树 + 摘要跨岛交换）的配置、运行、监控、恢复与结果导出属于
+[`skill/fe-island-evolution/SKILL.md`](../fe-island-evolution/SKILL.md)：只要涉及 `islands`
+配置、按岛统计成本、摘要投递/采纳，或要把经验导出成草稿，就用那个技能。
+
+本技能继续负责单树运行与**历史运行的恢复**：不带 `islands` 的旧运行（例如 NAS 上的
+`final_A`、`final_B`、`autotune_full_20261004`）仍按下面第 5 步原样 `--resume`，引擎会把它们
+解析成隐式单岛，不会静默升级成三岛。两套恢复的差别见
+`skill/fe-island-evolution/references/recovery.md`。
+
 ## 输入
 
 ### 任务目录结构

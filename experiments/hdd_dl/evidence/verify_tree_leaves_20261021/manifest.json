@@ -1,0 +1,43 @@
+{
+  "seeds": [
+    20270125,
+    20270126,
+    20270127
+  ],
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "gpu": 0,
+  "evaluator_sha256": "cddfaaab6dbe2ee661b634bf39f3585b3b5821c04e84944ea084455c333523a9",
+  "verification_sha256": "59f47bf829694ce1e2e448ef464e301d10cfdee8769264d2ee26f9f6a298acfa",
+  "controller_sha256": "3eadc69acb576c90034554e7b967484b481ac922d4fd40229e1bbc44654a6398",
+  "candidates": {
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tree_leaves_sources_20261021/without.py": "211d0604583d4f7b132a25f87c7dd5ab64e92b02e043d7c7ea8280bfbe6e9de9",
+    "/home/hcf/nas_hcf_data/faultevolve-dl/runs/tree_leaves_sources_20261021/with.py": "ecd33373f7e9d35567abbf380de6471ecfe99bc1a928c1a13acd928603733eaf"
+  },
+  "baselines": {
+    "/home/hcf/faultevolve-dl/code-v23/benchmark/hdd_mvp/init.py": "91744b4ba390ed377b8eb8884a5c0b19e1407765824f00aec5e857aad208caf2",
+    "/home/hcf/faultevolve/three_island_20261008-200410/formal/artifacts/hdd_mvp_formal2b_20261009/programs/4016914b.py": "63cfb5addbf97f972a81c0f9096548c5c8685fec9f842062f0af4063ad04ba55",
+    "/home/hcf/nas_hcf_data/faultevolve/runs/final_B/f9752fcd/programs/d8f34173.py": "005004ea2c4957a514dee4c25036562341bccb2273487bf1c0a9cf3c073ab835"
+  },
+  "public_data": {
+    "train_history.csv.gz": "f033f35b786108567351b3b5d9882bc171679c75c2e24e300f11df95e1505624",
+    "train_labels.csv": "64b798410d78302ff77e4312b6c930edceee60c56d820f927be1b6804d503b27",
+    "val_history.csv.gz": "0b8e75b409c28c8ee1a45a6e187c8e01bf7829c830727e3cff4850a035bc9091",
+    "val_index.csv": "9abf34bcb5bbbc9cf8f2fdeabad505959418ed0aaed3ab61d5d72552820a44d8"
+  },
+  "validation_labels_sha256": "60c1647a5eedb4dd86102faf6fa14eec2756fc59f3801b12976f58d5abd85109",
+  "packages": {
+    "torch": "2.11.0+cu128",
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "lightgbm": "4.7.0"
+  },
+  "scope": "training_seed_stability_on_reused_search_validation_set",
+  "baseline_randomness": "original_ML_program_fixed;repeated_for_timing",
+  "selection_rule": "explicit_predeclared_candidates;no_reselection_after_seed_results"
+}

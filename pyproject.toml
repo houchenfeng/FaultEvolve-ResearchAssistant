@@ -21,6 +21,7 @@ dependencies = [
     "pandas>=2.2",
     # Feather partitions (--format feather) and the real SmartMem event files are read through it.
     "pyarrow>=15",
+    "openpyxl>=3.1",
     "scikit-learn>=1.5",
     "lightgbm>=4.3",
     "scipy>=1.13",

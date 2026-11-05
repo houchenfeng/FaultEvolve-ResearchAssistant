@@ -1,0 +1,3 @@
+smoke_failed: ... [truncated]
+ use `newframe = frame.copy()`
+  result[f'{feat}_delta_14d'] = first_last_diff.filln

@@ -1,0 +1,62 @@
+[
+  {
+    "seed": 20270411,
+    "scope": "training_oof_only",
+    "base_threshold": 0.7161974658243919,
+    "floor_threshold": 0.48657929496613544,
+    "final_threshold": 0.7161974658243919,
+    "budget": 0.002,
+    "floor_active": false,
+    "changed_oof_alarms": 0,
+    "base_rates": {
+      "far": 0.0007002567872405052,
+      "recall": 0.3007246255874634
+    },
+    "final_rates": {
+      "far": 0.0007002567872405052,
+      "recall": 0.3007246255874634
+    },
+    "entities": 31093,
+    "negative_weight": 295624.5625
+  },
+  {
+    "seed": 20270412,
+    "scope": "training_oof_only",
+    "base_threshold": 0.584512305771763,
+    "floor_threshold": 0.5349918726450148,
+    "final_threshold": 0.584512305771763,
+    "budget": 0.002,
+    "floor_active": false,
+    "changed_oof_alarms": 0,
+    "base_rates": {
+      "far": 0.0016339324647560716,
+      "recall": 0.4275362193584442
+    },
+    "final_rates": {
+      "far": 0.0016339324647560716,
+      "recall": 0.4275362193584442
+    },
+    "entities": 31093,
+    "negative_weight": 295624.5625
+  },
+  {
+    "seed": 20270413,
+    "scope": "training_oof_only",
+    "base_threshold": 0.8021081887604625,
+    "floor_threshold": 0.5524785059301484,
+    "final_threshold": 0.8021081887604625,
+    "budget": 0.002,
+    "floor_active": false,
+    "changed_oof_alarms": 0,
+    "base_rates": {
+      "far": 0.0005335289752110839,
+      "recall": 0.27355071902275085
+    },
+    "final_rates": {
+      "far": 0.0005335289752110839,
+      "recall": 0.27355071902275085
+    },
+    "entities": 31093,
+    "negative_weight": 295624.5625
+  }
+]

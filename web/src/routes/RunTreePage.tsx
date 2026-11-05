@@ -21,8 +21,6 @@ import { EMPTY_TREE_FILTER, type TreeFilter } from '@/features/workbench/tree-ad
 import { toApiError, unwrap } from '@/lib/api';
 import { queryKeys } from '@/lib/query-keys';
 import { useUiStore } from '@/stores/ui-store';
-import { HddEvolutionShowcase } from '@/features/showcase/HddEvolutionShowcase';
-import { SHOWCASE_RUN_ID } from '@/features/showcase/hdd-showcase-data';
 
 export function RunTreePage() {
   const { runId } = useParams({ from: '/runs/$runId/tree' });
@@ -65,9 +63,6 @@ export function RunTreePage() {
     retry: false,
   });
 
-  if (runId === SHOWCASE_RUN_ID) {
-    return <HddEvolutionShowcase />;
-  }
 
   if (treeQuery.isPending) {
     return <div className="px-4 py-10 text-center text-xs text-fg-subtle">正在读取进化树…</div>;

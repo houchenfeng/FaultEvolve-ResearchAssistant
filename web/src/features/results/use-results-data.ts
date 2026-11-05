@@ -14,12 +14,14 @@ import { useParams } from '@tanstack/react-router';
 
 import type { MetricsState } from '@/features/results/results-logic';
 import { DEFAULT_TOP_K, bestNodeIdOf, topKRows } from '@/features/results/results-logic';
+import { initialNodeIdOf, solutionComparison } from '@/features/results/solution-comparison';
 import {
   getLeaderboardApiRunsRunIdLeaderboardGet,
   getNodeApiRunsRunIdNodesNodeIdGet,
   getReportManifestApiRunsRunIdReportsManifestGet,
   getRunApiRunsRunIdGet,
   getTreeApiRunsRunIdTreeGet,
+  getWorkflowApiRunsRunIdWorkflowGet,
   listArtifactsApiRunsRunIdArtifactsGet,
 } from '@/generated/api';
 import { unwrap } from '@/lib/api';
@@ -27,6 +29,12 @@ import { queryKeys } from '@/lib/query-keys';
 
 export function useResultsData() {
   const { runId } = useParams({ from: '/runs/$runId/results' });
+  const workflowQuery = useQuery({
+    queryKey: queryKeys.workflow(runId),
+    queryFn: () => unwrap(getWorkflowApiRunsRunIdWorkflowGet({ path: { run_id: runId } })),
+    retry: false,
+    refetchInterval: (query) => query.state.data?.state === 'running' ? 5000 : false,
+  });
 
   // RunLayout 已经用同一个 key 取过运行详情并拦住了失败，这里只是复用缓存。
   const detailQuery = useQuery({
@@ -61,6 +69,15 @@ export function useResultsData() {
   });
 
   const bestNodeId = bestNodeIdOf(detailQuery.data, treeQuery.data);
+  const initialNodeId = initialNodeIdOf(treeQuery.data, bestNodeId);
+  const initialNodeQuery = useQuery({
+    queryKey: queryKeys.node(runId, initialNodeId ?? ''),
+    queryFn: () => unwrap(getNodeApiRunsRunIdNodesNodeIdGet({
+      path: { run_id: runId, node_id: initialNodeId as string },
+    })),
+    enabled: initialNodeId != null,
+    retry: false,
+  });
 
   // 没有最佳节点就不发这个请求：拿 '' 去问后端只会得到一个 404，
   // 那会被画成「节点详情读取失败」，而真相是「根本没有节点可问」。
@@ -101,6 +118,7 @@ export function useResultsData() {
 
   return {
     runId,
+    workflowQuery,
     detailQuery,
     leaderboardQuery,
     treeQuery,
@@ -109,6 +127,13 @@ export function useResultsData() {
     nodeQuery,
     bestNodeId,
     bestNode,
+    initialNodeId,
+    initialNodeQuery,
+    solutionComparison: solutionComparison(
+      detailQuery.data?.outcome,
+      initialNodeQuery.data?.evaluation,
+      nodeQuery.data?.evaluation,
+    ),
     treeWarnings: treeQuery.data?.warnings ?? [],
     metricsState,
     metricsSkipReason,

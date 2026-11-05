@@ -1,0 +1,82 @@
+{
+  "provider": "Crossref",
+  "retrieved_at": 1792511354.405263,
+  "events": [
+    {
+      "query": "hard disk failure prediction SMART deep neural network",
+      "status": "ok",
+      "results": 6,
+      "cards": 2
+    },
+    {
+      "query": "hard disk failure prediction temporal convolution recurrent",
+      "status": "ok",
+      "results": 6,
+      "cards": 3
+    }
+  ],
+  "cards": [
+    {
+      "id": "AUTO-4747e5ca4a",
+      "source": "https://doi.org/10.1109/iccc55456.2022.9880794",
+      "title": "Hard Disk Drive Failure Prediction Based on GRU Neural Network",
+      "type": "retrieval_lead",
+      "verification": "bibliographic_metadata_only",
+      "action": {
+        "family": "gru"
+      },
+      "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+      "hypothesis": "Evaluate the supported gru family locally; this is not a reproduction of this paper."
+    },
+    {
+      "id": "AUTO-4b15bf39ee",
+      "source": "https://doi.org/10.1109/ijcnn52387.2021.9534457",
+      "title": "Disk Failure Prediction with Multiple Channel Convolutional Neural Network",
+      "type": "retrieval_lead",
+      "verification": "bibliographic_metadata_only",
+      "action": {
+        "family": "mlp"
+      },
+      "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+      "hypothesis": "Evaluate the supported mlp family locally; this is not a reproduction of this paper."
+    },
+    {
+      "id": "AUTO-1701bc6b70",
+      "source": "https://doi.org/10.1155/2022/7832117",
+      "title": "Convolution-LSTM-Based Mechanical Hard Disk Failure Prediction by Sensoring S.M.A.R.T. Indicators",
+      "type": "retrieval_lead",
+      "verification": "bibliographic_metadata_only",
+      "action": {
+        "family": "gru"
+      },
+      "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+      "hypothesis": "Evaluate the supported gru family locally; this is not a reproduction of this paper."
+    },
+    {
+      "id": "AUTO-b200202968",
+      "source": "https://doi.org/10.1109/bracis.2018.00023",
+      "title": "Evaluation of Recurrent Neural Networks for Hard Disk Drives Failure Prediction",
+      "type": "retrieval_lead",
+      "verification": "bibliographic_metadata_only",
+      "action": {
+        "family": "gru"
+      },
+      "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+      "hypothesis": "Evaluate the supported gru family locally; this is not a reproduction of this paper."
+    },
+    {
+      "id": "AUTO-63b6681045",
+      "source": "https://doi.org/10.1155/2023/9756794",
+      "title": "Retracted: Convolution‐LSTM‐Based Mechanical Hard Disk Failure Prediction by Sensoring S.M.A.R.T. Indicators",
+      "type": "retrieval_lead",
+      "verification": "bibliographic_metadata_only",
+      "action": {
+        "family": "gru"
+      },
+      "claim": "Title suggests a relevant model family; full text and reported effectiveness are not verified.",
+      "hypothesis": "Evaluate the supported gru family locally; this is not a reproduction of this paper."
+    }
+  ],
+  "fallback": "Curated cards remain active if retrieval yields no supported leads.",
+  "raw_data_uploaded": false
+}

@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import ast
 import os
-import resource
+
+try:
+    import resource
+except ModuleNotFoundError:  # Windows: rlimits unavailable; usage below is guarded by hasattr(os, "setrlimit")
+    resource = None
+
 import subprocess
 import sys
 import tempfile

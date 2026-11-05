@@ -1,6 +1,6 @@
 ---
 name: fe-dataset-adapters
-description: 准备与校验多数据集任务目录（Backblaze、SSD/内存 stub），配置 task.adapter 并离线冒烟。
+description: 准备与校验多数据集任务目录（Backblaze、SSD/内存 stub 和新器件 manifest），配置 task.adapter 并离线冒烟。
 ---
 
 ## 何时使用
@@ -13,8 +13,42 @@ description: 准备与校验多数据集任务目录（Backblaze、SSD/内存 st
 
 - 数据集别名：`hdd` | `backblaze` | `alibaba_ssd` | `smartmem`
 - 原始数据目录、horizon/history、季度或月份划分
+- 新器件 manifest：telemetry 文件、设备列、时间列，可选 events/metadata 与任务口径
 - 环境变量：`HDD_BENCH_DATA_ROOT`（Backblaze/hdd 同构）、`ALIBABA_SSD_DATA_ROOT`、`SMARTMEM_DATA_ROOT`
 - `.env`：`DASHSCOPE_API_KEY` 等（真实进化）
+
+## 新器件与多格式输入
+
+通用适配器位于 `src/faultevolve/data/universal_adapter.py`。它把 CSV、TSV、Parquet、Feather、Excel、半结构化 JSON、JSONL 和文本日志统一转换成现有 Skill 的稳定契约：
+
+```text
+telemetry: sn, LogTime, numeric features...
+events:    sn_name, alarm_time, optional sn_type
+```
+
+算法、搜索、评估和报告不按文件格式或器件名称分支；差异只写入 manifest。最小 manifest：
+
+```json
+{
+  "telemetry": [{"path": "telemetry.parquet", "device_col": "device_id", "time_col": "timestamp"}],
+  "events": {"path": "events.json", "records_path": "events", "device_col": "device_id", "time_col": "failure_time"},
+  "task": {"window_d": 7, "lead_min": 30, "group_by": "vendor_model"}
+}
+```
+
+运行归一化（原始目录只读，输出是可复用缓存）：
+
+```bash
+python scripts/materialize_dataset.py <MANIFEST.json> <OUT_DIR>
+```
+
+输出包含按设备划分的 `type_A/*.feather`、`failure_ticket.csv`、`sn_map.csv` 和 `dataset_manifest.json`，随后按目标任务的 adapter 接入 `fe doctor`、数据体检、采样和 `fe evolve`。没有 events 时仍可把同一 telemetry manifest 用于无标签异常检测；有 events 时再按 manifest 的 lead/horizon 和分组口径做监督评估。未知列、缺少数值特征或 JSON 记录路径不明确时，适配器会直接报错，不猜默认值。
+
+格式回归：
+
+```bash
+python -m pytest tests/test_universal_adapter.py -q
+```
 
 ## 命令
 

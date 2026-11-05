@@ -1,0 +1,77 @@
+task:
+  adapter: hdd
+research:
+  domain: hdd
+  dataset_id: hdd-mvp-q3-q4-v1
+  evidence_level: real
+  evaluation_split: val
+  targets:
+    - {metric: combined_score, op: ">=", value: 35}
+    - {metric: metric.recall, op: ">=", value: 0.45}
+    - {metric: metric.false_alarm_rate, op: "<=", value: 0.002}
+    - {metric: cost_time, op: "<=", value: 60}
+budget:
+  max_iterations: 15
+  max_tokens: 1000000
+  max_wall_hours: 3
+  min_iterations_before_stop: 0
+selection:
+  policy: uct
+operators:
+  bandit: false
+  enabled: [refine, inject, recall_focus, threshold_calibrate]
+knowledge:
+  enabled: true
+  dir: knowledge
+  k: 4
+  max_per_category: 2
+islands:
+  enabled: true
+  eval_concurrency: 1
+  exchange_interval: 2
+  islands:
+    - island_id: structure
+      profile: performance
+      focus: "检验趋势特征、非线性模型及结构变化对排序质量的作用"
+      operator_bias: [refine, inject]
+      knowledge_keywords: [temporal, trend, nonlinear, interaction]
+      max_attempts: 5
+      exploration_ratio: 0.2
+    - island_id: constraints
+      profile: miss_alert
+      focus: "检验类别不平衡处理及校准能否在误告约束内提高召回"
+      operator_bias: [recall_focus, threshold_calibrate]
+      knowledge_keywords: [imbalance, threshold, calibration, recall]
+      max_attempts: 5
+      exploration_ratio: 0.2
+    - island_id: efficiency
+      profile: efficiency
+      focus: "检验特征删减和轻量结构能否在性能约束下减少运行成本"
+      operator_bias: [refine, inject]
+      knowledge_keywords: [redundant, lightweight, stability, simplification]
+      max_attempts: 5
+      exploration_ratio: 0.2
+autotune:
+  ledger: {enabled: true, full_eval_cap: 24}
+  hpo:
+    enabled: true
+    families: [logreg, lightgbm]
+    search: random
+    trials_per_structure: 2
+    max_fits_total: 24
+    promote_top_k: 1
+    threads: 1
+    trial_timeout_s: 120
+  quota:
+    enabled: true
+    shares: {hpo: 1, patch: 0, draft: 2}
+llm:
+  max_tokens: 8192
+  timeout_s: 180
+  stream: true
+judge:
+  provider: none
+  api_key_env: TYPESAFE_API_KEY
+stop:
+  stop_at_target: false
+seed: 20261016
