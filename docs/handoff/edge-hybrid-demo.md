@@ -98,8 +98,8 @@
 
 - `src/routes/RunHybridPage.tsx` 与 `src/features/hybrid/*`：混合面板。`/api/edge/*` 不在 OpenAPI 契约快照里，因此 `edge-api.ts` 手写类型并直接用 fetch。
 - `src/app/router.tsx` 新增 `hybrid` 子路由；`RunLayout.tsx` 新增"本地-云端混合"标签。
-- `src/features/evodemo/screens/HybridScreen.tsx`：EvoBot 路演前端的第 6 幕"混合云实测"（`/demo?stage=hybrid`），三端（平板 / 本机 GPU / 远端服务器）实时联动，是混合模式的主入口。
-- `src/features/intake/DeploymentModeCards.tsx`：经典首页的混合模式卡片跳转到 `/demo?stage=hybrid`。
+- `src/features/evodemo/screens/LiveWorkbenchScreen.tsx` + `LocalEvalWindow.tsx`：EvoBot 进化工作台的混合云模式（确认页选择，或 `/?stage=hybrid`）。主区是实时进化树，"本地评估域"子窗口跟随正在评估的节点，展示平板场景上的评估流水与预警；`hybrid-parts.tsx` 放三端共用组件，`LiveChecks.tsx` 是确认页的运行方式与实时检查。
+- `src/features/intake/DeploymentModeCards.tsx`：经典首页的混合模式卡片跳转到 `/?stage=hybrid`。
 
 ## 5. 运行演示
 
@@ -207,7 +207,7 @@ subst X: /D
 
 **本地评估（`edge/local_eval.py`）**：平板实时数据流结束后（`phase=done`）用它，否则用平板同款 `replay.json`。场景被落成 `test` 切分，任何遵守 CLI 契约的候选程序都能直接打分；完整 val 按 `evaluator.py` 的同一套规则计算 ROS；GPU 配对 bootstrap 默认 10 万次重采样，并用 nvidia-smi 采样记录评估期间的 GPU 峰值利用率与显存。
 
-**前端**：主入口是 EvoBot 路演的"混合云实测"一幕 `/demo?stage=hybrid`：模式切换、提供方选择、代数、启动/停止、候选评估列表与三端事件流。经典工作台 `/runs/hdd_mvp_showcase_c89e2a01/hybrid` 保留同样的面板。
+**前端**：主入口是 EvoBot 进化工作台的混合云模式 `/?stage=hybrid`：模式切换、提供方选择、代数、启动/停止、实时进化树、跟随节点的本地评估子窗口与三端事件流。经典工作台 `/runs/hdd_mvp_showcase_c89e2a01/hybrid` 保留同样的面板。
 
 **Codex 本地登录**：`npm i -g @openai/codex` → `codex login`；`/api/edge/llm` 显示已登录后，面板里即可选 Codex。测试时可用 `FE_CODEX_CMD` 指向替身命令。
 

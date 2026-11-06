@@ -473,6 +473,9 @@ class RemoteSession:
             "bootstrap": res.get("bootstrap"), "metric": res.get("metric"), "error": res.get("error"),
             "elapsed_s": res.get("elapsed_s"), "uploaded": gated["allowed"],
             "blocked": [b["field"] for b in gated["blocked"]],
+            # Local-only (the gate above blocked it from the server): lets the UI paint
+            # this candidate's alarms onto the tablet scene.
+            "alarm_serials": res.get("scene_alarm_serials", []),
         })
         g = res.get("gpu") or {}
         sc = res.get("scene") or {}

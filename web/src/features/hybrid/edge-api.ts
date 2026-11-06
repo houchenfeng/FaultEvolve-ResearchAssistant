@@ -182,6 +182,9 @@ export interface RemoteCandidate {
   elapsed_s?: number;
   uploaded?: Record<string, string | number | boolean | null>;
   blocked?: string[];
+  /** 该候选在平板场景上预警的盘，只在本机展示，不回传服务器。 */
+  alarm_serials?: string[];
+  received_at?: number;
 }
 
 export interface RemotePopulationEntry {

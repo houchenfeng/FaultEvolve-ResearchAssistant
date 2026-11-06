@@ -135,10 +135,12 @@ export function HomeScreen({
           {HISTORY.map((h, i) => (
             <motion.button
               key={h.name}
-              className="evo-card flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:border-[var(--evo-brand)]"
+              className={`evo-card flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${h.open ? 'hover:border-[var(--evo-brand)]' : 'cursor-default opacity-70'}`}
               initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: h.open ? 1 : 0.7, y: 0 }}
               transition={{ delay: 0.15 + i * 0.05 }}
+              disabled={!h.open}
+              title={h.open ? '查看结果讲解' : '该任务暂无可回放的实验记录'}
               onClick={() => h.open && onOpenHistory(h.open)}
             >
               <span
@@ -148,7 +150,7 @@ export function HomeScreen({
               <span className="text-[13px] text-[var(--evo-muted)]">{h.meta}</span>
               <span className="flex-1" />
               <span className={`text-xs ${h.tone === 'running' ? 'text-[var(--evo-brand)]' : 'text-[var(--evo-muted)]'}`}>{h.status}</span>
-              <span className="text-[var(--evo-subtle)]">›</span>
+              <span className="text-[var(--evo-subtle)]">{h.open ? '›' : '暂无回放'}</span>
             </motion.button>
           ))}
         </div>

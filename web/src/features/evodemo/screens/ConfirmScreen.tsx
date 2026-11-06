@@ -6,10 +6,22 @@ import type { DemoCase } from '../cases/types';
 import { Icon } from '../ui';
 import type { TaskDraft } from './HomeScreen';
 import { SEED_OPTIONS } from './HomeScreen';
+import type { RunMode } from './hybrid-parts';
+import { LiveChecks, RunModePicker } from './LiveChecks';
 
 const OTHER_SEED_NOTES: Record<string, string> = {
   基线算法: '从各岛的规则 / 树模型 / 阈值基线开始。',
   上传代码: '使用你提供的算法实现作为根节点。',
+};
+
+const LIVE_PREVIEW = {
+  title: '混合云实时会话 · 每个进化节点都在本机评估',
+  rows: [
+    { label: '平板 · 机房数字孪生', sub: '推送 300 块 HDD 的 SMART 遥测，接收告警', ok: true },
+    { label: '本机评估域 · GPU', sub: '每个候选都在平板场景上评估，弹出评估窗口逐个展示', ok: true },
+    { label: '远端服务器 · 自进化', sub: '经跳板机 SSH，按回传分数选择父代、生成下一代', ok: true },
+    { label: '数据边界', sub: '只回传 ROS、捕获数、误报数等白名单分数', ok: true },
+  ],
 };
 
 export function ConfirmScreen({
@@ -19,6 +31,8 @@ export function ConfirmScreen({
   onConfirm,
   onBack,
   onOpenSettings,
+  runMode,
+  onRunMode,
 }: {
   demo: DemoCase;
   draft: TaskDraft;
@@ -26,11 +40,16 @@ export function ConfirmScreen({
   onConfirm: () => void;
   onBack: () => void;
   onOpenSettings: () => void;
+  runMode: RunMode;
+  onRunMode: (m: RunMode) => void;
 }) {
   const { checks, budget, preview } = demo.confirm;
   const [checked, setChecked] = useState(0);
   const [rounds, setRounds] = useState(budget.initial);
   const ready = checked >= checks.length;
+  const live = runMode !== 'replay';
+  const offScript = !live && draft.text.trim() !== '' && draft.text !== demo.sampleTask;
+  const shownPreview = live ? LIVE_PREVIEW : preview;
 
   useEffect(() => {
     if (checked >= checks.length) return;
@@ -67,12 +86,14 @@ export function ConfirmScreen({
             transition={{ delay: 0.25 }}
           >
             <div className="text-[17px] font-semibold">
-              开始前我想确认 <span className="text-[var(--evo-brand)]">5</span> 件事
+              开始前我想确认 <span className="text-[var(--evo-brand)]">{(live ? 4 : checks.length) + 2}</span> 件事
             </div>
             <div className="mt-1 text-[13px] text-[var(--evo-muted)]">连接检查会自动完成，初始解与预算需要你确认。</div>
 
             <div className="mt-4 space-y-2">
-              {checks.map((c, i) => (
+              <RunModePicker value={runMode} onChange={onRunMode} />
+              <LiveChecks mode={runMode} />
+              {!live && checks.map((c, i) => (
                 <div key={c.title} className="flex items-center gap-3 rounded-xl border border-[var(--evo-border)] px-3.5 py-2.5">
                   <span className="text-[var(--evo-brand)]">
                     <Icon name={c.icon} size={18} />
@@ -142,8 +163,13 @@ export function ConfirmScreen({
 
             <div className="mt-4 flex items-center gap-2 text-xs text-[var(--evo-muted)]">
               <Icon name="shield" size={14} />
-              {demo.confirm.privacy}
+              {live ? '服务器只拿到 ROS、捕获数、误报数等白名单分数；平板遥测、标签与逐盘分数留在本机。' : demo.confirm.privacy}
             </div>
+            {offScript && (
+              <div className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-700">
+                这个任务暂无录制好的实验，演示将回放「{demo.name}」的真实实验过程。
+              </div>
+            )}
 
             <div className="mt-5 flex justify-end gap-2">
               <button className="evo-btn evo-btn--ghost" onClick={onBack}>
@@ -154,12 +180,12 @@ export function ConfirmScreen({
               </button>
               <motion.button
                 className="evo-btn evo-btn--primary disabled:opacity-40"
-                disabled={!ready}
+                disabled={!ready && !live}
                 onClick={onConfirm}
                 animate={ready ? { scale: [1, 1.05, 1] } : {}}
                 transition={{ duration: 0.5 }}
               >
-                确认，开始进化
+                {live ? '确认，接入混合云开始进化' : '确认，开始进化'}
                 <Icon name="arrow" />
               </motion.button>
             </div>
@@ -177,10 +203,10 @@ export function ConfirmScreen({
         <div className="mt-1 flex items-center gap-2 text-2xl font-bold">
           进化工作台 <Icon name="arrow" size={22} />
         </div>
-        {preview ? (
+        {shownPreview ? (
           <div className="mt-5 rounded-2xl border border-dashed border-[var(--evo-border)] bg-white/50 p-5">
-            <div className="mb-2 text-xs font-semibold text-[var(--evo-muted)]">{preview.title}</div>
-            {preview.rows.map((r, i) => (
+            <div className="mb-2 text-xs font-semibold text-[var(--evo-muted)]">{shownPreview.title}</div>
+            {shownPreview.rows.map((r, i) => (
               <motion.div
                 key={r.label}
                 className="flex items-center gap-3 border-b border-dashed border-[var(--evo-border)] py-2.5 last:border-0"
@@ -196,7 +222,7 @@ export function ConfirmScreen({
               </motion.div>
             ))}
             <div className="mt-3 border-t border-dashed border-[var(--evo-border)] pt-3 text-xs text-[var(--evo-muted)]">
-              {demo.pipeline.stages.join(' ⇢ ')}
+              {live ? '服务器生成候选 ⇢ 本机在平板场景上评估 ⇢ 白名单分数回传 ⇢ 服务器选择下一代' : demo.pipeline.stages.join(' ⇢ ')}
             </div>
           </div>
         ) : (

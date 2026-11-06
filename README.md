@@ -112,11 +112,11 @@ a* = argmax_{a : Δ(a) > τ} [ Q(s,a) + c_puct · P_jev(a) · √N(s) / (1 + N(s
 | ![HDD 结果：T0 → T6 最优方案](docs/screenshots/evobot/05-results.png) | ![论文组合：本质创新三层解释](docs/screenshots/evobot/07-results-paper-innovation.png) |
 | *ROS 22.81 → 36.50（+60.0%），共评估 33 个候选；Q 稳定性 0.31 → 0.91，Jev 评审 0.42 → 0.94。* | *CAF 的本质创新：平均风险减去分歧项、共识风险 × 一致性折扣、为什么能提高精确率。* |
 
-### 3.5 混合云实测（实时，非回放）
+### 3.5 进化工作台 · 混合云模式（实时，非回放）
 
-![混合云实测：平板、本机 GPU 评估域、远端服务器三端实时联动](docs/screenshots/evobot/08-hybrid-live.png)
+![进化工作台的混合云模式：实时进化树 + 本地评估域子窗口](docs/screenshots/evobot/08-hybrid-live.png)
 
-*图 6｜第 6 幕"混合云实测"。上方三端：平板（机房数字孪生，SMART 遥测上行 / 告警下行）、本机评估域（RTX 3050 实时占用）、远端服务器（经跳板机自进化，RTX 4090 D）；中间是远端自进化控制（演示回放 / 真实运行、Qwen / Codex、代数）与候选评估列表；右侧是数据边界与三端事件流。*
+*图 6｜在确认页选"混合云"，或在进化工作台右上角切到"混合云模式"。上方三端：平板（机房数字孪生，SMART 遥测上行 / 告警下行）、本机评估域（RTX 3050 实时占用）、远端服务器（经跳板机自进化，RTX 4090 D）。主区是实时进化树：服务器每写出一个候选就长出一个节点；弹出的"本地评估域 · 平板交互"子窗口跟着节点走——正在评估哪个节点，就展示它的四步流水（收到程序 → 平板场景 → GPU 评估 → 白名单回传）、它在平板机房场景上预警了哪些盘、回传与被拦截的字段；点任一节点可回看，"跟随最新"恢复同步。右侧是运行控制与三端事件流。*
 
 ![平板机房数字孪生：回放结束，进化前 2/10 → 进化后 6/10](docs/screenshots/evobot/10-tablet-twin.jpg)
 
@@ -285,18 +285,17 @@ cd web && VITE_API_PROXY_TARGET=http://127.0.0.1:8012 pnpm dev --port 5180
 
 | 地址 | 内容 |
 |---|---|
-| <http://127.0.0.1:5180/> | EvoBot 路演前端（6 幕，`/demo` 同） |
-| <http://127.0.0.1:5180/?stage=hybrid> | 直接进入第 6 幕"混合云实测" |
+| <http://127.0.0.1:5180/> | EvoBot 路演前端（5 幕，`/demo` 同） |
+| <http://127.0.0.1:5180/?stage=hybrid> | 直接进入进化工作台的混合云模式 |
 | <http://127.0.0.1:5180/overview> | 经典工作台（任务、进化树、证据链、审计） |
 
 **Demo 模式（无需服务器与密钥）**：
 
 1. **对话**：点"HDD 三岛进化"或"最新论文组合出新算法"，再点"开始进化"；或点历史任务直接看结果。
-2. **确认**：核对服务器、评估器、模型、初始解与预算，点"确认，开始进化"。
-3. **进化工作台**：自动播放真实实验回放，可暂停 / 重播 / 1×–4× 倍速。
-4. **知识发现**：多 Agent 机制辩论与统计裁决。
-5. **结果讲解**：EvoBot 五步讲解，可点步骤跳转。
-6. **混合云实测**：平板推送场景（无平板可点"无平板时回放"）；能连上服务器时选"演示回放"启动远端进化。
+2. **确认**：选运行方式——"回放真实实验"（离线可用），或"混合云 · 演示回放 / 真实运行"（实时检查平板场景、本机 GPU、跳板机 SSH、模型服务）；核对初始解与预算后确认。
+3. **进化工作台**：回放模式自动播放真实实验，可暂停 / 重播 / 1×–4× 倍速；混合云模式自动启动远端进化，弹出"本地评估域"子窗口，进化树每长出一个节点就在本机平板场景上评估一次（无平板时子窗口里点"模拟平板推送"）。右上角可随时切换回放 / 混合云模式。
+4. **知识发现**：多 Agent 机制辩论与统计裁决，可"跳到裁决"。
+5. **结果讲解**：EvoBot 五步讲解，可点步骤跳转；"复现清单"里可导出 Markdown 报告、下载最优代码。
 
 真实运行（平板 + 本机 GPU + 服务器 + Qwen / Codex）的完整步骤、验收标准、实测记录与排障见 **[docs/REAL_RUN.md](docs/REAL_RUN.md)**。
 
@@ -311,7 +310,7 @@ cd android; .\gradlew assembleDebug
 adb install -r app\build\outputs\apk\debug\app-debug.apk
 ```
 
-首次运行以管理员放行端口：`New-NetFirewallRule -DisplayName FaultEvolveEdge -Direction Inbound -Protocol TCP -LocalPort 8012 -Action Allow`。没有平板时，混合云实测页的"无平板时回放"按钮会用同一份场景数据代替。
+首次运行以管理员放行端口：`New-NetFirewallRule -DisplayName FaultEvolveEdge -Direction Inbound -Protocol TCP -LocalPort 8012 -Action Allow`。没有平板时，进化工作台混合云模式子窗口里的"模拟平板推送"会用同一份场景数据代替。
 
 ### 7.5 配置远端自进化（真实运行）
 
@@ -329,7 +328,7 @@ FE_REMOTE_ROOT=/path/on/server/edge_hybrid
 FE_REMOTE_PYTHON=/path/on/server/python
 ```
 
-重启后端后，在**混合云实测**页选择"真实运行"、提供方与代数，点击"启动远端进化"（详见 [docs/REAL_RUN.md](docs/REAL_RUN.md)）。也可用 API：
+重启后端后，在确认页（或进化工作台的混合云模式）选择"真实运行"、提供方与代数，点击"启动远端进化"（详见 [docs/REAL_RUN.md](docs/REAL_RUN.md)）。也可用 API：
 
 ```bash
 curl -X POST http://127.0.0.1:8012/api/edge/remote/probe
@@ -371,7 +370,7 @@ fe evolve local benchmark/hdd_mvp --env-file .env --iterations 10
 ```text
 FaultEvolve-ResearchAssistant/
 ├── src/faultevolve/          # 演化引擎、评估、知识发现、Web API、edge（混合模式）
-├── web/src/features/evodemo/ # EvoBot 路演前端（6 幕，含 HybridScreen 混合云实测）
+├── web/src/features/evodemo/ # EvoBot 路演前端（5 幕，进化工作台含混合云模式与本地评估子窗口）
 ├── web/src/features/hybrid/  # /api/edge 接口与混合模式组件
 ├── edge-tablet/              # 平板机房孪生（网页 + Android 工程）
 ├── scripts/                  # showcase_serve.py、edge_demo.ps1、edge_remote_evolver.py

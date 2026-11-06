@@ -282,7 +282,7 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
               {tab === '演示模式' && (
                 <>
                   <Field label="数据源" value="Demo：回放 hdd_mvp_showcase_c89e2a01" />
-                  <Field label="混合云实测" value="第 6 幕：平板 ↔ 本机 GPU 评估 ↔ 远端自进化（演示回放 / 真实运行）" />
+                  <Field label="混合云模式" value="确认页选择或工作台切换：平板 ↔ 本机 GPU 评估 ↔ 远端自进化（演示回放 / 真实运行）" />
                   <Hint>
                     切换到真实模式后，同一套页面改读 /api/runs/&#123;id&#125;/stream 事件流与 /api/servers 探测结果；
                     经典工作台仍在 <a className="text-[var(--evo-brand)] underline" href="/overview">/overview</a>。

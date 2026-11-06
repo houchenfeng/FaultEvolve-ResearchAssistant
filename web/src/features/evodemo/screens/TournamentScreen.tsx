@@ -58,6 +58,9 @@ export function TournamentScreen({ script, onNext }: { script: DebateScript; onN
         <button className="evo-btn evo-btn--ghost" onClick={() => setRound(0)}>
           <Icon name="restart" /> 重播
         </button>
+        <button className="evo-btn evo-btn--ghost" onClick={() => setRound(rounds.length - 1)} disabled={final}>
+          <Icon name="skip" /> 跳到裁决
+        </button>
       </div>
 
       <div className="grid min-h-0 grid-cols-[200px_minmax(0,1fr)_330px] gap-4">

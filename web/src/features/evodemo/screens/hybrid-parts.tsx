@@ -1,13 +1,13 @@
 /**
- * 混合云实测：平板（边缘遥测）↔ 本机评估域（GPU）↔ 远端服务器（经跳板机自进化）。
+ * 混合云的实时组件：平板（边缘遥测）↔ 本机评估域（GPU）↔ 远端服务器（经跳板机自进化）。
  *
- * 与前面几幕的回放不同，这一幕全部读 `/api/edge/*` 的实时状态：
+ * 全部读 `/api/edge/*` 的实时状态，供进化工作台的混合云模式使用：
  * 平板推送 SMART 遥测、本机下发告警；服务器写出候选，本机在平板场景上用 GPU 评估，
  * 只把白名单分数回传服务器。
  */
 import { AnimatePresence, motion } from 'motion/react';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { EdgeState, GpuStatus, RemoteCandidate, RemoteState } from '@/features/hybrid/edge-api';
 import { useEdgeActions, useEdgeState, useGpu, useLlmStatus, useRemoteActions, useRemoteState } from '@/features/hybrid/edge-api';
@@ -30,42 +30,34 @@ function fmtBytes(n: number): string {
   return `${n} B`;
 }
 
-export function HybridScreen() {
+export type LiveMode = 'demo' | 'real';
+
+/** 进化工作台的运行方式：回放真实实验，或接入混合云实时运行。 */
+export type RunMode = 'replay' | LiveMode;
+
+/** 三端实时数据；后端缺 /api/edge 时给出可读的错误占位。 */
+export function useHybridData() {
   const edgeQuery = useEdgeState();
   const gpuQuery = useGpu();
   const remoteQuery = useRemoteState();
   const edge = edgeQuery.data;
   const remote = remoteQuery.data;
-
+  let gate: ReactNode = null;
   if (edgeQuery.isError) {
-    return (
+    gate = (
       <div className="flex h-full items-center justify-center p-8">
         <div className="evo-card max-w-lg p-6 text-sm text-[var(--evo-muted)]">
           本地评估域接口不可用：{String(edgeQuery.error)}。请用 <code className="evo-mono">scripts/edge_demo.ps1</code> 启动带 /api/edge 的后端。
         </div>
       </div>
     );
+  } else if (!edge || !remote) {
+    gate = <div className="flex h-full items-center justify-center text-sm text-[var(--evo-muted)]">正在连接本地评估域…</div>;
   }
-  if (!edge || !remote) {
-    return <div className="flex h-full items-center justify-center text-sm text-[var(--evo-muted)]">正在连接本地评估域…</div>;
-  }
-
-  return (
-    <div className="flex h-full flex-col gap-3 p-4" data-evo-hybrid="true">
-      <TriDomain edge={edge} remote={remote} gpu={gpuQuery.data} />
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)_minmax(0,1fr)] gap-3">
-        <TabletScene edge={edge} />
-        <div className="flex min-h-0 flex-col gap-3">
-          <RemoteControls remote={remote} />
-          <CandidateList remote={remote} />
-        </div>
-        <EventColumn edge={edge} remote={remote} />
-      </div>
-    </div>
-  );
+  return { edge, remote, gpu: gpuQuery.data, gate };
 }
 
-function TriDomain({ edge, remote, gpu }: { edge: EdgeState; remote: RemoteState; gpu?: GpuStatus }) {
+export function TriDomain({ edge, remote, gpu }: { edge: EdgeState; remote: RemoteState; gpu?: GpuStatus }) {
   const device = edge.device;
   const streaming = edge.stream.phase === 'ingesting' || edge.stream.phase === 'scoring';
   const evaluating = remote.candidates.some((c) => c.status === 'evaluating') || remote.local_step != null;
@@ -178,7 +170,7 @@ function diskColor(d: EdgeState['grid'][number]): string {
   return 'bg-slate-200';
 }
 
-function TabletScene({ edge }: { edge: EdgeState }) {
+export function TabletScene({ edge }: { edge: EdgeState }) {
   const actions = useEdgeActions();
   const racks = new Map<number, EdgeState['grid']>();
   for (const d of edge.grid) racks.set(d.rack, [...(racks.get(d.rack) ?? []), d]);
@@ -238,15 +230,31 @@ function Legend({ cls, text }: { cls: string; text: string }) {
   );
 }
 
-function RemoteControls({ remote }: { remote: RemoteState }) {
+export function RemoteControls({
+  remote,
+  initialMode = 'demo',
+  initialGenerations = 3,
+  autoStart = false,
+}: {
+  remote: RemoteState;
+  initialMode?: LiveMode;
+  initialGenerations?: number;
+  autoStart?: boolean;
+}) {
   const llm = useLlmStatus().data;
   const actions = useRemoteActions();
-  const [mode, setMode] = useState<'demo' | 'real'>('demo');
+  const [mode, setMode] = useState<LiveMode>(initialMode);
   const [provider, setProvider] = useState<'qwen' | 'codex'>('qwen');
-  const [generations, setGenerations] = useState(3);
+  const [generations, setGenerations] = useState(initialGenerations);
   const codexReady = !!llm?.codex.login?.ok;
   const running = remote.running;
   const start = () => actions.start.mutate({ mode, provider: mode === 'real' ? provider : undefined, generations });
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (!autoStart || autoStarted.current || running) return;
+    autoStarted.current = true;
+    actions.start.mutate({ mode: initialMode, provider: initialMode === 'real' ? 'qwen' : undefined, generations: initialGenerations });
+  }, [autoStart, running, actions.start, initialMode, initialGenerations]);
   const best = remote.remote.best;
 
   return (
@@ -327,7 +335,7 @@ function shortError(err: string | null | undefined): string {
   return exc ?? lines[lines.length - 1] ?? err;
 }
 
-function CandidateList({ remote }: { remote: RemoteState }) {
+export function CandidateList({ remote }: { remote: RemoteState }) {
   const bestId = remote.remote.best?.id;
   return (
     <div className="evo-card flex min-h-0 flex-1 flex-col p-4">
@@ -366,7 +374,7 @@ function CandidateList({ remote }: { remote: RemoteState }) {
   );
 }
 
-function EventColumn({ edge, remote }: { edge: EdgeState; remote: RemoteState }) {
+export function EventColumn({ edge, remote }: { edge: EdgeState; remote: RemoteState }) {
   const events = [
     ...remote.events.map((e) => ({ at: e.at, text: e.text, tag: e.source === 'server' ? '服务器' : '本机', tone: e.source === 'server' ? 'bg-violet-50 text-violet-600' : 'bg-[var(--evo-brand-50)] text-[var(--evo-brand)]' })),
     ...edge.events.map((e) => ({ at: e.at, text: e.text, tag: '平板', tone: e.kind === 'failure' ? 'bg-red-50 text-[var(--evo-bad)]' : 'bg-sky-50 text-sky-600' })),

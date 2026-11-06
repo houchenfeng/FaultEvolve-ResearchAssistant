@@ -9,6 +9,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { EvoBot } from '../bot/EvoBot';
 import type { MetricDef, MetricRow, ReportClaim, ReportNode, ReportStep, RunReport } from '../report';
 import { chapterTitles, formatDelta, formatMetric, narrate, operatorLabel, primaryDef } from '../report';
+import { downloadBestCode, exportReport } from '../report-export';
 import { Icon, Typewriter } from '../ui';
 
 const MAX_LAYERS = 6;
@@ -515,6 +516,8 @@ function Knowledge({ report }: { report: RunReport }) {
 
 function Reproducibility({ report }: { report: RunReport }) {
   const primary = primaryDef(report.input);
+  const [notice, setNotice] = useState('');
+  const [busy, setBusy] = useState(false);
   const rows = [
     { label: '运行 ID', path: report.input.runId },
     { label: '最终方案', path: `${report.best.id} · ${primary.label} ${formatMetric(primary, report.best.score)}` },
@@ -538,9 +541,29 @@ function Reproducibility({ report }: { report: RunReport }) {
         ))}
       </div>
       <div className="flex-1" />
-      <div className="mt-4 flex justify-end gap-2">
-        <button className="evo-btn evo-btn--ghost">导出报告</button>
-        <button className="evo-btn evo-btn--primary">下载最优代码</button>
+      <div className="mt-4 flex items-center justify-end gap-2">
+        {notice && <span className="mr-auto text-xs text-[var(--evo-muted)]">已下载 {notice}</span>}
+        <button
+          className="evo-btn evo-btn--ghost"
+          onClick={() => {
+            exportReport(report);
+            setNotice(`${report.input.runId}_report.md`);
+          }}
+        >
+          导出报告
+        </button>
+        <button
+          className="evo-btn evo-btn--primary"
+          disabled={busy}
+          onClick={() => {
+            setBusy(true);
+            void downloadBestCode(report)
+              .then(setNotice)
+              .finally(() => setBusy(false));
+          }}
+        >
+          {busy ? '准备中…' : '下载最优代码'}
+        </button>
       </div>
     </div>
   );

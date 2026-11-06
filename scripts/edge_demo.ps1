@@ -26,7 +26,7 @@ $ips = Get-NetIPAddress -AddressFamily IPv4 |
 
 Write-Host ''
 Write-Host '路演演示（EvoBot）：' -NoNewline; Write-Host " http://127.0.0.1:$WebPort/" -ForegroundColor Cyan
-Write-Host '混合云实测：      ' -NoNewline; Write-Host " http://127.0.0.1:$WebPort/?stage=hybrid" -ForegroundColor Cyan
+Write-Host '混合云模式：      ' -NoNewline; Write-Host " http://127.0.0.1:$WebPort/?stage=hybrid" -ForegroundColor Cyan
 foreach ($ip in $ips) {
     Write-Host '平板 APK 填写地址：' -NoNewline; Write-Host " ${ip}:$ApiPort" -ForegroundColor Green
     Write-Host '平板浏览器版：    ' -NoNewline; Write-Host " http://${ip}:$ApiPort/edge-tablet/" -ForegroundColor Green
