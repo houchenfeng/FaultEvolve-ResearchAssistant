@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <title>FaultEvolve mark draft</title>
+  <line x1="28" y1="92" x2="28" y2="28" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+  <line x1="28" y1="60" x2="80" y2="60" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+  <line x1="28" y1="28" x2="88" y2="28" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="28" cy="92" r="12" fill="currentColor"/>
+  <circle cx="80" cy="60" r="12" fill="none" stroke="currentColor" stroke-width="8"/>
+  <path d="M84 16 L100 28 L84 40" stroke="#3D5AFE" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

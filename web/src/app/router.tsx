@@ -10,6 +10,7 @@ import { createRootRoute, createRoute, createRouter } from '@tanstack/react-rout
 
 import { AppShell } from '@/app/shell/AppShell';
 import { ComparePage } from '@/routes/ComparePage';
+import { EvoDemoPage } from '@/routes/EvoDemoPage';
 import { NewRunPage } from '@/routes/NewRunPage';
 import { NotFoundPage } from '@/routes/NotFoundPage';
 import { OverviewPage } from '@/routes/OverviewPage';
@@ -94,8 +95,16 @@ function buildRouteTree() {
     component: ComparePage,
   });
 
+  // 路演演示：全屏，不挂经典工作台外壳（见 AppShell）
+  const demoRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/demo',
+    component: EvoDemoPage,
+  });
+
   return rootRoute.addChildren([
     indexRoute,
+    demoRoute,
     taskDetailRoute,
     newRunRoute,
     compareRoute,
