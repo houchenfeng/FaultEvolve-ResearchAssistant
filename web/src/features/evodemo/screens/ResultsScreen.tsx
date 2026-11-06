@@ -3,7 +3,8 @@
  * 不包含任何任务相关的文案或数字。
  */
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { EvoBot } from '../bot/EvoBot';
 import type { MetricDef, MetricRow, ReportClaim, ReportNode, ReportStep, RunReport } from '../report';
@@ -112,26 +113,17 @@ function Combination({ report }: { report: RunReport }) {
   return (
     <div className="flex h-full flex-col">
       <Heading title="最终方案由哪些算法、怎样组合而成" sub={`${parents.length} 个父算法 · ${operatorLabel(best.operator)} · 无新增可学习参数`} />
-      <div className="mt-8 grid flex-1 grid-cols-[minmax(0,1fr)_48px_minmax(0,1.15fr)_48px_minmax(0,0.9fr)] items-center">
-        <div className="space-y-3">
-          {parents.map((p, i) => (
-            <motion.div
-              key={p.id}
-              className="rounded-2xl border border-[var(--evo-border)] bg-white p-4"
-              initial={{ opacity: 0, x: -24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 + i * 0.15, type: 'spring', stiffness: 220, damping: 22 }}
-            >
-              <div className="text-[11px] text-[var(--evo-subtle)]">父算法 {String.fromCharCode(65 + i)}</div>
-              <div className="text-[17px] font-semibold">{p.title}</div>
-              {p.subtitle && <div className="mt-0.5 text-[12px] text-[var(--evo-muted)]">{p.subtitle}</div>}
-              <div className="evo-mono mt-2 text-[12px] text-[var(--evo-muted)]">
-                {primary.label} {formatMetric(primary, p.score)}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        <Arrow delay={0.45} />
+      <div className="mt-8 grid flex-1 grid-cols-[minmax(0,1fr)_56px_minmax(0,1.2fr)_48px_minmax(0,0.9fr)] items-center">
+        <ParentsMerge parents={parents} render={(p, i) => (
+          <>
+            <div className="text-[11px] text-[var(--evo-subtle)]">父算法 {String.fromCharCode(65 + i)}</div>
+            <div className="text-[17px] font-semibold">{p.title}</div>
+            {p.subtitle && <div className="mt-0.5 text-[12px] text-[var(--evo-muted)]">{p.subtitle}</div>}
+            <div className="evo-mono mt-2 text-[12px] text-[var(--evo-muted)]">
+              {primary.label} {formatMetric(primary, p.score)}
+            </div>
+          </>
+        )} />
         <motion.div
           className="rounded-2xl border-2 border-[var(--evo-brand)] bg-[var(--evo-brand-50)] p-5 text-center"
           initial={{ opacity: 0, scale: 0.85 }}
@@ -139,7 +131,7 @@ function Combination({ report }: { report: RunReport }) {
           transition={{ delay: 0.6, type: 'spring', stiffness: 220, damping: 18 }}
         >
           <div className="text-[11px] font-semibold text-[var(--evo-brand)]">{operatorLabel(best.operator)}</div>
-          {input.formula && <div className="evo-mono mt-2 text-[19px] leading-snug font-bold">{input.formula.expression}</div>}
+          {input.formula && <Formula expression={input.formula.expression} />}
           {input.formula?.decision && <div className="mt-3 text-[12.5px] leading-snug text-[var(--evo-muted)]">{input.formula.decision}</div>}
         </motion.div>
         <Arrow delay={0.85} />
@@ -161,6 +153,84 @@ function Combination({ report }: { report: RunReport }) {
           </div>
         </motion.div>
       </div>
+    </div>
+  );
+}
+
+/** 父算法卡 + 从每张卡中心汇聚到右侧组合规则的箭头；卡片位置实测，保证箭头对准。 */
+function ParentsMerge<T extends { id: string }>({ parents, render }: { parents: T[]; render: (p: T, i: number) => ReactNode }) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [layout, setLayout] = useState<{ h: number; ys: number[] }>({ h: 0, ys: [] });
+  useLayoutEffect(() => {
+    const box = boxRef.current;
+    if (!box) return;
+    const measure = () => setLayout({ h: box.offsetHeight, ys: cardRefs.current.slice(0, parents.length).map((c) => (c ? c.offsetTop + c.offsetHeight / 2 : 0)) });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [parents.length]);
+  const mid = layout.h / 2;
+  return (
+    <div className="col-span-2 flex items-center">
+      <div ref={boxRef} className="relative min-w-0 flex-1 space-y-3">
+        {parents.map((p, i) => (
+          <motion.div
+            key={p.id}
+            ref={(el) => {
+              cardRefs.current[i] = el;
+            }}
+            className="rounded-2xl border border-[var(--evo-border)] bg-white p-4"
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 + i * 0.15, type: 'spring', stiffness: 220, damping: 22 }}
+          >
+            {render(p, i)}
+          </motion.div>
+        ))}
+      </div>
+      {layout.h > 0 && (
+        <svg width={56} height={layout.h} className="shrink-0 overflow-visible">
+          {layout.ys.map((y, i) => (
+            <motion.path
+              key={i}
+              d={`M2 ${y} C30 ${y}, 24 ${mid}, 50 ${mid}`}
+              fill="none"
+              stroke="#2563EB"
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ delay: 0.4 + i * 0.1, duration: 0.5 }}
+            />
+          ))}
+          <motion.path
+            d={`M44 ${mid - 6} L52 ${mid} L44 ${mid + 6}`}
+            fill="none"
+            stroke="#2563EB"
+            strokeWidth={2.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          />
+        </svg>
+      )}
+    </div>
+  );
+}
+
+/** `左式 = 右式` 拆成小号名称 + 不折行的主式，避免公式在窄卡片里被拦腰截断。 */
+function Formula({ expression }: { expression: string }) {
+  const at = expression.indexOf(' = ');
+  const lhs = at > 0 ? expression.slice(0, at) : '';
+  const rhs = at > 0 ? expression.slice(at + 3) : expression;
+  return (
+    <div className="mt-2">
+      {lhs && <div className="evo-mono text-[12px] text-[var(--evo-muted)]">{lhs} =</div>}
+      <div className="evo-mono text-[clamp(15px,1.45vw,21px)] leading-snug font-bold whitespace-nowrap">{rhs}</div>
     </div>
   );
 }

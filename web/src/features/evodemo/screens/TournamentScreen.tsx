@@ -118,6 +118,7 @@ export function TournamentScreen({ script, onNext }: { script: DebateScript; onN
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 300, damping: 24 }}
             >
+              <span className={`absolute size-3 rotate-45 bg-white ${TAIL_CLASS[tailSide(current.speaker)]}`} />
               <div className="mb-1 text-[11px] font-semibold" style={{ color: cast[current.speaker].color }}>
                 {cast[current.speaker].name} · {current.round}
               </div>
@@ -171,29 +172,43 @@ export function TournamentScreen({ script, onNext }: { script: DebateScript; onN
         </div>
       </div>
 
-      <div className="evo-card flex items-center gap-2 px-5 py-3">
-        <span className="mr-3 text-xs font-semibold text-[var(--evo-muted)]">证据链</span>
-        {chain.map((label, i) => {
-          const lit = i <= round;
-          return (
-            <div key={label} className="flex flex-1 items-center gap-2">
-              <motion.span
-                className="size-3 shrink-0 rounded-full"
-                animate={{ backgroundColor: lit ? '#2563EB' : '#E2E8F0', scale: i === round ? [1, 1.5, 1] : 1 }}
-                transition={{ duration: 0.6 }}
-              />
-              <span className={`text-[12px] whitespace-nowrap ${lit ? 'font-medium' : 'text-[var(--evo-subtle)]'}`}>{label}</span>
-              {i < chain.length - 1 && (
-                <div className="relative h-0.5 flex-1 overflow-hidden rounded bg-slate-200">
-                  <motion.div className="absolute inset-y-0 left-0 bg-[var(--evo-brand)]" animate={{ width: i < round ? '100%' : '0%' }} transition={{ duration: 0.6 }} />
-                </div>
-              )}
-            </div>
-          );
-        })}
+      <div className="evo-card flex items-center gap-4 px-5 py-3">
+        <span className="shrink-0 text-xs font-semibold text-[var(--evo-muted)]">证据链</span>
+        <div className="grid flex-1" style={{ gridTemplateColumns: `repeat(${chain.length}, minmax(0, 1fr))` }}>
+          {chain.map((label, i) => {
+            const lit = i <= round;
+            return (
+              <div key={label} className="relative flex flex-col items-center gap-1">
+                {i < chain.length - 1 && (
+                  <div className="absolute top-[5px] left-1/2 h-0.5 w-full overflow-hidden rounded bg-slate-200">
+                    <motion.div className="absolute inset-y-0 left-0 bg-[var(--evo-brand)]" animate={{ width: i < round ? '100%' : '0%' }} transition={{ duration: 0.6 }} />
+                  </div>
+                )}
+                <motion.span
+                  className="relative size-3 shrink-0 rounded-full"
+                  animate={{ backgroundColor: lit ? '#2563EB' : '#E2E8F0', scale: i === round ? [1, 1.5, 1] : 1 }}
+                  transition={{ duration: 0.6 }}
+                />
+                <span className={`max-w-full truncate text-[11.5px] ${lit ? 'font-medium' : 'text-[var(--evo-subtle)]'}`}>{label}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
+}
+
+/** 气泡尾巴朝向发言者：裁判在气泡上方，其余席位在气泡左右两侧且与气泡垂直居中。 */
+const TAIL_CLASS = {
+  top: '-top-[7px] left-1/2 -translate-x-1/2 border-t border-l border-[var(--evo-border)]',
+  left: 'top-1/2 -left-[7px] -translate-y-1/2 border-b border-l border-[var(--evo-border)]',
+  right: 'top-1/2 -right-[7px] -translate-y-1/2 border-t border-r border-[var(--evo-border)]',
+} as const;
+
+function tailSide(role: DebateRole): keyof typeof TAIL_CLASS {
+  if (role === 'judge') return 'top';
+  return SEATS[role].x < 50 ? 'left' : 'right';
 }
 
 function bubblePosition(role: DebateRole): CSSProperties {

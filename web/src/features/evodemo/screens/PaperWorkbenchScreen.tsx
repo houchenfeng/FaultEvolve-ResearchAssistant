@@ -149,7 +149,7 @@ function IslandCanvas({ view, selectedId, onSelect }: { view: PlayerView; select
   /** 上排节点整块（Bot + 名称 + 检查点）落在树干之上，下排落在树干之下，树干不压字。 */
   const pos = (n: PaperNode): Point => {
     const y = trunkY(n.lane);
-    return { x: slotX(n.slot), y: n.column === 0 ? y : n.upper ? y - 33 : y + 18 };
+    return { x: slotX(n.slot), y: n.column === 0 ? y : n.upper ? y - 37 : y + 18 };
   };
 
   const visible = PAPER_NODES.filter((n) => n.lane >= 0 && view.phases.has(n.id));

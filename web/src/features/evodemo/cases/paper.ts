@@ -290,7 +290,7 @@ function toReportNode(n: PaperNode): ReportNode {
   const paper = PAPER_BY_ID.get(n.id);
   return {
     id: n.id,
-    parentIds: n.parents,
+    parentIds: n.host && n.partner ? [n.host, n.partner] : n.parents,
     depth: n.column === 0 ? 0 : (ARTIFACT_BY_ID.get(n.id)?.depth ?? 1),
     score: (q1?.precision ?? 0) * 100,
     operator: n.operator,
@@ -322,7 +322,7 @@ export const PAPER_REPORT_INPUT: ReportInput = {
   ],
   selectedId: WINNER_ID,
   nodes: PAPER_NODES.filter((n) => PAPER_BY_ID.get(n.id)?.ready !== false).map(toReportNode),
-  formula: { expression: 'CAF(x) = √( p_TabM(x) · q_Mitra(x) )', decision: 'CAF(x) ≥ t = 0.6366 时告警 · t 取三期负例校准阈值的最大值' },
+  formula: { expression: 'CAF(x) = √(p_TabM · q_Mitra)', decision: 'CAF(x) ≥ t = 0.6366 时告警 · t 取三期负例校准阈值的最大值' },
   insights: [
     {
       title: '平均风险减去分歧项',
@@ -343,11 +343,11 @@ export const PAPER_REPORT_INPUT: ReportInput = {
   claims: [
     {
       id: 'algorithm-mix-29b3832fa231e045ba5a',
-      title: '当任务内学习模型与预训练上下文模型的分歧能标记一部分不可靠高分时，可以把预测一致性作为告警筛选信号，改善稀有事件的告警精确率',
+      title: '共识一致性融合（CAF）：任务内学习与预训练上下文两类模型的一致性，可以作为稀有故障告警的筛选信号',
       grade: 'candidate',
       evidence: [
-        { label: '父算法', value: 'TabM（任务内训练）× Mitra-v2（预训练上下文）' },
-        { label: '组合规则', value: '共识一致性融合（CAF）· 无新增融合参数' },
+        { label: '新算法', value: 'TabM × Mitra-v2 · CAF' },
+        { label: '本质', value: '共识风险 × 一致性折扣' },
         { label: 'Q1 / Q2 精确率', value: '42.82% / 64.71%', good: true },
         { label: 'Q1 / Q2 误告率', value: '0.0402% / 0.0301%', good: true },
         { label: '两域晋升检查', value: '10 / 10 通过', good: true },
@@ -412,7 +412,7 @@ export const PAPER_CASE: DemoCase = {
   },
   debate: {
     eyebrow: '新知识发现 · 算法辩论赛',
-    title: 'Mitra-v2 × TabM 共识一致性融合：共识风险 × 一致性折扣',
+    title: 'TabM × Mitra-v2 共识一致性融合：共识风险 × 一致性折扣',
     highlight: '共识风险 × 一致性折扣',
     rounds: [
       {
@@ -444,7 +444,7 @@ export const PAPER_CASE: DemoCase = {
       {
         round: '最终裁决',
         speaker: 'judge',
-        line: '新知识不是公式本身，而是“任务内学习与预训练上下文的一致性，可以作为稀有故障告警的筛选信号”。保存为可继续组合的知识节点。',
+        line: '新算法命名为共识一致性融合（CAF）。新知识不是公式本身，而是“任务内学习与预训练上下文的一致性，可以作为稀有故障告警的筛选信号”。保存为可继续组合的知识节点。',
       },
     ],
     cast: {
@@ -455,14 +455,14 @@ export const PAPER_CASE: DemoCase = {
       judge: { name: '总裁判', en: 'Judge', shape: 'circle', color: '#1E3A8A' },
     },
     verdict: [
-      { label: '父算法', value: 'TabM × Mitra-v2', round: 0 },
+      { label: '新算法', value: 'TabM × Mitra-v2 · CAF', round: 0 },
       { label: '第一层 · 平均风险 − 分歧项', value: '√pq = (p+q)/2 − (√p−√q)²/2', round: 2, good: true },
       { label: '第二层 · 共识 × 一致性折扣', value: 'g = B · r = r · exp(−min J)', round: 3, good: true },
       { label: '精确率条件', value: 'TPR/FPR ↑ · 误告降幅 > 检出降幅', round: 4, good: true },
       { label: 'Q1 / Q2 精确率', value: '42.82% / 64.71%', round: 4 },
       { label: '同父对照', value: '等权集成 ✗ · 自适应惩罚 ✗', round: 5 },
     ],
-    outcome: { title: '新知识节点', sub: '共识风险 × 一致性折扣 · 待未见季度确认' },
+    outcome: { title: '新算法 · 共识一致性融合（CAF）', sub: '共识风险 × 一致性折扣 · 待未见季度确认' },
     chain: ['候选晋升', '新颖性质询', '平均风险 − 分歧', '共识 × 一致性折扣', '精确率机制', '同父消融', '知识入库'],
   },
   report: buildRunReport(PAPER_REPORT_INPUT),
