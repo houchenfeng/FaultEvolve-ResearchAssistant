@@ -3,16 +3,18 @@
  *
  * 所有阶段同时挂在一个 LayoutGroup 里，主角 Bot 用同一个 layoutId，
  * 阶段切换时由 motion 的共享布局动画把它“跳”到新位置。
+ * 当前演示哪个案例由初始解决定：最新论文 → 论文组合案例，其余 → KGTE 三岛进化。
  */
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { useState } from 'react';
 
-import { DEMO_REPORT_INPUT } from './demo-script';
+import { CASES, DEFAULT_CASE, caseForSeed } from './cases';
+import type { CaseId } from './cases/types';
 import './evodemo.css';
-import { buildRunReport } from './report';
 import type { TaskDraft } from './screens/HomeScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { ConfirmScreen } from './screens/ConfirmScreen';
+import { PaperWorkbenchScreen } from './screens/PaperWorkbenchScreen';
 import { ResultsScreen } from './screens/ResultsScreen';
 import { TournamentScreen } from './screens/TournamentScreen';
 import { WorkbenchScreen } from './screens/WorkbenchScreen';
@@ -30,24 +32,28 @@ const STAGES: { key: Stage; label: string }[] = [
 
 const DEFAULT_DRAFT: TaskDraft = {
   text: '',
-  evaluation: 'ROS · 本地 evaluator.py',
-  seed: '注入已有知识',
+  evaluation: DEFAULT_CASE.evaluation,
+  seed: DEFAULT_CASE.seed,
 };
-
-const DEMO_REPORT = buildRunReport(DEMO_REPORT_INPUT);
-
-const SAMPLE_TASK = '用 SMART 日志提前 7 天预测硬盘故障，评估用 ROS，误报预算 3%。';
 
 export function EvoDemoApp() {
   const [stage, setStage] = useState<Stage>('home');
   const [draft, setDraft] = useState<TaskDraft>(DEFAULT_DRAFT);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [cameFromConfirm, setCameFromConfirm] = useState(false);
+  const demo = caseForSeed(draft.seed);
 
   const go = (next: Stage) => {
-    if (next === 'confirm' && !draft.text.trim()) setDraft((d) => ({ ...d, text: SAMPLE_TASK }));
+    if (next === 'confirm' && !draft.text.trim()) setDraft((d) => ({ ...d, text: demo.sampleTask }));
     setCameFromConfirm(stage === 'confirm' && next === 'workbench');
     setStage(next);
+  };
+
+  const openCase = (id: CaseId) => {
+    const target = CASES[id];
+    setDraft({ text: target.sampleTask, evaluation: target.evaluation, seed: target.seed });
+    setCameFromConfirm(false);
+    setStage('results');
   };
 
   return (
@@ -74,10 +80,10 @@ export function EvoDemoApp() {
         </nav>
 
         <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11.5px] text-amber-700">
-          <span className="size-1.5 rounded-full bg-amber-500" /> 演示数据 · HDD 展示运行
+          <span className="size-1.5 rounded-full bg-amber-500" /> {demo.badge}
         </span>
         <span className="hidden items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-[11.5px] text-green-700 lg:flex">
-          <span className="size-1.5 rounded-full bg-green-500" /> 本地评估 · 云端进化 已就绪
+          <span className="size-1.5 rounded-full bg-green-500" /> {demo.name}
         </span>
         <button className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-[13px] text-[var(--evo-muted)] hover:bg-slate-100" onClick={() => setSettingsOpen(true)}>
           <Icon name="gear" /> 设置
@@ -88,22 +94,27 @@ export function EvoDemoApp() {
         <main className="relative min-h-0 flex-1">
           <AnimatePresence>
             <motion.div
-              key={stage}
+              key={`${stage}-${demo.id}`}
               className="absolute inset-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35 }}
             >
-              {stage === 'home' && <HomeScreen draft={draft} onDraft={setDraft} onSubmit={() => go('confirm')} onOpenHistory={() => go('results')} />}
+              {stage === 'home' && <HomeScreen draft={draft} onDraft={setDraft} onSubmit={() => go('confirm')} onOpenHistory={openCase} />}
               {stage === 'confirm' && (
-                <ConfirmScreen draft={draft} onDraft={setDraft} onConfirm={() => go('workbench')} onBack={() => go('home')} onOpenSettings={() => setSettingsOpen(true)} />
+                <ConfirmScreen demo={demo} draft={draft} onDraft={setDraft} onConfirm={() => go('workbench')} onBack={() => go('home')} onOpenSettings={() => setSettingsOpen(true)} />
               )}
-              {stage === 'workbench' && <WorkbenchScreen skipIntro={!cameFromConfirm} onNext={() => go('tournament')} />}
-              {stage === 'tournament' && <TournamentScreen onNext={() => go('results')} />}
+              {stage === 'workbench' &&
+                (demo.id === 'paper' ? (
+                  <PaperWorkbenchScreen demo={demo} skipIntro={!cameFromConfirm} onNext={() => go('tournament')} />
+                ) : (
+                  <WorkbenchScreen demo={demo} skipIntro={!cameFromConfirm} onNext={() => go('tournament')} />
+                ))}
+              {stage === 'tournament' && <TournamentScreen script={demo.debate} onNext={() => go('results')} />}
               {stage === 'results' && (
                 <ResultsScreen
-                  report={DEMO_REPORT}
+                  report={demo.report}
                   onRestart={() => {
                     setDraft(DEFAULT_DRAFT);
                     go('home');

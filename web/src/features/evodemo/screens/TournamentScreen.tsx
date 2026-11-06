@@ -3,8 +3,7 @@ import type { CSSProperties } from 'react';
 import { useEffect, useState } from 'react';
 
 import { EvoBot } from '../bot/EvoBot';
-import type { DebateRole } from '../demo-script';
-import { DEBATE_CAST, DEBATE_ROUNDS, EVIDENCE_CHAIN } from '../demo-script';
+import type { DebateRole, DebateScript } from '../cases/types';
 import { Icon, Typewriter } from '../ui';
 
 const SEATS: Record<DebateRole, { x: number; y: number }> = {
@@ -15,26 +14,31 @@ const SEATS: Record<DebateRole, { x: number; y: number }> = {
   critic: { x: 78, y: 82 },
 };
 
-const VERDICT = [
-  { label: '确认集样本', value: 'n = 9,262', round: 2 },
-  { label: '效应估计 · 95% CI', value: '0.3124 · [0.278, 0.346]', round: 2 },
-  { label: '确认轨 FDR', value: 'BH 通过 ✓', round: 2, good: true },
-  { label: '方向 / 时间切片', value: 'direction_ok · temporal_ok', round: 3, good: true },
-  { label: '发现轨 FDR', value: 'e-BH 未升级', round: 4 },
-  { label: '机制对局', value: '16 场 · 全部平局', round: 4 },
-];
+function Title({ script }: { script: DebateScript }) {
+  const { title, highlight } = script;
+  const at = highlight ? title.indexOf(highlight) : -1;
+  if (!highlight || at < 0) return <>{title}</>;
+  return (
+    <>
+      {title.slice(0, at)}
+      <span className="text-[var(--evo-brand)]">{highlight}</span>
+      {title.slice(at + highlight.length)}
+    </>
+  );
+}
 
-export function TournamentScreen({ onNext }: { onNext: () => void }) {
+export function TournamentScreen({ script, onNext }: { script: DebateScript; onNext: () => void }) {
   const [round, setRound] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const current = DEBATE_ROUNDS[round];
-  const final = round === DEBATE_ROUNDS.length - 1;
+  const { rounds, cast, verdict, chain } = script;
+  const current = rounds[round];
+  const final = round === rounds.length - 1;
 
   useEffect(() => {
     if (!playing || final) return;
-    const timer = window.setTimeout(() => setRound((r) => r + 1), 4200);
+    const timer = window.setTimeout(() => setRound((r) => r + 1), Math.max(4200, current.line.length * 70));
     return () => window.clearTimeout(timer);
-  }, [playing, round, final]);
+  }, [playing, round, final, current.line.length]);
 
   const speakerSeat = SEATS[current.speaker];
 
@@ -42,9 +46,9 @@ export function TournamentScreen({ onNext }: { onNext: () => void }) {
     <div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-4 p-5">
       <div className="flex items-center gap-4">
         <div>
-          <div className="text-xs text-[var(--evo-muted)]">新知识发现 · 机制辩论赛</div>
+          <div className="text-xs text-[var(--evo-muted)]">{script.eyebrow}</div>
           <div className="mt-1 text-[22px] font-bold">
-            窗口末端归一化 <span className="evo-mono text-[var(--evo-brand)]">SMART 194</span> 与短期故障风险正相关
+            <Title script={script} />
           </div>
         </div>
         <div className="flex-1" />
@@ -56,16 +60,16 @@ export function TournamentScreen({ onNext }: { onNext: () => void }) {
         </button>
       </div>
 
-      <div className="grid min-h-0 grid-cols-[200px_minmax(0,1fr)_300px] gap-4">
-        <div className="evo-card p-3">
+      <div className="grid min-h-0 grid-cols-[200px_minmax(0,1fr)_330px] gap-4">
+        <div className="evo-card overflow-auto p-3">
           <div className="mb-2 px-1 text-xs font-semibold text-[var(--evo-muted)]">轮次</div>
-          {DEBATE_ROUNDS.map((r, i) => (
+          {rounds.map((r, i) => (
             <button
               key={r.round}
               className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-[13px] transition-colors ${i === round ? 'bg-[var(--evo-brand-50)] font-semibold text-[var(--evo-brand)]' : i < round ? 'text-[var(--evo-fg)]' : 'text-[var(--evo-subtle)]'}`}
               onClick={() => setRound(i)}
             >
-              <span className={`flex size-5 items-center justify-center rounded-full text-[10px] ${i <= round ? 'bg-[var(--evo-brand)] text-white' : 'bg-slate-100'}`}>{i + 1}</span>
+              <span className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] ${i <= round ? 'bg-[var(--evo-brand)] text-white' : 'bg-slate-100'}`}>{i + 1}</span>
               {r.round}
             </button>
           ))}
@@ -75,7 +79,7 @@ export function TournamentScreen({ onNext }: { onNext: () => void }) {
           <div className="absolute top-1/2 left-1/2 h-[46%] w-[56%] -translate-x-1/2 -translate-y-[30%] rounded-[50%] border border-[var(--evo-brand-100)] bg-[radial-gradient(ellipse,#EEF4FF,transparent_70%)]" />
           {(Object.keys(SEATS) as DebateRole[]).map((role) => {
             const seat = SEATS[role];
-            const cast = DEBATE_CAST[role];
+            const member = cast[role];
             const speaking = role === current.speaker;
             const dx = speakerSeat.x - seat.x;
             const dy = speakerSeat.y - seat.y;
@@ -91,14 +95,14 @@ export function TournamentScreen({ onNext }: { onNext: () => void }) {
               >
                 <EvoBot
                   size={role === 'judge' ? 100 : 88}
-                  shape={cast.shape}
-                  color={cast.color}
+                  shape={member.shape}
+                  color={member.color}
                   mood={verdictMood}
                   gaze={speaking ? undefined : { x: dx / dist, y: dy / dist }}
                 />
                 <div className="mt-1.5 text-center">
-                  <div className="text-[13px] font-semibold">{cast.name}</div>
-                  <div className="text-[10px] text-[var(--evo-muted)]">{cast.en}</div>
+                  <div className="text-[13px] font-semibold">{member.name}</div>
+                  <div className="text-[10px] text-[var(--evo-muted)]">{member.en}</div>
                 </div>
               </motion.div>
             );
@@ -107,55 +111,58 @@ export function TournamentScreen({ onNext }: { onNext: () => void }) {
           <AnimatePresence mode="wait">
             <motion.div
               key={round}
-              className="evo-card absolute w-[min(380px,42%)] px-4 py-3 text-[13.5px] leading-relaxed shadow-xl"
+              className="evo-card absolute w-[min(400px,44%)] px-4 py-3 text-[13.5px] leading-relaxed shadow-xl"
               style={bubblePosition(current.speaker)}
               initial={{ opacity: 0, scale: 0.9, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 300, damping: 24 }}
             >
-              <div className="mb-1 text-[11px] font-semibold" style={{ color: DEBATE_CAST[current.speaker].color }}>
-                {DEBATE_CAST[current.speaker].name} · {current.round}
+              <div className="mb-1 text-[11px] font-semibold" style={{ color: cast[current.speaker].color }}>
+                {cast[current.speaker].name} · {current.round}
               </div>
               <Typewriter text={current.line} speed={34} />
             </motion.div>
           </AnimatePresence>
         </div>
 
-        <div className="evo-card flex flex-col p-4">
+        <div className="evo-card flex min-h-0 flex-col p-4">
           <div className="text-xs font-semibold text-[var(--evo-muted)]">当前裁决</div>
           <AnimatePresence mode="wait">
             {final ? (
               <motion.div
-                key="confirmed"
+                key="settled"
                 className="mt-2 rounded-xl bg-[var(--evo-brand)] px-4 py-3 text-center text-white"
                 initial={{ scale: 0.6, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 260, damping: 14, delay: 0.6 }}
               >
-                <div className="text-[22px] font-bold tracking-wide">CONFIRMED</div>
-                <div className="text-xs opacity-90">确认式知识 · 尚非因果定律</div>
+                <div className="text-[22px] font-bold tracking-wide">{script.outcome.title}</div>
+                <div className="text-xs opacity-90">{script.outcome.sub}</div>
               </motion.div>
             ) : (
               <motion.div key="pending" className="mt-2 rounded-xl border border-dashed border-[var(--evo-border)] px-4 py-3 text-center text-[var(--evo-muted)]" exit={{ opacity: 0 }}>
                 <div className="text-[18px] font-semibold">审议中…</div>
-                <div className="text-xs">预注册主张 · 等待证据</div>
+                <div className="text-xs">逐轮补齐推导与证据</div>
               </motion.div>
             )}
           </AnimatePresence>
-          <div className="mt-3 space-y-1.5">
-            {VERDICT.map((v) => (
-              <motion.div
-                key={v.label}
-                className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-[12px]"
-                animate={{ opacity: round >= v.round ? 1 : 0.3 }}
-              >
-                <span className="text-[var(--evo-muted)]">{v.label}</span>
-                <span className={`evo-mono font-semibold ${v.good && round >= v.round ? 'text-[var(--evo-good)]' : ''}`}>{round >= v.round ? v.value : '—'}</span>
-              </motion.div>
-            ))}
+          <div className="evo-scroll mt-3 min-h-0 flex-1 space-y-1.5 overflow-auto">
+            {verdict.map((v) => {
+              const shown = round >= v.round;
+              const long = v.value.length > 18;
+              return (
+                <motion.div
+                  key={v.label}
+                  className={`rounded-lg px-3 py-2 text-[12px] ${long ? 'block' : 'flex items-center justify-between'} ${shown && v.good ? 'bg-[var(--evo-brand-50)]' : 'bg-slate-50'}`}
+                  animate={{ opacity: shown ? 1 : 0.3 }}
+                >
+                  <div className="text-[var(--evo-muted)]">{v.label}</div>
+                  <div className={`evo-mono font-semibold ${long ? 'mt-0.5 text-[12.5px]' : ''} ${shown && v.good ? 'text-[var(--evo-brand)]' : ''}`}>{shown ? v.value : '—'}</div>
+                </motion.div>
+              );
+            })}
           </div>
-          <div className="flex-1" />
           {final && (
             <motion.button className="evo-btn evo-btn--primary mt-3 justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} onClick={onNext}>
               查看结果讲解 <Icon name="arrow" />
@@ -166,7 +173,7 @@ export function TournamentScreen({ onNext }: { onNext: () => void }) {
 
       <div className="evo-card flex items-center gap-2 px-5 py-3">
         <span className="mr-3 text-xs font-semibold text-[var(--evo-muted)]">证据链</span>
-        {EVIDENCE_CHAIN.map((label, i) => {
+        {chain.map((label, i) => {
           const lit = i <= round;
           return (
             <div key={label} className="flex flex-1 items-center gap-2">
@@ -175,8 +182,8 @@ export function TournamentScreen({ onNext }: { onNext: () => void }) {
                 animate={{ backgroundColor: lit ? '#2563EB' : '#E2E8F0', scale: i === round ? [1, 1.5, 1] : 1 }}
                 transition={{ duration: 0.6 }}
               />
-              <span className={`text-[12px] ${lit ? 'font-medium' : 'text-[var(--evo-subtle)]'}`}>{label}</span>
-              {i < EVIDENCE_CHAIN.length - 1 && (
+              <span className={`text-[12px] whitespace-nowrap ${lit ? 'font-medium' : 'text-[var(--evo-subtle)]'}`}>{label}</span>
+              {i < chain.length - 1 && (
                 <div className="relative h-0.5 flex-1 overflow-hidden rounded bg-slate-200">
                   <motion.div className="absolute inset-y-0 left-0 bg-[var(--evo-brand)]" animate={{ width: i < round ? '100%' : '0%' }} transition={{ duration: 0.6 }} />
                 </div>

@@ -1,10 +1,13 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
 
 import { EvoBot } from '../bot/EvoBot';
-import { BASELINE_SCORE, NODE_BY_ID, buildDemoSteps } from '../demo-script';
+import type { DemoCase } from '../cases/types';
+import { BASELINE_SCORE, NODE_BY_ID } from '../demo-script';
 import { AnimatedNumber, Icon } from '../ui';
-import { useDemoPlayer } from '../use-demo-player';
+import { useDemoPlayer, useLanding } from '../use-demo-player';
+import type { PlayerView } from '../use-demo-player';
 import { CloudLocalPanel } from './CloudLocalPanel';
 import { EvolutionCanvas } from './EvolutionCanvas';
 
@@ -16,18 +19,104 @@ const TONE_CLASS = {
   inject: 'bg-indigo-50 text-indigo-600',
 } as const;
 
-export function WorkbenchScreen({ onNext, skipIntro }: { onNext: () => void; skipIntro: boolean }) {
-  const steps = useMemo(() => buildDemoSteps(), []);
-  const [landed, setLanded] = useState(skipIntro);
-  const player = useDemoPlayer(steps, landed);
+/** 进场时主角 Bot 跳到中央的遮罩，配合 `useLanding` 使用。 */
+export function LandingOverlay({ show, title, sub }: { show: boolean; title: string; sub: string }) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px]"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <motion.div layoutId="hero-bot" transition={{ type: 'spring', stiffness: 110, damping: 13 }}>
+            <EvoBot size={104} mood="happy" />
+          </motion.div>
+          <motion.div className="mt-5 text-lg font-semibold" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+            {title}
+          </motion.div>
+          <motion.div className="mt-1 text-sm text-[var(--evo-muted)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+            {sub}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export function EventFeed({ view }: { view: PlayerView }) {
+  return (
+    <div className="evo-card flex min-h-0 flex-1 flex-col p-4">
+      <div className="mb-2 text-xs font-semibold text-[var(--evo-muted)]">实时事件</div>
+      <div className="evo-scroll min-h-0 flex-1 space-y-1.5 overflow-auto">
+        <AnimatePresence initial={false}>
+          {view.events.slice(0, 14).map((e) => (
+            <motion.div
+              key={e.id}
+              layout
+              className="flex items-start gap-2 text-[12px]"
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0 }}
+            >
+              <span className={`evo-mono mt-px shrink-0 rounded px-1.5 text-[10px] font-semibold ${TONE_CLASS[e.tone]}`}>{e.tag}</span>
+              <span className="leading-snug">{e.text}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+export function PlayerControls({ player, total }: { player: ReturnType<typeof useDemoPlayer>; total: number }) {
+  return (
+    <div className="evo-card flex items-center gap-1.5 p-2">
+      <button className="evo-btn evo-btn--ghost !px-2.5" onClick={player.toggle} aria-label="播放/暂停">
+        <Icon name={player.playing ? 'pause' : 'play'} />
+      </button>
+      <button className="evo-btn evo-btn--ghost !px-2.5" onClick={player.restart} aria-label="重新播放">
+        <Icon name="restart" />
+      </button>
+      <button className="evo-btn evo-btn--ghost !px-2.5" onClick={player.skipToEnd} aria-label="跳到结束">
+        <Icon name="skip" />
+      </button>
+      {[1, 2, 4].map((s) => (
+        <button key={s} className="evo-chip !px-2 !py-1" data-active={player.speed === s} onClick={() => player.setSpeed(s)}>
+          {s}×
+        </button>
+      ))}
+      <div className="flex-1" />
+      <span className="evo-mono text-[11px] text-[var(--evo-subtle)]">
+        {Math.max(0, player.view.index + 1)}/{total}
+      </span>
+    </div>
+  );
+}
+
+export function NextButton({ show, onClick, children }: { show: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.button
+          className="evo-btn evo-btn--primary justify-center !py-3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          onClick={onClick}
+        >
+          {children} <Icon name="arrow" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export function WorkbenchScreen({ demo, onNext, skipIntro }: { demo: DemoCase; onNext: () => void; skipIntro: boolean }) {
+  const landed = useLanding(skipIntro);
+  const player = useDemoPlayer(demo, landed);
   const { view } = player;
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (landed) return;
-    const timer = window.setTimeout(() => setLanded(true), 1500);
-    return () => window.clearTimeout(timer);
-  }, [landed]);
 
   const focusId = selectedId ?? view.lastResultId;
   const focus = focusId ? NODE_BY_ID.get(focusId) : undefined;
@@ -48,7 +137,7 @@ export function WorkbenchScreen({ onNext, skipIntro }: { onNext: () => void; ski
           </div>
         </div>
         <div className="h-[200px] shrink-0">
-          <CloudLocalPanel view={view} />
+          <CloudLocalPanel view={view} pipeline={demo.pipeline} />
         </div>
       </div>
 
@@ -96,82 +185,14 @@ export function WorkbenchScreen({ onNext, skipIntro }: { onNext: () => void; ski
           </AnimatePresence>
         </div>
 
-        <div className="evo-card flex min-h-0 flex-1 flex-col p-4">
-          <div className="mb-2 text-xs font-semibold text-[var(--evo-muted)]">实时事件</div>
-          <div className="evo-scroll min-h-0 flex-1 space-y-1.5 overflow-auto">
-            <AnimatePresence initial={false}>
-              {view.events.slice(0, 14).map((e) => (
-                <motion.div
-                  key={e.id}
-                  layout
-                  className="flex items-start gap-2 text-[12px]"
-                  initial={{ opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <span className={`evo-mono mt-px shrink-0 rounded px-1.5 text-[10px] font-semibold ${TONE_CLASS[e.tone]}`}>{e.tag}</span>
-                  <span className="leading-snug">{e.text}</span>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        <div className="evo-card flex items-center gap-1.5 p-2">
-          <button className="evo-btn evo-btn--ghost !px-2.5" onClick={player.toggle} aria-label="播放/暂停">
-            <Icon name={player.playing ? 'pause' : 'play'} />
-          </button>
-          <button className="evo-btn evo-btn--ghost !px-2.5" onClick={player.restart} aria-label="重新播放">
-            <Icon name="restart" />
-          </button>
-          <button className="evo-btn evo-btn--ghost !px-2.5" onClick={player.skipToEnd} aria-label="跳到结束">
-            <Icon name="skip" />
-          </button>
-          {[1, 2, 4].map((s) => (
-            <button key={s} className="evo-chip !px-2 !py-1" data-active={player.speed === s} onClick={() => player.setSpeed(s)}>
-              {s}×
-            </button>
-          ))}
-          <div className="flex-1" />
-          <span className="evo-mono text-[11px] text-[var(--evo-subtle)]">
-            {Math.max(0, view.index + 1)}/{steps.length}
-          </span>
-        </div>
-
-        <AnimatePresence>
-          {view.finished && (
-            <motion.button
-              className="evo-btn evo-btn--primary justify-center !py-3"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              onClick={onNext}
-            >
-              进入新知识发现 · 机制辩论赛 <Icon name="arrow" />
-            </motion.button>
-          )}
-        </AnimatePresence>
+        <EventFeed view={view} />
+        <PlayerControls player={player} total={demo.steps.length} />
+        <NextButton show={view.finished} onClick={onNext}>
+          进入新知识发现 · 机制辩论赛
+        </NextButton>
       </div>
 
-      <AnimatePresence>
-        {!landed && (
-          <motion.div
-            className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px]"
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <motion.div layoutId="hero-bot" transition={{ type: 'spring', stiffness: 110, damping: 13 }}>
-              <EvoBot size={104} mood="happy" />
-            </motion.div>
-            <motion.div className="mt-5 text-lg font-semibold" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-              分裂成三个岛，开始协同进化
-            </motion.div>
-            <motion.div className="mt-1 text-sm text-[var(--evo-muted)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
-              时序特征岛 · 模型集成岛 · 运维阈值岛
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <LandingOverlay show={!landed} title="分裂成三个岛，开始协同进化" sub="时序特征岛 · 模型集成岛 · 运维阈值岛" />
     </div>
   );
 }

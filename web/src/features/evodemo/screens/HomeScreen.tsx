@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 
 import { EvoBot } from '../bot/EvoBot';
 import type { BotShape } from '../bot/shapes';
+import { KGTE_CASE } from '../cases/kgte';
+import { PAPER_CASE } from '../cases/paper';
+import type { CaseId } from '../cases/types';
 import type { IconName } from '../ui';
 import { Icon } from '../ui';
 
@@ -12,22 +15,22 @@ export interface TaskDraft {
   seed: string;
 }
 
-export const SEED_OPTIONS = ['基线算法', '注入已有知识', '检索论文并复现', '上传代码'] as const;
-const EVAL_OPTIONS = ['ROS · 本地 evaluator.py', 'AUC-PR · 本地 evaluator.py', '自定义评估脚本'] as const;
+export const SEED_OPTIONS = [PAPER_CASE.seed, KGTE_CASE.seed, '基线算法', '上传代码'] as const;
+const EVAL_OPTIONS = [PAPER_CASE.evaluation, KGTE_CASE.evaluation, 'AUC-PR · 本地 evaluator.py', '自定义评估脚本'] as const;
 const SPEC_OPTIONS = ['HDD SMART 日志 · 提前 7 天', '内存 CE 日志 · 提前 1 天', 'SSD 遥测 · 提前 3 天'] as const;
 
 const SUGGESTIONS = [
-  { label: 'HDD 硬盘故障预测 demo', text: '用 SMART 日志提前 7 天预测硬盘故障，评估用 ROS，误报预算 3%。' },
+  { label: '最新论文组合出新算法', text: PAPER_CASE.sampleTask, seed: PAPER_CASE.seed, evaluation: PAPER_CASE.evaluation },
+  { label: 'HDD 三岛进化 · 云端进化本地评估', text: KGTE_CASE.sampleTask, seed: KGTE_CASE.seed, evaluation: KGTE_CASE.evaluation },
   { label: '内存 CE 告警预测', text: '根据内存可纠正错误（CE）日志，提前 1 天预测不可纠正错误。' },
-  { label: '复现一篇论文', text: '检索近两年硬盘故障预测论文，复现最优方法作为初始解，再继续进化。' },
 ];
 
-const HISTORY = [
-  { name: 'HDD 故障预测', meta: 'ROS 36.50 · 1 条新知识', status: '已完成', tone: 'done' },
+const HISTORY: { name: string; meta: string; status: string; tone: 'done' | 'running' | 'idle'; open?: CaseId }[] = [
+  { name: '论文组合 · 发现新算法', meta: 'Mitra-v2 × TabM 几何均值 · Q2 精确率 64.71%', status: '已完成', tone: 'done', open: 'paper' },
+  { name: 'HDD 故障预测', meta: 'ROS 36.50 · 1 条新知识', status: '已完成', tone: 'done', open: 'kgte' },
   { name: 'Backblaze 跨数据集迁移', meta: '云端进化中 · 第 4 / 6 轮', status: '62%', tone: 'running' },
-  { name: 'SmartMem 内存故障', meta: '示例任务 · 适配器已就绪', status: '草稿', tone: 'idle' },
   { name: '阿里 SSD 预测', meta: '等待确认服务器与评估器', status: '待确认', tone: 'idle' },
-] as const;
+];
 
 const SHAPE_CYCLE: BotShape[] = ['circle', 'squircle', 'hex', 'circle', 'diamond', 'circle', 'triangle'];
 
@@ -40,7 +43,7 @@ export function HomeScreen({
   draft: TaskDraft;
   onDraft: (d: TaskDraft) => void;
   onSubmit: () => void;
-  onOpenHistory: () => void;
+  onOpenHistory: (id: CaseId) => void;
 }) {
   const [shapeIndex, setShapeIndex] = useState(0);
   const [focused, setFocused] = useState(false);
@@ -72,7 +75,7 @@ export function HomeScreen({
         想让哪个算法自己进化？
       </motion.h1>
       <p className="mt-2 text-center text-[15px] text-[var(--evo-muted)]">
-        你描述任务，它在云端提出假设、在本地验证打分，并把可复现的规律写成新知识。
+        你描述任务、选好初始解（比如最新论文），它自动组合进化、按冻结规则验证，并把有效的规律写成新知识。
       </p>
 
       <motion.div
@@ -113,7 +116,11 @@ export function HomeScreen({
 
       <div className="mt-4 flex flex-wrap justify-center gap-2">
         {SUGGESTIONS.map((s) => (
-          <button key={s.label} className="evo-chip" onClick={() => onDraft({ ...draft, text: s.text })}>
+          <button
+            key={s.label}
+            className="evo-chip"
+            onClick={() => onDraft({ ...draft, text: s.text, seed: s.seed ?? draft.seed, evaluation: s.evaluation ?? draft.evaluation })}
+          >
             {s.label}
           </button>
         ))}
@@ -132,7 +139,7 @@ export function HomeScreen({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.05 }}
-              onClick={i === 0 ? onOpenHistory : undefined}
+              onClick={() => h.open && onOpenHistory(h.open)}
             >
               <span
                 className={`size-2 rounded-full ${h.tone === 'done' ? 'bg-[var(--evo-good)]' : h.tone === 'running' ? 'bg-[var(--evo-brand)] animate-pulse' : 'bg-slate-300'}`}

@@ -4,7 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { EvoBot } from '../bot/EvoBot';
 import type { BotMood } from '../bot/EvoBot';
 import { ISLAND_SHAPE } from '../bot/shapes';
-import type { DemoNode, Transfer } from '../demo-script';
+import type { Transfer } from '../cases/types';
+import type { DemoNode } from '../demo-script';
 import { DEMO_NODES, ISLAND_META, ISLAND_ORDER, MAX_DEPTH, NODE_BY_ID } from '../demo-script';
 import type { PlayerView } from '../use-demo-player';
 

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import type { DemoEvent, DemoStep, Transfer } from './demo-script';
-import { DEMO_TRANSFERS, describeStep } from './demo-script';
+import type { DemoCase, DemoEvent, DemoStep, Transfer } from './cases/types';
 
 export type NodePhase = 'proposed' | 'evaluating' | 'done';
 
@@ -27,7 +26,19 @@ export interface PlayerView {
   finished: boolean;
 }
 
-export function useDemoPlayer(steps: DemoStep[], autoplay: boolean) {
+/** 进场时主角 Bot 先跳到中央，1.5s 后落地，回放才开始。 */
+export function useLanding(skipIntro: boolean) {
+  const [landed, setLanded] = useState(skipIntro);
+  useEffect(() => {
+    if (landed) return;
+    const timer = window.setTimeout(() => setLanded(true), 1500);
+    return () => window.clearTimeout(timer);
+  }, [landed]);
+  return landed;
+}
+
+export function useDemoPlayer(demo: Pick<DemoCase, 'steps' | 'transfers' | 'describeStep'>, autoplay: boolean) {
+  const { steps, transfers, describeStep } = demo;
   const [index, setIndex] = useState(-1);
   const [playing, setPlaying] = useState(autoplay);
   const [speed, setSpeed] = useState(1);
@@ -85,11 +96,11 @@ export function useDemoPlayer(steps: DemoStep[], autoplay: boolean) {
       bestHistory,
       events: events.reverse(),
       round,
-      shownTransfers: DEMO_TRANSFERS.filter((t) => shown.has(t)),
+      shownTransfers: transfers.filter((t) => shown.has(t)),
       flyingTransfers: step?.kind === 'propose' ? step.injects : [],
       finished: step?.kind === 'finish',
     };
-  }, [index, steps]);
+  }, [index, steps, transfers, describeStep]);
 
   return {
     view,

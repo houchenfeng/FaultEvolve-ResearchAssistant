@@ -1,5 +1,5 @@
 /**
- * Demo 回放脚本：把 HDD 展示运行的三岛进化树展开成确定性的步骤序列。
+ * KGTE 三岛进化案例的回放脚本：把 HDD 展示运行的三岛进化树展开成确定性的步骤序列。
  *
  * 每一轮（树深度）分三段：云端提出候选 → SSH 下发到本地沙箱评估 → 逐个回传分数。
  * 真实模式下同一组步骤由 SSE 事件流驱动（node_created → 评估 → iteration_complete），
@@ -8,33 +8,13 @@
 import type { IslandKey, ShowcaseNode } from '@/features/showcase/hdd-showcase-data';
 import { SHOWCASE_ISLANDS, TRANSFERS } from '@/features/showcase/hdd-showcase-data';
 
+import type { DemoEvent, DemoStep, Transfer } from './cases/types';
 import type { ReportInput } from './report';
 
 export type NodeOutcome = 'improved' | 'failed' | 'pruned' | 'best' | 'baseline';
 
 export interface DemoNode extends ShowcaseNode {
   outcome: NodeOutcome;
-}
-
-export type DemoStep =
-  | { kind: 'propose'; round: number; nodeIds: string[]; injects: Transfer[] }
-  | { kind: 'evaluate'; round: number; nodeIds: string[] }
-  | { kind: 'result'; round: number; nodeId: string; bestScore: number; isNewBest: boolean }
-  | { kind: 'finish'; bestScore: number };
-
-export interface Transfer {
-  from: string;
-  to: string;
-  label: string;
-  success: boolean;
-  gain: string;
-}
-
-export interface DemoEvent {
-  id: string;
-  tag: string;
-  text: string;
-  tone: 'info' | 'good' | 'bad' | 'cloud' | 'inject';
 }
 
 export const ISLAND_ORDER: IslandKey[] = ['temporal', 'ensemble', 'operations'];
@@ -142,34 +122,12 @@ export function describeStep(step: DemoStep, index: number): DemoEvent | null {
   }
 }
 
-/** 机制辩论赛脚本，台词取自 HDD 展示运行的确认式知识主张。 */
-export const DEBATE_ROUNDS = [
-  { round: '开场陈述', speaker: 'proponent', line: '窗口末端 SMART 194 越高，短期故障风险越高。我主张它是可复现的正向信号。' },
-  { round: '第一轮质询', speaker: 'confounder', line: '会不会是盘龄、型号批次或负载在背后同时推高了两者？' },
-  { round: '数据举证', speaker: 'statistician', line: '确认集 n = 9,262，效应估计 0.3124，95% CI [0.278, 0.346]，BH 校正后通过。' },
-  { round: '第二轮反驳', speaker: 'proponent', line: '方向与时间切片一致：direction_ok、temporal_ok 均为 true。' },
-  { round: '机制追问', speaker: 'critic', line: '16 场机制对局全部平局，统计显著不等于因果机制。' },
-  { round: '最终裁决', speaker: 'judge', line: '升级为 CONFIRMED 确认式知识；机制尚未建立，不写成因果定律。' },
-] as const;
-
-export type DebateRole = (typeof DEBATE_ROUNDS)[number]['speaker'];
-
-export const DEBATE_CAST: Record<DebateRole, { name: string; en: string; shape: 'circle' | 'hex' | 'squircle' | 'triangle'; color: string }> = {
-  proponent: { name: '支持方', en: 'Proponent', shape: 'circle', color: '#2563EB' },
-  confounder: { name: '混杂方', en: 'Confounder', shape: 'hex', color: '#64748B' },
-  statistician: { name: '统计裁判', en: 'Statistician', shape: 'squircle', color: '#0EA5E9' },
-  critic: { name: '批评方', en: 'Critic', shape: 'triangle', color: '#6366F1' },
-  judge: { name: '总裁判', en: 'Judge', shape: 'circle', color: '#1E3A8A' },
-};
-
-export const EVIDENCE_CHAIN = ['现象抽取', '预注册', '确认检验', '多重控制', '机制辩论', '跨切片外推'];
-
 /** 讲解页输入：节点来自演示进化树，主张来自展示运行的 discovery/phenomena.json。 */
 export const DEMO_REPORT_INPUT: ReportInput = {
   runId: 'hdd_mvp_showcase_c89e2a01',
   taskName: 'HDD 短期故障预测',
-  metricName: 'ROS',
-  extraMetrics: [
+  metric: { label: 'ROS' },
+  metrics: [
     { key: 'q', label: 'Q 稳定性' },
     { key: 'jev', label: 'Jev 评审' },
   ],
@@ -191,14 +149,15 @@ export const DEMO_REPORT_INPUT: ReportInput = {
       id: 'C-89f4bdd1-0010',
       title: '窗口末端 smart_194_normalized 与短期 HDD 故障信号正相关',
       grade: 'confirmed',
-      n: 9262,
-      effect: 0.3124,
-      ciLow: 0.2781,
-      ciHigh: 0.3459,
-      fdr: 'BH 通过',
+      evidence: [
+        { label: '确认集样本', value: 'n = 9,262' },
+        { label: '效应估计', value: '0.3124' },
+        { label: '95% CI', value: '[0.278, 0.346]' },
+        { label: '多重校正', value: 'BH 通过', good: true },
+      ],
       boundary: '机制对局未分胜负，结论表述为可复现的关联指示，不写成因果定律。',
     },
-    { id: 'C-showcase-0002', title: '未命名主张', grade: 'refuted', n: 9262, effect: 0.02, ciLow: -0.01, ciHigh: 0.05 },
+    { id: 'C-showcase-0002', title: '未命名主张', grade: 'refuted' },
   ],
   artifacts: [
     { label: '进化树', path: 'tree.json' },
