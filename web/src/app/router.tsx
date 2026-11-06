@@ -14,6 +14,7 @@ import { NewRunPage } from '@/routes/NewRunPage';
 import { NotFoundPage } from '@/routes/NotFoundPage';
 import { OverviewPage } from '@/routes/OverviewPage';
 import { RunAuditPage } from '@/routes/RunAuditPage';
+import { RunHybridPage } from '@/routes/RunHybridPage';
 import { RunKnowledgePage } from '@/routes/RunKnowledgePage';
 import { RunLayout } from '@/routes/RunLayout';
 import { RunResultsPage } from '@/routes/RunResultsPage';
@@ -66,6 +67,11 @@ function buildRouteTree() {
     path: 'timeline',
     component: RunTimelinePage,
   });
+  const runHybridRoute = createRoute({
+    getParentRoute: () => runRoute,
+    path: 'hybrid',
+    component: RunHybridPage,
+  });
   const runKnowledgeRoute = createRoute({
     getParentRoute: () => runRoute,
     path: 'knowledge',
@@ -97,6 +103,7 @@ function buildRouteTree() {
       runIndexRoute,
       runTreeRoute,
       runTimelineRoute,
+      runHybridRoute,
       runKnowledgeRoute,
       runResultsRoute,
       runAuditRoute,

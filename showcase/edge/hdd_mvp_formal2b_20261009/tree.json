@@ -1,0 +1,1781 @@
+{
+  "experiment_id": "hdd_mvp_formal2b_20261009",
+  "nodes": [
+    {
+      "id": "2136ff37",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 31,
+      "adopted_cards": []
+    },
+    {
+      "id": "025ffebd",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 38.750776978991716,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Add vectorized window features for key SMART counters and normalized attributes, train 3-fold LightGBM with sample weights, average fold models for query scoring, and select a robust OOF threshold with a conservative query-distribution fallback.",
+      "visit_count": 5,
+      "adopted_cards": [
+        "M01",
+        "T01",
+        "E01",
+        "E05"
+      ]
+    },
+    {
+      "id": "e3894816",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Build compact temporal features from the 14-day window, train a weighted LightGBM plus logistic out-of-fold ensemble, and select a robust weighted-F1 alarm threshold with fold stability and quantile matching.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "1e7315f8",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 30.174668712918702,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Extend feature builder with d1/d3/d7/d14, positive/log deltas, became/reset/missing flags.\nTrain 3-fold LightGBM OOF plus final model and blend fold/final scores.\nChoose threshold from OOF weighted-F1 plateau and alarm top-k fraction on query.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE01",
+        "FE03",
+        "T02"
+      ]
+    },
+    {
+      "id": "dbe92788",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Compute target encodings inside each CV fold using training-fold labels only.\nRank-normalize selected SMART last-day attributes within model/vendor using train+query features without labels.\nKeep robust OOF plateau threshold selection with fold-percentile tie-breaking.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "ecff97ea",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 39.5263022703991,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 7,
+      "adopted_cards": []
+    },
+    {
+      "id": "70b80c9e",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 36.77862155711104,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "",
+      "visit_count": 2,
+      "adopted_cards": [
+        "FE08",
+        "FE12",
+        "E04"
+      ]
+    },
+    {
+      "id": "4c6596ab",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 39.483499091096405,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "扩展 SMART 窗口趋势、厂商/型号 rank/z 特征。\nLightGBM 使用 3-fold OOF 概率平均预测 query。\n用 OOF 加权 F1 曲线选择阈值，并加入零/全报警兜底策略。",
+      "visit_count": 1,
+      "adopted_cards": [
+        "M01",
+        "T01",
+        "E01",
+        "E05"
+      ]
+    },
+    {
+      "id": "e7ca5e4f",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Expand the parent GBDT feature set with temporal window/slope and critical-count features; add model/vendor frequency features; keep OOF threshold selection but optimize weighted F1_p10 and add a conservative query alarm-rate guard.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "92e22d3a",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "summary_cross",
+      "score": 0.32390525240318535,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Add multi-scale window statistics, critical SMART count features, more interactions, vendor/model-aware features, tuned LightGBM parameters, and weighted OOF threshold selection maximizing bootstrap p10 F1.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE04",
+        "FE06",
+        "T03"
+      ]
+    },
+    {
+      "id": "cbd475af",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 31.860181332900606,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Build vectorized 14-day SMART window features; train LightGBM with 3-fold OOF and logistic fallback; choose threshold on OOF weighted F1 with precision tie-breaking; quantile-match query scores for alarms.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "M01",
+        "T01",
+        "E01",
+        "E05"
+      ]
+    },
+    {
+      "id": "9bb5d813",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Add richer trend/change and rank features, average fold-model predictions, optionally calibrate OOF-to-query scores, and select a robust weighted-F1 threshold with conservative plateau selection and time-budgeted tree counts.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "eac51279",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 37.96406703948174,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Expand vectorized features with recent/old means, median, pos/low flags, vendor and capacity.\nTrain 3-fold weighted LightGBM with early stopping and average fold models for query scores.\nSelect alarm threshold from OOF predictions using robust weighted F1 lower bound.",
+      "visit_count": 2,
+      "adopted_cards": [
+        "M01",
+        "E01",
+        "T01",
+        "E05"
+      ]
+    },
+    {
+      "id": "5c3ac8d6",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 37.50706978243995,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 3,
+      "adopted_cards": []
+    },
+    {
+      "id": "d4dd540a",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 31.970611565666673,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "保留父方案特征工程与 LightGBM；扩充窗口统计/半窗趋势/关键 SMART 非零计数；用 3 折 OOF 选择稳健报警比例；查询分数由 fold 模型平均得到。",
+      "visit_count": 0,
+      "adopted_cards": [
+        "M01",
+        "E01",
+        "T01",
+        "E05"
+      ]
+    },
+    {
+      "id": "8433d52e",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 32.901473125928135,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Add expanded trend/rate/window features, 3-fold OOF fold-average ensemble, rank-blended score, OOF threshold selection, and imbalance-aware weighting while keeping vectorized groupby aggregation and bounded LightGBM trees.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE02",
+        "I01",
+        "L01",
+        "EN01"
+      ]
+    },
+    {
+      "id": "f009f10c",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 35.645128122161566,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "保留父方案的高效特征构建与 LightGBM 主体；扩充关键 SMART 统计与半窗趋势特征；加入 LR 秩融合、折平均预测和更稳健的 OOF 阈值选择；保持运行时间可控。",
+      "visit_count": 0,
+      "adopted_cards": [
+        "E04",
+        "FE12",
+        "EN02"
+      ]
+    },
+    {
+      "id": "e19c7377",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Graft the sibling improvements into the parent LightGBM pipeline: expanded window features, fold-model average predictions, optional LR rank ensemble gated by OOF AUPRC, calibrated positive-weight training, and robust OOF threshold/alarm-rate policy.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "950b15b0",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Extend the LightGBM feature builder with median/std-like aggregates, recent/old trends, deltas, missing/history-length signals, and vendor/capacity features.\nUse group-aware OOF folds, average fold-model query scores, select a robust plateau threshold, and adapt alarms only when counts are degenerate.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "37cabdd0",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 38.87946608594899,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Expand cutoff-day and half-window SMART trend features; average fold-model scores; select robust weighted alarm thresholds from OOF predictions; use regularized LightGBM and silent-positive down-weighting.",
+      "visit_count": 1,
+      "adopted_cards": [
+        "L03"
+      ]
+    },
+    {
+      "id": "986c746d",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 37.349823295430404,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Use temporal, trend, median/std, reset, nonzero-count, vendor, capacity features; train 3-fold LightGBM ensemble; select robust OOF threshold.",
+      "visit_count": 5,
+      "adopted_cards": [
+        "P06",
+        "L03"
+      ]
+    },
+    {
+      "id": "9d0730d4",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 37.7343864200553,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Expand feature engineering modestly, use 3-fold fold-model averaging, robust bootstrap threshold selection, and defensive alarm-rate alignment under strict runtime/static constraints.",
+      "visit_count": 3,
+      "adopted_cards": []
+    },
+    {
+      "id": "78feefab",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Expand feature engineering, average multiple LightGBM fold models, select OOF thresholds by bootstrap p10 weighted F1, and keep adaptive model/fold budgets for runtime safety.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "40121793",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "保留向量化特征构建与 LightGBM 核心，扩展特征与模型配置；使用 OOF 阈值、fold-model 平均预测、可选 isotonic 校准；用加权 bootstrap p10 F1 选择稳健报警阈值，并控制树数与运行时间。",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "48b6a43a",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 38.97021594576579,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "8568a9c1",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 32.731990741888616,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Update feature engineering to add all raw cutoff/window statistics, critical median/max/min, half-window trends, nonzero counters, and log1p deltas for workload SMARTs; keep LightGBM core with scale_pos_weight and fold-model averaging; replace threshold selection with OOF bootstrap-percentile weighted F1 and robust alarm-rate fallback.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE13",
+        "I03"
+      ]
+    },
+    {
+      "id": "8d5948d4",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "045ea464",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Keep vectorized feature builder, add vendor-aware trends, OOF threshold, fold-model averaging, capped trees, and alarm rate safeguards.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "3a87b2f0",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "d9da7a10",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Keep the LightGBM core and vectorized feature builder; add median/std, position/reset, half-window, missing, vendor/model codes; average fold-model scores; choose robust threshold via bootstrap percentile F1 and map query scores to OOF distribution for alarms.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "e3d40891",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Add vectorized trend/change features, 3-fold LightGBM ensemble, weighted bootstrap threshold selection, and dynamic tree budget for runtime control.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "8baf30cd",
+      "island_id": "a",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 37.31091734335674,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Use cutoff-day and half-window SMART statistics, vendor/capacity features, 3-fold LightGBM averaged query scores, weighted bootstrap F1 threshold, and conservative per-vendor thresholds only when enough positives exist.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "T05: per-vendor thresholds only with enough positives and shrink toward base threshold. M05: hand-crafted 14-day window features with GBDT instead of deep sequence models."
+      ]
+    },
+    {
+      "id": "26a3ad5d",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 42,
+      "adopted_cards": []
+    },
+    {
+      "id": "1900ba24",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 26.881493490972865,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 2,
+      "adopted_cards": []
+    },
+    {
+      "id": "30c1f82e",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Introduce delta/d3/d7 and became-nonzero features over the cutoff window.\nTrain LightGBM with out-of-fold threshold calibration and heuristic-rank score blending.\nKeep runtime low by subsampling negatives and limiting features/trees.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "500034d9",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 32.971741366841066,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Train 3-fold LightGBM with weighted sample weights, average fold models for query scores, calibrate scores monotonically when safe, and choose an alarm threshold from OOF weighted F1 with a false-alarm-rate guard and bootstrap-robust plateau selection.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "83341cd4",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Add temporal delta/diff/max features, vendor/model prior features, 3-fold OOF LightGBM scoring, probability calibration, and bootstrap-p10 alarm threshold selection with score-scale safety.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "5d87f6a3",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 34.59732332282781,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Adopted knowledge cards M01, T01, E01, E05: LightGBM on engineered window features, out-of-fold threshold selection, weighted bootstrap F1_p10 approximation, and runtime-aware feature/CV choices. Build last/first/mean/max/min plus delta, slope, recent, range features for selected SMART attributes, add vendor one-hot and capacity, train 3-fold LightGBM with sample weights, average fold models for query scores, and select/quantile-adjust the threshold under a time budget.",
+      "visit_count": 6,
+      "adopted_cards": []
+    },
+    {
+      "id": "78b740c8",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 38.268152951843234,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Replace the parent cutoff-day model with a LightGBM workflow. Add vendor/model-aware rank features, missing-value handling, and OOF threshold selection. Apply a calibrated alarm policy to improve robust F1 without distorting score ranking.",
+      "visit_count": 2,
+      "adopted_cards": [
+        "FE08",
+        "E01",
+        "FE12",
+        "E04"
+      ]
+    },
+    {
+      "id": "dde6eaf8",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "保留原特征构建与3折CV；增加recent3/7、jump、norm count、bad-sector交互；调整LightGBM参数；用OOF bootstrap p10选择阈值；平均折模型预测查询集。",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "1c8300d4",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 38.70305432886831,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "保留父方案向量化特征构建与 LightGBM；新增 median/std、pos flags、recent/old 半窗趋势和关键属性；使用 OOF 阈值、fold-model 平均预测、可选 isotonic 校准，并控制树数与运行时间。",
+      "visit_count": 0,
+      "adopted_cards": [
+        "M01",
+        "T01",
+        "E05",
+        "T03"
+      ]
+    },
+    {
+      "id": "60d3c435",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "60411236",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 38.078097775011635,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Replace cutoff-only logistic with engineered temporal LightGBM features.\nChoose thresholds on OOF scores, not in-sample scores.\nAdd fallback scoring and alarm-rate safety caps.",
+      "visit_count": 5,
+      "adopted_cards": [
+        "E01",
+        "T01",
+        "M01",
+        "E05"
+      ]
+    },
+    {
+      "id": "f717c790",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "保留父方案的加权阈值与稳健选择逻辑；替换为 LightGBM 三折集成预测；增加趋势/误差增长/型号排名特征与厂商感知；按磁盘级 OOF 选择 F1_p10 阈值。",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "df55e685",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Use LightGBM with expanded SMART trend features while keeping NaNs for unreported attributes.\nAdd group-aware OOF training and weighted threshold selection with bootstrap F1_p10.\nTune positive class weighting against fleet weights and fallback to logistic if LightGBM is unavailable.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "7471027e",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Train fold-wise LightGBM + LR on the new recent-day lag/trend features; blend ranks (tuned by OOF weighted AUPRC) for `score`; select the alarm threshold from OOF calibrated probabilities via weighted F1_p10; fold-average query predictions for stability.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "66c5a448",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Replace the cutoff-day logistic baseline with an LGB/logistic ensemble on disk-level trend features; select threshold from weighted OOF with bootstrap p10; keep score ranking for AUPRC/R@FAR and use aligned scores only for alarm decisions.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "9cfabd1a",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 36.994782020479875,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 1,
+      "adopted_cards": [
+        "EN02",
+        "P05",
+        "M04"
+      ]
+    },
+    {
+      "id": "2e67c080",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 37.6912869571456,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 7,
+      "adopted_cards": []
+    },
+    {
+      "id": "22e93a4f",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 38.91856405555721,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Keep the LightGBM core, expand feature engineering and model configuration, and select a robust weighted threshold using bootstrap percentile F1.",
+      "visit_count": 2,
+      "adopted_cards": [
+        "FE10",
+        "M04",
+        "P05"
+      ]
+    },
+    {
+      "id": "0c2c7721",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.07489081897655236,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Replace cutoff-only logistic style with a lightweight LightGBM pipeline, expand temporal/vendor features conservatively, select alarms by bootstrap F1_p10 approximation, and enforce runtime/memory safety via negative downsampling and vectorized groupby features.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE11",
+        "X02"
+      ]
+    },
+    {
+      "id": "976d71d3",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Graft expanded temporal features, vendor/model codes, missing-day telemetry, sample-weighted OOF threshold, delta-rule guardrails, silent positive downweighting, and rank-preserving score distribution matching.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "12810e59",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Keep the LightGBM pipeline but expand temporal features, winsorize raw counters, use bagged rank-averaged LightGBM, and choose a robust OOF threshold with alarm-rate safety caps.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "d701c98c",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 37.74016918075936,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "- Add P06-style raw-counter winsorisation/reset features and richer 14-day trend/availability features.\n- Use a regularized LightGBM setup (max_depth 6, min_child_samples 30, strong leaf regularization) and robust weighted bootstrap F1 threshold selection with a false-alarm cap.",
+      "visit_count": 2,
+      "adopted_cards": [
+        "P06",
+        "L03"
+      ]
+    },
+    {
+      "id": "3d4376db",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 38.46563815117323,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Use 3-fold out-of-fold LightGBM probabilities for threshold selection, with logistic-regression fallback; expand SMART trend features with reset/clipped deltas, normalized badness, temperature, and jump indicators; keep weighted bootstrap F1_p10 thresholding.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "P06"
+      ]
+    },
+    {
+      "id": "3c1a0dbe",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 34.741281707974196,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "扩展历史趋势/交互/厂商型号特征；使用 3 折 OOF 选择加权 F1 阈值；训练 bagged LightGBM 并对查询分数做 rank 校准后再报警，保持 AUPRC 排序能力。",
+      "visit_count": 0,
+      "adopted_cards": [
+        "I02"
+      ]
+    },
+    {
+      "id": "52ceb5c0",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 37.25493406635974,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "1. 构建截止值、first/last/min/max、delta/range/reset/dperday等历史趋势特征。\n2. 使用3折LightGBM OOF概率、Platt校准与bootstrap加权F1阈值选择。\n3. 保留负增量截断、重置标记和正则化参数，避免过拟合。",
+      "visit_count": 4,
+      "adopted_cards": []
+    },
+    {
+      "id": "1ca7d9c0",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "8a1ca6bd",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Add richer temporal and vendor-aware features, use LightGBM with conservative tree parameters, perform OOF threshold selection, and map the chosen alarm fraction to the final query scores.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "6c1b9c19",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "1. 使用 LightGBM 建模并保留 logistic 回退；增加 trend、reset、recent/older mean、vendor_capacity 等特征。\n2. 采纳 L03 正则化与静默正例降权，采纳 P06 计数 reset 与负向变化裁剪。\n3. OOF 阈值选择 + 报警率校准，保持低误报下的稳健 F1。",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "9923b3ef",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 35.61465394742408,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Graft LightGBM and expanded trend/vendor features into the parent pipeline, keep weighted OOF threshold selection, and replace absolute thresholding with a fraction-matched alarm policy.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "L03"
+      ]
+    },
+    {
+      "id": "ff572446",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 18.766778928921628,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Add std-based volatility features, critical-counter reset/clip features, and more normalized SMART attributes.\nUse 3-fold out-of-fold LightGBM with tuned regularized parameters and averaged fold predictions.\nChoose a robust weighted threshold from OOF scores and map it to the query score quantile.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "P06"
+      ]
+    },
+    {
+      "id": "882864c2",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Add LightGBM OOF scoring and richer SMART trend/diff features; calibrate alarms from OOF with shrunk per-vendor thresholds only when enough positives exist; fallback to robust top-rate alarms when query score distribution shifts.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "daea6a21",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 36.840854467263455,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "补全并增强历史趋势特征：厂商 one-hot、容量、日变化、窗口均值/极值/标准差、加速度与相对变化。\n使用 3 折 OOF 训练 LightGBM，查询分数取折模型平均；阈值用加权 F1 曲线与 bootstrap F1_p10 选择，并做分位数兜底。\n避免逐盘循环、早停/verbose 等易触发 smoke 失败的写法。",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "d8f7ab73",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 36.39288860894725,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "- Build 14-day history features: last/first/max/min/mean plus delta, slope, range, last-minus-mean for key SMART counters.\n- Train 3-fold LightGBM with weighted positive emphasis and silent-positive down-weighting; fall back to logistic if needed.\n- Choose a robust OOF threshold for alarms and adjust only if query score distribution is severely mismatched.",
+      "visit_count": 3,
+      "adopted_cards": [
+        "L03",
+        "M03"
+      ]
+    },
+    {
+      "id": "3cd6faec",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 35.52540935943296,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "1. 保留 14 天窗口、趋势/变化、厂商特征和 LightGBM 路线。\n2. 使用 3 折 OOF 概率选择加权 F1 阈值，并将最终 score rank 化。\n3. 按 OOF 报警比例设置查询集 alarm，避免最终模型概率分布漂移导致阈值失配。",
+      "visit_count": 2,
+      "adopted_cards": []
+    },
+    {
+      "id": "6d087419",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "48cc7906",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "365ac713",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Expand temporal features and model/vendor features; train 3-fold LightGBM with sample weights; select alarm threshold via weighted bootstrap lower-F1; blend model probabilities with heuristic rank; output score/alarm per index row.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "8a8bfe13",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.07489081897655236,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Expand SMART window features with std/count/cv/jump/reset/min-reset signals and vendor/model handling. Tune LightGBM for low prevalence and regularize it. Select the alarm threshold from OOF predictions using a weighted bootstrap lower-percentile objective, with fallback SMART scores if the learned pipeline is degenerate.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "M03",
+        "L03"
+      ]
+    },
+    {
+      "id": "5ddd24b0",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "summary_cross",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Build a self-contained program that reads only the four allowed files, computes 14-day window trend/vendor features via vectorized groupby.agg, trains a 3-fold OOF LightGBM (logistic fallback), selects a weighted-F1 alarm threshold with a FAR cap, applies a data-driven SMART-delta rule boost, and writes serial_number,score,alarm.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "4c7e4ae4",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "summary_cross",
+      "score": 33.48755032856292,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "1) 增加 last3/mid7/old 分段均值、accel/trend、坏扇区/温度/容量/厂商交互派生特征。\n2) 调整 LightGBM 参数为更深但更正则化的 300 棵树配置。\n3) 用 OOF 分折 F1 的 20 百分位选择稳健阈值，并将阈值映射到查询集分数分位以稳定报警率。",
+      "visit_count": 0,
+      "adopted_cards": [
+        "P01",
+        "M05"
+      ]
+    },
+    {
+      "id": "a26dea31",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "summary_cross",
+      "score": 38.43182596219076,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 1,
+      "adopted_cards": []
+    },
+    {
+      "id": "c50120ef",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 32.523457112195125,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "1. 增加 last/mean/max/min/std、first、mean3/mean7、delta/range/spike/gt0 等历史趋势特征。\n2. 使用加权 LightGBM 的 3 折 OOF 预测选择阈值，并按折间 F1 稳定性与 FAR 惩罚校准报警。\n3. 对 top SMART 增量添加保守 score 规则护栏，并对报警数量做最小/上限保护。",
+      "visit_count": 0,
+      "adopted_cards": [
+        "T04"
+      ]
+    },
+    {
+      "id": "bcd1ea01",
+      "island_id": "b",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "summary_cross",
+      "score": 30.528556363211845,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Add min/slope/missing SMART features, expand vendor prefixes, tune LightGBM, use 3-fold OOF plus final ensemble scores, and select a robust alarm threshold by OOF weighted F1 bootstrap p10 with a FAR cap.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "P04"
+      ]
+    },
+    {
+      "id": "aee213c1",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 0,
+      "operator": "init",
+      "score": 22.807355886970594,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Initial solution",
+      "visit_count": 19,
+      "adopted_cards": []
+    },
+    {
+      "id": "5450dd24",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 36.160429947987616,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 5,
+      "adopted_cards": []
+    },
+    {
+      "id": "a096a7fa",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 38.865167899194105,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 2,
+      "adopted_cards": [
+        "FE01",
+        "FE03"
+      ]
+    },
+    {
+      "id": "4016914b",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 40.72413860816145,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 1,
+      "adopted_cards": [
+        "M01",
+        "T01",
+        "E01",
+        "E05"
+      ]
+    },
+    {
+      "id": "ede7cd2f",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "refine",
+      "score": 34.347554032463115,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "- Extend SMART window features with recent deltas, normalized SMART, and model target encoding/categorical.\n- Select alarm threshold using weighted lower-bound F1 and map to final score quantile.\n- Keep LightGBM ensemble lightweight and vectorized to stay fast and robust to missing data.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE09",
+        "P03"
+      ]
+    },
+    {
+      "id": "5867aa5d",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 39.8015035558131,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "",
+      "visit_count": 4,
+      "adopted_cards": [
+        "T01",
+        "M01",
+        "E05"
+      ]
+    },
+    {
+      "id": "a1386fe9",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 29.606374089698544,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Use 3-fold out-of-fold LightGBM predictions to select a weighted-F1 threshold with fold stability and a minimum alarm-count guard.\nEnsemble the fold models for query scores, and apply a conservative alarm-rate guard if the query score distribution shifts.\nAdd recent-window mean/min/max and distribution features for key SMART attributes.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "P02",
+        "E03"
+      ]
+    },
+    {
+      "id": "98bb0cb0",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 39.836839967360966,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "",
+      "visit_count": 2,
+      "adopted_cards": [
+        "FE12",
+        "E04"
+      ]
+    },
+    {
+      "id": "1b0831ea",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 0.0,
+      "status": "invalid",
+      "hypothesis_status": "open",
+      "intent": "Train LightGBM with optional logistic ensemble on 14-day SMART trend features; select ensemble weight on weighted OOF ranking; choose alarm threshold from OOF bootstrap F1_p10 with query-distribution safety adjustment.",
+      "visit_count": 0,
+      "adopted_cards": []
+    },
+    {
+      "id": "421880da",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "refine",
+      "score": 39.01827906923479,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "- Select alarm threshold from OOF scores using weighted conservative F1.\n- Add LightGBM monotone constraints and raw severity/missing flags.\n- Keep 3-fold OOF + full model, no model-specific categorical priors.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE12",
+        "E04"
+      ]
+    },
+    {
+      "id": "288059ed",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 34.915643048905935,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Replace cutoff-only logistic regression with LightGBM; add first/last deltas, log levels, composite error-growth features, vendor/model codes; select threshold on 3-fold OOF weighted F1.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "X01",
+        "E01",
+        "E02"
+      ]
+    },
+    {
+      "id": "bb4e567c",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 31.768327252671817,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Keep the feature builder vectorized and lightweight, add sparse trend/rank features, and choose a robust weighted-F1 threshold using OOF scores.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE08",
+        "X01",
+        "E02"
+      ]
+    },
+    {
+      "id": "611d38da",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 38.59962174779427,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "最小修改：保留原读取与建模骨架；扩展少量 SMART 属性；加入 diff_last、diff3、std-free 聚合；用 OOF 折均分预测 query；用近似 bootstrap 下界选择阈值；输出有限 score 与 0/1 alarm。",
+      "visit_count": 0,
+      "adopted_cards": [
+        "M01",
+        "E01",
+        "T01",
+        "E05"
+      ]
+    },
+    {
+      "id": "050a218e",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 37.81280804115881,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Build window aggregates, deltas, slopes, missing counts and one-day changes; use 3-fold LightGBM with sample weights; choose threshold via weighted OOF F1 and bootstrap p10; keep runtime bounded with sparse features and early stopping.",
+      "visit_count": 2,
+      "adopted_cards": [
+        "M01",
+        "T01",
+        "E01",
+        "E05"
+      ]
+    },
+    {
+      "id": "dd524113",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 2,
+      "operator": "refine",
+      "score": 38.039028247197834,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Expand key SMART features with 190/192/193 and recent-change flags, keep NaNs for LightGBM, train 3-fold CV ensemble, select threshold from weighted bootstrap p10, then control query alarm count near the OOF rate.",
+      "visit_count": 1,
+      "adopted_cards": [
+        "E04",
+        "FE12",
+        "FE02"
+      ]
+    },
+    {
+      "id": "6bace6ba",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 36.29839390758149,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Expand SMART features with last-3/7 means, last-two-day deltas, and robust log transforms; train 3-fold LightGBM ensembles with weights; choose threshold by weighted F1_p10 proxy; map query scores to OOF quantiles and suppress alarms for disks without history.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "EN02",
+        "P05",
+        "M04",
+        "E06"
+      ]
+    },
+    {
+      "id": "d8322061",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 4,
+      "operator": "refine",
+      "score": 22.31219592975014,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "Extend the 14-day SMART feature set with normalized drops and pending/reallocated patterns, keep vectorized groupby aggregation, and select a weighted out-of-fold alarm threshold under a false-alarm-rate cap.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE05",
+        "FE07",
+        "M02"
+      ]
+    },
+    {
+      "id": "143fb579",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 39.350858939827475,
+      "status": "done",
+      "hypothesis_status": "open",
+      "intent": "Keep the LightGBM pipeline but add sparse SMART trend/age/missing indicators.\nUse 5-fold OOF scores and select the alarm threshold by maximizing bootstrap F1_p10 with a FAR penalty.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "FE10"
+      ]
+    },
+    {
+      "id": "5361db5c",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 3,
+      "operator": "refine",
+      "score": 31.85530365721652,
+      "status": "done",
+      "hypothesis_status": "refuted",
+      "intent": "1. 在现有特征上加入 age_days_log 与 hfh_ratio，不引入 rank/burst 等已证伪特征。\n2. 使用 3 折 LightGBM OOF + 全量模型平均作为 score；报警按 OOF 加权 F1 平台对应分数位取 top-K。\n3. 加入 Logistic 和启发式回退，保持向量化构建与低模型复杂度。",
+      "visit_count": 0,
+      "adopted_cards": [
+        "E06",
+        "FE10",
+        "M04",
+        "P05"
+      ]
+    },
+    {
+      "id": "36be82d6",
+      "island_id": "c",
+      "branch_id": "main",
+      "depth": 1,
+      "operator": "refine",
+      "score": 34.078099586713556,
+      "status": "done",
+      "hypothesis_status": "supported",
+      "intent": "Add vectorized window trend features and small LightGBM; down-weight silent positives; choose threshold on OOF scores and match the resulting alarm fraction on query scores.",
+      "visit_count": 0,
+      "adopted_cards": [
+        "L03",
+        "P06"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "2136ff37",
+      "target": "025ffebd"
+    },
+    {
+      "source": "025ffebd",
+      "target": "e3894816"
+    },
+    {
+      "source": "025ffebd",
+      "target": "1e7315f8"
+    },
+    {
+      "source": "025ffebd",
+      "target": "dbe92788"
+    },
+    {
+      "source": "2136ff37",
+      "target": "ecff97ea"
+    },
+    {
+      "source": "ecff97ea",
+      "target": "70b80c9e"
+    },
+    {
+      "source": "70b80c9e",
+      "target": "4c6596ab"
+    },
+    {
+      "source": "4c6596ab",
+      "target": "e7ca5e4f"
+    },
+    {
+      "source": "4c6596ab",
+      "target": "92e22d3a"
+    },
+    {
+      "source": "2136ff37",
+      "target": "cbd475af"
+    },
+    {
+      "source": "025ffebd",
+      "target": "9bb5d813"
+    },
+    {
+      "source": "ecff97ea",
+      "target": "eac51279"
+    },
+    {
+      "source": "2136ff37",
+      "target": "5c3ac8d6"
+    },
+    {
+      "source": "5c3ac8d6",
+      "target": "d4dd540a"
+    },
+    {
+      "source": "5c3ac8d6",
+      "target": "8433d52e"
+    },
+    {
+      "source": "5c3ac8d6",
+      "target": "f009f10c"
+    },
+    {
+      "source": "5c3ac8d6",
+      "target": "e19c7377"
+    },
+    {
+      "source": "025ffebd",
+      "target": "950b15b0"
+    },
+    {
+      "source": "eac51279",
+      "target": "37cabdd0"
+    },
+    {
+      "source": "2136ff37",
+      "target": "986c746d"
+    },
+    {
+      "source": "986c746d",
+      "target": "9d0730d4"
+    },
+    {
+      "source": "9d0730d4",
+      "target": "78feefab"
+    },
+    {
+      "source": "9d0730d4",
+      "target": "40121793"
+    },
+    {
+      "source": "9d0730d4",
+      "target": "48b6a43a"
+    },
+    {
+      "source": "986c746d",
+      "target": "8568a9c1"
+    },
+    {
+      "source": "48b6a43a",
+      "target": "8d5948d4"
+    },
+    {
+      "source": "37cabdd0",
+      "target": "045ea464"
+    },
+    {
+      "source": "2136ff37",
+      "target": "3a87b2f0"
+    },
+    {
+      "source": "025ffebd",
+      "target": "d9da7a10"
+    },
+    {
+      "source": "37cabdd0",
+      "target": "e3d40891"
+    },
+    {
+      "source": "2136ff37",
+      "target": "8baf30cd"
+    },
+    {
+      "source": "26a3ad5d",
+      "target": "1900ba24"
+    },
+    {
+      "source": "1900ba24",
+      "target": "30c1f82e"
+    },
+    {
+      "source": "1900ba24",
+      "target": "500034d9"
+    },
+    {
+      "source": "500034d9",
+      "target": "83341cd4"
+    },
+    {
+      "source": "26a3ad5d",
+      "target": "5d87f6a3"
+    },
+    {
+      "source": "5d87f6a3",
+      "target": "78b740c8"
+    },
+    {
+      "source": "78b740c8",
+      "target": "dde6eaf8"
+    },
+    {
+      "source": "78b740c8",
+      "target": "1c8300d4"
+    },
+    {
+      "source": "1c8300d4",
+      "target": "60d3c435"
+    },
+    {
+      "source": "26a3ad5d",
+      "target": "60411236"
+    },
+    {
+      "source": "60411236",
+      "target": "f717c790"
+    },
+    {
+      "source": "60411236",
+      "target": "df55e685"
+    },
+    {
+      "source": "60411236",
+      "target": "7471027e"
+    },
+    {
+      "source": "60411236",
+      "target": "66c5a448"
+    },
+    {
+      "source": "5d87f6a3",
+      "target": "9cfabd1a"
+    },
+    {
+      "source": "26a3ad5d",
+      "target": "2e67c080"
+    },
+    {
+      "source": "2e67c080",
+      "target": "22e93a4f"
+    },
+    {
+      "source": "22e93a4f",
+      "target": "0c2c7721"
+    },
+    {
+      "source": "22e93a4f",
+      "target": "976d71d3"
+    },
+    {
+      "source": "22e93a4f",
+      "target": "12810e59"
+    },
+    {
+      "source": "2e67c080",
+      "target": "d701c98c"
+    },
+    {
+      "source": "60411236",
+      "target": "3d4376db"
+    },
+    {
+      "source": "d701c98c",
+      "target": "3c1a0dbe"
+    },
+    {
+      "source": "26a3ad5d",
+      "target": "52ceb5c0"
+    },
+    {
+      "source": "52ceb5c0",
+      "target": "1ca7d9c0"
+    },
+    {
+      "source": "52ceb5c0",
+      "target": "8a1ca6bd"
+    },
+    {
+      "source": "52ceb5c0",
+      "target": "6c1b9c19"
+    },
+    {
+      "source": "52ceb5c0",
+      "target": "9923b3ef"
+    },
+    {
+      "source": "9cfabd1a",
+      "target": "ff572446"
+    },
+    {
+      "source": "3d4376db",
+      "target": "882864c2"
+    },
+    {
+      "source": "d701c98c",
+      "target": "daea6a21"
+    },
+    {
+      "source": "26a3ad5d",
+      "target": "d8f7ab73"
+    },
+    {
+      "source": "d8f7ab73",
+      "target": "3cd6faec"
+    },
+    {
+      "source": "3cd6faec",
+      "target": "6d087419"
+    },
+    {
+      "source": "3cd6faec",
+      "target": "48cc7906"
+    },
+    {
+      "source": "3cd6faec",
+      "target": "365ac713"
+    },
+    {
+      "source": "9cfabd1a",
+      "target": "8a8bfe13"
+    },
+    {
+      "source": "9923b3ef",
+      "target": "5ddd24b0"
+    },
+    {
+      "source": "daea6a21",
+      "target": "4c7e4ae4"
+    },
+    {
+      "source": "26a3ad5d",
+      "target": "a26dea31"
+    },
+    {
+      "source": "a26dea31",
+      "target": "c50120ef"
+    },
+    {
+      "source": "a26dea31",
+      "target": "bcd1ea01"
+    },
+    {
+      "source": "aee213c1",
+      "target": "5450dd24"
+    },
+    {
+      "source": "5450dd24",
+      "target": "a096a7fa"
+    },
+    {
+      "source": "a096a7fa",
+      "target": "4016914b"
+    },
+    {
+      "source": "4016914b",
+      "target": "ede7cd2f"
+    },
+    {
+      "source": "aee213c1",
+      "target": "5867aa5d"
+    },
+    {
+      "source": "5867aa5d",
+      "target": "a1386fe9"
+    },
+    {
+      "source": "5867aa5d",
+      "target": "98bb0cb0"
+    },
+    {
+      "source": "98bb0cb0",
+      "target": "1b0831ea"
+    },
+    {
+      "source": "4016914b",
+      "target": "421880da"
+    },
+    {
+      "source": "aee213c1",
+      "target": "288059ed"
+    },
+    {
+      "source": "98bb0cb0",
+      "target": "bb4e567c"
+    },
+    {
+      "source": "5450dd24",
+      "target": "611d38da"
+    },
+    {
+      "source": "aee213c1",
+      "target": "050a218e"
+    },
+    {
+      "source": "050a218e",
+      "target": "dd524113"
+    },
+    {
+      "source": "dd524113",
+      "target": "6bace6ba"
+    },
+    {
+      "source": "6bace6ba",
+      "target": "d8322061"
+    },
+    {
+      "source": "611d38da",
+      "target": "143fb579"
+    },
+    {
+      "source": "98bb0cb0",
+      "target": "5361db5c"
+    },
+    {
+      "source": "aee213c1",
+      "target": "36be82d6"
+    }
+  ]
+}

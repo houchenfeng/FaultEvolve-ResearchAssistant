@@ -43,6 +43,13 @@ web = [
     "pydantic-settings>=2",
     "asyncssh>=2.14",
 ]
+# Hybrid-mode demo: tablet WebSocket ingest + GPU paired bootstrap on the laptop.
+# lightgbm 4.7.0 segfaults on Windows; the evolved program is validated on 4.6.
+edge = [
+    "websockets>=12",
+    "lightgbm>=4.3,<4.7; sys_platform == 'win32'",
+    "torch>=2.4",
+]
 
 [project.scripts]
 fe = "faultevolve.cli:app"

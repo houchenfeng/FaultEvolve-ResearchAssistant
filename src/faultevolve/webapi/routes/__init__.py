@@ -10,6 +10,7 @@ from fastapi import FastAPI
 
 from faultevolve.webapi.routes import (
     artifacts,
+    edge,
     events,
     knowledge,
     presets,
@@ -32,3 +33,4 @@ def register_all(app: FastAPI) -> None:
     tasks.register(app)
     servers.register(app)
     presets.register(app)
+    edge.register(app)

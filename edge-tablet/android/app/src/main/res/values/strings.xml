@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FaultEvolve 机房孪生</string>
+    <string name="title_activity_main">FaultEvolve 机房孪生</string>
+    <string name="package_name">com.faultevolve.edgetwin</string>
+    <string name="custom_url_scheme">com.faultevolve.edgetwin</string>
+</resources>

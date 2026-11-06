@@ -38,6 +38,7 @@ const TABS = [
   { label: '工作台总览', to: '/runs/$runId', exact: true },
   { label: '进化树', to: '/runs/$runId/tree', exact: false },
   { label: '代际时间轴', to: '/runs/$runId/timeline', exact: false },
+  { label: '本地-云端混合', to: '/runs/$runId/hybrid', exact: false },
 ] as const;
 
 export function RunLayout() {
@@ -107,7 +108,8 @@ export function RunLayout() {
   const showRunTabs =
     normalizedPath === `/runs/${runId}` ||
     normalizedPath === `/runs/${runId}/tree` ||
-    normalizedPath === `/runs/${runId}/timeline`;
+    normalizedPath === `/runs/${runId}/timeline` ||
+    normalizedPath === `/runs/${runId}/hybrid`;
 
   return (
     <div className="flex flex-col gap-4">
