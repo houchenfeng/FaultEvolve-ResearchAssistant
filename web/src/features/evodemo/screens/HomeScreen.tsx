@@ -26,7 +26,7 @@ const SUGGESTIONS = [
 ];
 
 const HISTORY: { name: string; meta: string; status: string; tone: 'done' | 'running' | 'idle'; open?: CaseId }[] = [
-  { name: '论文组合 · 发现新算法', meta: 'Mitra-v2 × TabM 几何均值 · Q2 精确率 64.71%', status: '已完成', tone: 'done', open: 'paper' },
+  { name: '论文组合 · 发现新算法', meta: 'Mitra-v2 × TabM 共识一致性融合 · Q2 精确率 64.71%', status: '已完成', tone: 'done', open: 'paper' },
   { name: 'HDD 故障预测', meta: 'ROS 36.50 · 1 条新知识', status: '已完成', tone: 'done', open: 'kgte' },
   { name: 'Backblaze 跨数据集迁移', meta: '云端进化中 · 第 4 / 6 轮', status: '62%', tone: 'running' },
   { name: '阿里 SSD 预测', meta: '等待确认服务器与评估器', status: '待确认', tone: 'idle' },

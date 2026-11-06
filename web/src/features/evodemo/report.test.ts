@@ -47,7 +47,7 @@ describe('buildRunReport · chain', () => {
 describe('paper combination case', () => {
   const report = PAPER_CASE.report;
 
-  it('promotes exactly the Mitra × TabM geometric mean, as recorded in nodes.json', () => {
+  it('promotes exactly TabM × Mitra-v2 consensus-agreement fusion, as recorded in nodes.json', () => {
     expect(PAPER_NODES.filter((n) => n.outcome === 'promoted').map((n) => n.id)).toEqual([WINNER_ID]);
     expect(PAPER_NODES.find((n) => n.id === 'modernnca')?.outcome).toBe('silent');
     expect(PAPER_CASE.steps.at(-1)).toEqual({ kind: 'finish', bestScore: 1 });
@@ -55,7 +55,18 @@ describe('paper combination case', () => {
 
   it('explains rejections with the parent that won the failing check', () => {
     const mean = PAPER_NODES.find((n) => n.operator === 'fixed_mean' && [...n.parents].sort().join() === 'mitra,tabm');
-    expect(mean?.reason).toBe('Q1 误告 0.0703% 高于 Mitra 的 0.0603%');
+    expect(mean?.reason).toBe('Q1 误告 0.0703% 高于 Mitra-v2 的 0.0603%');
+  });
+
+  it('grows each combination on a host island with the other parent merging across islands', () => {
+    const byId = new Map(PAPER_NODES.map((n) => [n.id, n]));
+    const winner = byId.get(WINNER_ID)!;
+    expect([winner.host, winner.partner, winner.label]).toEqual(['tabm', 'mitra', 'TabM × Mitra-v2']);
+    expect(winner.lane).toBe(byId.get('tabm')!.lane);
+    const regrown = PAPER_NODES.find((n) => n.parents.includes(WINNER_ID))!;
+    expect([regrown.host, regrown.partner, regrown.lane]).toEqual([WINNER_ID, 'tabiclv2', winner.lane]);
+    const cells = PAPER_NODES.filter((n) => n.lane >= 0).map((n) => `${n.lane}:${n.slot}`);
+    expect(new Set(cells).size).toBe(cells.length);
   });
 
   it('reports a combination against both parents', () => {

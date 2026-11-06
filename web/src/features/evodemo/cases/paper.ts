@@ -1,5 +1,5 @@
 /**
- * 案例一：以最新 SOTA 论文为初始解，自进化自动组合出新算法（Mitra-v2 × TabM 几何均值）。
+ * 案例一：以最新 SOTA 论文为初始解，自进化自动组合出新算法（Mitra-v2 × TabM 共识一致性融合，CAF）。
  *
  * 节点与晋升判定来自真实实验的 nodes.json（三批：batch01r1 / batch02 / batch03，经
  * 裁剪后存为 paper-combination.nodes.json）；机制解释与知识表述来自
@@ -70,9 +70,12 @@ const PAPER_BY_ID = new Map(PAPERS.map((p) => [p.id, p]));
 
 export const WINNER_ID = 'mix-29b3832fa231e045ba5a';
 
-const SHORT: Record<string, string> = { tabm: 'TabM', tabiclv2: 'TabICLv2', modernnca: 'ModernNCA', mitra: 'Mitra', [WINNER_ID]: '√(Mitra·TabM)' };
+const SHORT: Record<string, string> = { tabm: 'TabM', tabiclv2: 'TabICLv2', modernnca: 'ModernNCA', mitra: 'Mitra-v2', [WINNER_ID]: 'CAF' };
 
-const OP_GLYPH: Record<string, string> = { fixed_mean: '(p+q)/2', agreement_geomean: '√pq', learned_disagreement: 'σ(αz−λ|Δz|)' };
+/** 融合算子的英文缩写，用在节点、事件和流水线卡片上；中文全称见 `operatorLabel`。 */
+export const OP_CODE: Record<string, string> = { fixed_mean: 'ERE', agreement_geomean: 'CAF', learned_disagreement: 'ADPF' };
+
+const OP_FORMULA: Record<string, string> = { fixed_mean: '(p+q)/2', agreement_geomean: '√(pq)', learned_disagreement: 'σ(αz − λ|Δz|)' };
 
 const OP_SHAPE: Record<string, BotShape> = { fixed_mean: 'squircle', agreement_geomean: 'circle', learned_disagreement: 'hex' };
 
@@ -81,10 +84,18 @@ export type PaperOutcome = 'paper' | 'silent' | 'promoted' | 'rejected';
 export interface PaperNode {
   id: string;
   label: string;
-  glyph?: string;
+  code?: string;
   shape: BotShape;
+  /** 0 = 论文父算法，1..3 = 第几批组合。 */
   column: number;
-  row: number;
+  /** 所在泳道（父算法岛）下标；许可受限、未运行的论文为 -1。 */
+  lane: number;
+  /** 横向位置：0 = 树根，1..6 = SLOTS 下标 + 1。 */
+  slot: number;
+  /** 树边来源：同岛的父节点；另一个父算法以跨岛飞线（partner）汇入。 */
+  host?: string;
+  partner?: string;
+  upper: boolean;
   parents: string[];
   operator: string;
   outcome: PaperOutcome;
@@ -95,12 +106,28 @@ export interface PaperNode {
 
 export const COLUMNS = [
   { title: '论文父算法', sub: '最新 SOTA 作为初始解' },
-  { title: '第 1 批组合', sub: '3 个父代 × 2 种算子' },
+  { title: '第 1 批组合', sub: '3 个父代 × 2 种融合算子' },
   { title: '第 2 批组合', sub: '新论文 Mitra-v2 加入' },
-  { title: '第 3 批组合', sub: '学习式融合 · 胜者再组合' },
+  { title: '第 3 批组合', sub: '自适应分歧惩罚 · 胜者再组合' },
+];
+
+/** 泳道顺序：每篇可运行的论文是一个岛，组合节点长在宿主父算法的岛里。 */
+export const LANES = ['tabm', 'tabiclv2', 'modernnca', 'mitra'];
+
+/** 每批两列，一列对应一种融合算子；第 3 批第二列是以晋升节点为父代的再组合。 */
+export const SLOTS: { column: number; operator: string; depth: number; title: string }[] = [
+  { column: 1, operator: 'fixed_mean', depth: 1, title: '等权风险集成' },
+  { column: 1, operator: 'agreement_geomean', depth: 1, title: '共识一致性融合' },
+  { column: 2, operator: 'fixed_mean', depth: 1, title: '等权风险集成' },
+  { column: 2, operator: 'agreement_geomean', depth: 1, title: '共识一致性融合' },
+  { column: 3, operator: 'learned_disagreement', depth: 1, title: '自适应分歧惩罚' },
+  { column: 3, operator: 'learned_disagreement', depth: 2, title: '胜者再组合' },
 ];
 
 const COLUMN_OF_BATCH: Record<string, number> = { batch01: 1, batch02: 2, batch03: 3 };
+
+/** 第 1 批三对父代轮流做宿主，让三个岛各长两枝。 */
+const BATCH1_HOST: Record<string, string> = { 'tabiclv2,tabm': 'tabm', 'modernnca,tabiclv2': 'tabiclv2', 'modernnca,tabm': 'modernnca' };
 
 const artifact = (raw as { nodes: CombinationArtifactNode[] }).nodes.filter((n) => n.operator !== 'lambda_zero');
 const ARTIFACT_BY_ID = new Map(artifact.map((n) => [n.id, n]));
@@ -137,63 +164,81 @@ function failReason(node: CombinationArtifactNode): string | undefined {
   return undefined;
 }
 
-function comboLabel(node: CombinationArtifactNode) {
-  return node.parents.map((p) => SHORT[p] ?? p).join(' × ');
+function hostOf(node: CombinationArtifactNode): string {
+  const combo = node.parents.find((p) => !PAPER_BY_ID.has(p));
+  if (combo) return combo;
+  if (node.parents.includes('mitra')) return node.parents.find((p) => p !== 'mitra')!;
+  return BATCH1_HOST[[...node.parents].sort().join()];
 }
 
-const PAPER_ROWS = PAPERS.map((p) => p.id);
+const ROOTS: PaperNode[] = PAPERS.map((p) => {
+  const a = ARTIFACT_BY_ID.get(p.id);
+  const silent = a !== undefined && QUARTERS.every((q) => (a.metrics[q.key]?.alarm_count ?? 0) === 0);
+  return {
+    id: p.id,
+    label: p.name,
+    shape: p.shape,
+    column: 0,
+    lane: LANES.indexOf(p.id),
+    slot: 0,
+    upper: false,
+    parents: [],
+    operator: 'paper_baseline',
+    outcome: silent ? 'silent' : 'paper',
+    metrics: a?.metrics ?? {},
+  };
+});
 
-export const PAPER_NODES: PaperNode[] = [
-  ...PAPERS.map((p, row) => {
-    const a = ARTIFACT_BY_ID.get(p.id);
-    const silent = a !== undefined && QUARTERS.every((q) => (a.metrics[q.key]?.alarm_count ?? 0) === 0);
-    return {
-      id: p.id,
-      label: p.name,
-      shape: p.shape,
-      column: 0,
-      row,
-      parents: [],
-      operator: 'paper_baseline',
-      outcome: (silent ? 'silent' : 'paper') as PaperOutcome,
-      metrics: a?.metrics ?? {},
-    };
-  }),
-  ...(['batch01', 'batch02', 'batch03'] as const).flatMap((batch) =>
-    artifact
-      .filter((n) => n.batch === batch && n.operator !== 'paper_baseline')
-      .sort((a, b) => [...a.parents].sort().join().localeCompare([...b.parents].sort().join()) || a.operator.localeCompare(b.operator))
-      .map((n, row) => ({
-        id: n.id,
-        label: comboLabel(n),
-        glyph: OP_GLYPH[n.operator],
-        shape: OP_SHAPE[n.operator] ?? 'circle',
-        column: COLUMN_OF_BATCH[batch],
-        row,
-        parents: n.parents,
-        operator: n.operator,
-        outcome: (n.decision?.candidate ? 'promoted' : 'rejected') as PaperOutcome,
-        metrics: n.metrics,
-        checks: Object.fromEntries(QUARTERS.map((q) => [q.key, n.decision?.domains[q.key]?.checks])) as PaperNode['checks'],
-        reason: failReason(n),
-      })),
-  ),
-];
+const ROOT_BY_ID = new Map(ROOTS.map((n) => [n.id, n]));
+
+const COMBOS: PaperNode[] = [];
+for (const n of artifact.filter((a) => a.operator !== 'paper_baseline')) {
+  const column = COLUMN_OF_BATCH[n.batch];
+  const slot = SLOTS.findIndex((s) => s.column === column && s.operator === n.operator && s.depth === n.depth);
+  const host = hostOf(n);
+  const hostNode = ROOT_BY_ID.get(host) ?? COMBOS.find((c) => c.id === host);
+  const partner = n.parents.find((p) => p !== host)!;
+  COMBOS.push({
+    id: n.id,
+    label: `${SHORT[host] ?? host} × ${SHORT[partner] ?? partner}`,
+    code: OP_CODE[n.operator],
+    shape: OP_SHAPE[n.operator] ?? 'circle',
+    column,
+    lane: hostNode?.lane ?? 0,
+    slot: slot + 1,
+    host,
+    partner,
+    upper: slot % 2 === 0,
+    parents: n.parents,
+    operator: n.operator,
+    outcome: n.decision?.candidate ? 'promoted' : 'rejected',
+    metrics: n.metrics,
+    checks: Object.fromEntries(QUARTERS.map((q) => [q.key, n.decision?.domains[q.key]?.checks])) as PaperNode['checks'],
+    reason: failReason(n),
+  });
+}
+
+export const PAPER_NODES: PaperNode[] = [...ROOTS, ...COMBOS.sort((a, b) => a.column - b.column || a.lane - b.lane || a.slot - b.slot)];
 
 export const PAPER_NODE_BY_ID = new Map(PAPER_NODES.map((n) => [n.id, n]));
 
-export function rowsInColumn(column: number) {
-  return column === 0 ? PAPER_ROWS.length : PAPER_NODES.filter((n) => n.column === column).length;
+/** 第一季度精确率相对较强父算法的变化（百分点）；无告警的父算法不参与比较。 */
+export function precisionGainPp(node: PaperNode): number | undefined {
+  const own = node.metrics.recent_2026q1;
+  if (!own || node.column === 0) return undefined;
+  const parents = node.parents.map((id) => PAPER_NODE_BY_ID.get(id)?.metrics.recent_2026q1).filter((m) => m && m.alarm_count > 0);
+  if (!parents.length) return undefined;
+  return (own.precision - Math.max(...parents.map((m) => m!.precision))) * 100;
 }
 
 /* ---------- 回放步骤 ---------- */
 
 const ROUNDS: { batch: string; ids: string[]; text: string }[] = [
   { batch: 'batch01', ids: ['tabm', 'tabiclv2', 'modernnca'], text: '复现 3 篇论文为父算法（TabPFN-3.5 许可受限，跳过）' },
-  { batch: 'batch01', ids: PAPER_NODES.filter((n) => n.column === 1).map((n) => n.id), text: '两两组合 · 算术平均 / 几何均值' },
+  { batch: 'batch01', ids: PAPER_NODES.filter((n) => n.column === 1).map((n) => n.id), text: '两两组合 · 等权风险集成 / 共识一致性融合' },
   { batch: 'batch02', ids: ['mitra'], text: '新论文 Mitra-v2（2026-09）加入父代池' },
   { batch: 'batch02', ids: PAPER_NODES.filter((n) => n.column === 2).map((n) => n.id), text: 'Mitra-v2 与 3 个旧父代各组合两次' },
-  { batch: 'batch03', ids: PAPER_NODES.filter((n) => n.column === 3).map((n) => n.id), text: '学习式分歧惩罚 · 胜出组合继续作为父代' },
+  { batch: 'batch03', ids: PAPER_NODES.filter((n) => n.column === 3).map((n) => n.id), text: '自适应分歧惩罚融合 · 晋升节点继续作为父代' },
 ];
 
 export const BATCH_OF_ROUND = ROUNDS.map((r) => r.batch);
@@ -229,8 +274,8 @@ function describe(step: DemoStep, index: number): DemoEvent | null {
       const summary = q1 && q2 ? `精确率 ${pct(q1.precision, 1)} / ${pct(q2.precision, 1)}` : '';
       if (node.outcome === 'paper') return { id, tag: node.label, text: `父算法复现完成 · ${summary}`, tone: 'info' };
       if (node.outcome === 'silent') return { id, tag: node.label, text: '复现完成，但两个季度均无告警', tone: 'bad' };
-      if (node.outcome === 'promoted') return { id, tag: '晋升', text: `${node.label} ${node.glyph} · 两域 10 项检查全过 · ${summary}`, tone: 'good' };
-      return { id, tag: node.glyph ?? '×', text: `${node.label} 未晋升：${node.reason ?? ''}`, tone: 'bad' };
+      if (node.outcome === 'promoted') return { id, tag: '晋升', text: `${node.label} · ${operatorLabel(node.operator)} · 两域 10 项检查全过 · ${summary}`, tone: 'good' };
+      return { id, tag: node.code ?? '×', text: `${node.label} 未晋升：${node.reason ?? ''}`, tone: 'bad' };
     }
     case 'finish':
       return { id, tag: 'DONE', text: `三批 ${PAPER_NODES.filter((n) => n.column > 0).length} 个组合，${step.bestScore} 个晋升为新算法候选`, tone: 'good' };
@@ -250,7 +295,7 @@ function toReportNode(n: PaperNode): ReportNode {
     score: (q1?.precision ?? 0) * 100,
     operator: n.operator,
     title: n.column === 0 ? n.label : `${n.label} · ${operatorLabel(n.operator)}`,
-    subtitle: paper ? `${paper.venue} · ${paper.idea}` : n.glyph,
+    subtitle: paper ? `${paper.venue} · ${paper.idea}` : `${n.code} · ${OP_FORMULA[n.operator]}`,
     group: n.column === 0 ? '论文父算法' : COLUMNS[n.column].title,
     status: n.outcome === 'rejected' ? 'pruned' : 'ok',
     note: n.reason,
@@ -277,7 +322,7 @@ export const PAPER_REPORT_INPUT: ReportInput = {
   ],
   selectedId: WINNER_ID,
   nodes: PAPER_NODES.filter((n) => PAPER_BY_ID.get(n.id)?.ready !== false).map(toReportNode),
-  formula: { expression: 'g(x) = √( p_TabM(x) · q_Mitra(x) )', decision: 'g(x) ≥ t = 0.6366 时告警 · t 取三期负例校准阈值的最大值' },
+  formula: { expression: 'CAF(x) = √( p_TabM(x) · q_Mitra(x) )', decision: 'CAF(x) ≥ t = 0.6366 时告警 · t 取三期负例校准阈值的最大值' },
   insights: [
     {
       title: '平均风险减去分歧项',
@@ -302,7 +347,7 @@ export const PAPER_REPORT_INPUT: ReportInput = {
       grade: 'candidate',
       evidence: [
         { label: '父算法', value: 'TabM（任务内训练）× Mitra-v2（预训练上下文）' },
-        { label: '组合规则', value: '几何均值 · 无新增融合参数' },
+        { label: '组合规则', value: '共识一致性融合（CAF）· 无新增融合参数' },
         { label: 'Q1 / Q2 精确率', value: '42.82% / 64.71%', good: true },
         { label: 'Q1 / Q2 误告率', value: '0.0402% / 0.0301%', good: true },
         { label: '两域晋升检查', value: '10 / 10 通过', good: true },
@@ -310,7 +355,7 @@ export const PAPER_REPORT_INPUT: ReportInput = {
       ],
       boundary: '证据来自两个开发季度，等待未见季度独立确认；保存公式、谱系、固定阈值和父子对照，作为可继续组合的知识节点。',
     },
-    { id: 'batch03-learned-penalty', title: '让融合自己学习分歧惩罚可以进一步改进（λ 学成 0，未产生增量）', grade: 'refuted' },
+    { id: 'batch03-learned-penalty', title: '自适应分歧惩罚融合能在 CAF 之上进一步改进（λ 学成 0，未产生增量）', grade: 'refuted' },
   ],
   artifacts: [
     { label: '发现案例与数理解释', path: 'paper_combinations_b02_20261106/DISCOVERY_CASE.md' },
@@ -318,7 +363,7 @@ export const PAPER_REPORT_INPUT: ReportInput = {
     { label: '节点与晋升判定', path: 'evidence/batch02/nodes.json' },
     { label: '完整父子指标', path: 'evidence/batch02/records.json' },
     { label: '冻结清单', path: 'evidence/batch02/manifest.json' },
-    { label: '第 3 批学习式融合', path: 'paper_combinations_b03_20261106/RESULTS.md' },
+    { label: '第 3 批自适应分歧惩罚融合', path: 'paper_combinations_b03_20261106/RESULTS.md' },
     { label: '发现与解释提示词', path: 'paper_combinations_20261106/DISCOVERY_PROMPTS.md' },
   ],
 };
@@ -356,7 +401,7 @@ export const PAPER_CASE: DemoCase = {
     origin: 'local',
     candidateLabel: (id) => {
       const n = PAPER_NODE_BY_ID.get(id);
-      return n ? `${n.label}${n.glyph ? ` ${n.glyph}` : ''}` : id;
+      return n ? `${n.label}${n.code ? ` · ${n.code}` : ''}` : id;
     },
     result: (id) => {
       const n = PAPER_NODE_BY_ID.get(id);
@@ -367,15 +412,15 @@ export const PAPER_CASE: DemoCase = {
   },
   debate: {
     eyebrow: '新知识发现 · 算法辩论赛',
-    title: 'Mitra-v2 × TabM 几何均值：共识风险 × 一致性折扣',
+    title: 'Mitra-v2 × TabM 共识一致性融合：共识风险 × 一致性折扣',
     highlight: '共识风险 × 一致性折扣',
     rounds: [
       {
         round: '发现陈述',
         speaker: 'proponent',
-        line: 'TabM 从硬盘数据里学，Mitra-v2 带着预训练先验看上下文。两种学习方式对同一块盘给出不同风险，几何均值把这种分歧变成了告警筛选信号。',
+        line: 'TabM 从硬盘数据里学，Mitra-v2 带着预训练先验看上下文。两种学习方式对同一块盘给出不同风险，共识一致性融合（CAF）把这种分歧变成了告警筛选信号。',
       },
-      { round: '质询', speaker: 'critic', line: '几何均值是已知运算。凭什么说它是新知识，而不只是换了个平均？' },
+      { round: '质询', speaker: 'critic', line: 'CAF 写成公式就是 √pq，一个已知运算。凭什么说它是新知识，而不只是换了个平均？' },
       {
         round: '第一层本质',
         speaker: 'statistician',
@@ -394,7 +439,7 @@ export const PAPER_CASE: DemoCase = {
       {
         round: '对照与代价',
         speaker: 'confounder',
-        line: '同一对父算法用算术平均，Q1 误告高于 Mitra，没过；第 3 批让模型自学分歧惩罚，λ 学成 0，也没过。代价是召回介于两个父算法之间。',
+        line: '同一对父算法用等权风险集成，Q1 误告高于 Mitra-v2，没过；第 3 批的自适应分歧惩罚融合让模型自学惩罚强度，λ 学成 0，也没过。代价是召回介于两个父算法之间。',
       },
       {
         round: '最终裁决',
@@ -415,7 +460,7 @@ export const PAPER_CASE: DemoCase = {
       { label: '第二层 · 共识 × 一致性折扣', value: 'g = B · r = r · exp(−min J)', round: 3, good: true },
       { label: '精确率条件', value: 'TPR/FPR ↑ · 误告降幅 > 检出降幅', round: 4, good: true },
       { label: 'Q1 / Q2 精确率', value: '42.82% / 64.71%', round: 4 },
-      { label: '同父对照', value: '算术平均 ✗ · 学习式惩罚 ✗', round: 5 },
+      { label: '同父对照', value: '等权集成 ✗ · 自适应惩罚 ✗', round: 5 },
     ],
     outcome: { title: '新知识节点', sub: '共识风险 × 一致性折扣 · 待未见季度确认' },
     chain: ['候选晋升', '新颖性质询', '平均风险 − 分歧', '共识 × 一致性折扣', '精确率机制', '同父消融', '知识入库'],

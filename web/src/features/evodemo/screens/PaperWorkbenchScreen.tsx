@@ -1,14 +1,15 @@
 /**
- * 论文组合工作台：最新论文复现为父算法，逐批两两组合；每个组合节点按冻结协议在
- * 两个季度各做 5 项检查，全部通过才晋升。
+ * 论文组合工作台：每篇可运行的 SOTA 论文复现后成为一座算法岛（树根）。组合节点长在
+ * 宿主父算法的岛上（树边），另一个父算法从自己的岛跨岛汇入（飞线）；每个组合按冻结
+ * 协议在两个季度各做 5 项检查，全部通过才晋升。
  */
 import { AnimatePresence, motion } from 'motion/react';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { EvoBot } from '../bot/EvoBot';
 import type { BotMood } from '../bot/EvoBot';
 import type { PaperNode } from '../cases/paper';
-import { CHECKS, COLUMNS, PAPERS, PAPER_NODES, PAPER_NODE_BY_ID, QUARTERS, rowsInColumn } from '../cases/paper';
+import { CHECKS, COLUMNS, LANES, PAPERS, PAPER_NODES, PAPER_NODE_BY_ID, QUARTERS, SLOTS, precisionGainPp } from '../cases/paper';
 import type { DemoCase } from '../cases/types';
 import { operatorLabel } from '../report';
 import { AnimatedNumber } from '../ui';
@@ -19,8 +20,12 @@ import { EventFeed, LandingOverlay, NextButton, PlayerControls } from './Workben
 
 type QuarterKey = (typeof QUARTERS)[number]['key'];
 
-const HEADER = 44;
+const HEADER = 36;
+const GUTTER = 138;
+const LANE_GAP = 8;
+const LANE_WEIGHT = [1, 1, 1, 0.62];
 const COMBO_COUNT = PAPER_NODES.filter((n) => n.column > 0).length;
+const PAPER_BY_ID = new Map(PAPERS.map((p) => [p.id, p]));
 
 function pct(v: number | undefined, digits = 2) {
   return v === undefined ? '—' : `${(v * 100).toFixed(digits)}%`;
@@ -69,14 +74,14 @@ export function PaperWorkbenchScreen({ demo, onNext, skipIntro }: { demo: DemoCa
     <div className="relative grid h-full grid-cols-[minmax(0,1fr)_340px] gap-4 p-4">
       <div className="flex min-h-0 flex-col gap-4">
         <div className="evo-card relative min-h-0 flex-1 p-3">
-          <div className="mb-1 flex items-center gap-3 px-1">
-            <div className="text-[16px] font-semibold">论文组合进化</div>
-            <div className="text-xs text-[var(--evo-muted)]">每个 Bot 是一个算法 · 父算法来自最新论文 · 组合按冻结协议两域 × 5 项检查</div>
+          <div className="mb-2 flex items-center gap-3 px-1">
+            <div className="shrink-0 text-[16px] font-semibold">多岛论文组合进化</div>
+            <div className="min-w-0 truncate text-xs text-[var(--evo-muted)]">每篇 SOTA 论文一座岛 · 组合在宿主岛生长，另一父算法跨岛汇入</div>
             <div className="flex-1" />
             <Legend />
           </div>
-          <div className="relative h-[calc(100%-30px)]">
-            <PaperCanvas view={view} selectedId={selectedId} onSelect={setSelectedId} />
+          <div className="relative h-[calc(100%-36px)]">
+            <IslandCanvas view={view} selectedId={selectedId} onSelect={setSelectedId} />
           </div>
         </div>
         <div className="h-[200px] shrink-0">
@@ -117,125 +122,282 @@ export function PaperWorkbenchScreen({ demo, onNext, skipIntro }: { demo: DemoCa
         </NextButton>
       </div>
 
-      <LandingOverlay show={!landed} title="把最新论文复现为父算法，开始组合进化" sub={PAPERS.map((p) => p.name).join(' · ')} />
+      <LandingOverlay
+        show={!landed}
+        title="4 篇 SOTA 论文复现为 4 座算法岛，开始跨岛组合进化"
+        sub={`${LANES.map((id) => `${PAPER_BY_ID.get(id)?.name} 岛`).join(' · ')}（Mitra-v2 第 2 批加入）`}
+      />
     </div>
   );
 }
 
-function PaperCanvas({ view, selectedId, onSelect }: { view: PlayerView; selectedId: string | null; onSelect: (id: string) => void }) {
+interface Point {
+  x: number;
+  y: number;
+}
+
+function IslandCanvas({ view, selectedId, onSelect }: { view: PlayerView; selectedId: string | null; onSelect: (id: string) => void }) {
   const [ref, { width, height }] = useSize<HTMLDivElement>();
-  const colW = width / COLUMNS.length;
-  const pos = (n: PaperNode) => {
-    const rows = rowsInColumn(n.column);
-    const h = (height - HEADER) / rows;
-    return { x: colW * (n.column + 0.5), y: HEADER + h * (n.row + 0.4) };
+  const unit = (height - HEADER - LANE_GAP * (LANES.length - 1)) / LANE_WEIGHT.reduce((a, b) => a + b, 0);
+  const laneTop = LANE_WEIGHT.map((_, i) => HEADER + LANE_WEIGHT.slice(0, i).reduce((a, b) => a + b * unit + LANE_GAP, 0));
+  const laneH = (lane: number) => LANE_WEIGHT[lane] * unit;
+  const slotStart = GUTTER + 64;
+  const slotW = (width - slotStart - 4) / SLOTS.length;
+  const slotX = (slot: number) => (slot === 0 ? GUTTER + 26 : slotStart + slotW * (slot - 0.5));
+  const trunkY = (lane: number) => laneTop[lane] + laneH(lane) / 2 + 4;
+
+  /** 上排节点整块（Bot + 名称 + 检查点）落在树干之上，下排落在树干之下，树干不压字。 */
+  const pos = (n: PaperNode): Point => {
+    const y = trunkY(n.lane);
+    return { x: slotX(n.slot), y: n.column === 0 ? y : n.upper ? y - 33 : y + 18 };
   };
-  const started = view.index >= 0;
-  const visible = PAPER_NODES.filter((n) => view.phases.has(n.id) || (started && n.id === 'tabpfn35'));
+
+  const visible = PAPER_NODES.filter((n) => n.lane >= 0 && view.phases.has(n.id));
   const highlight = selectedId ?? view.lastResultId;
 
   return (
     <div ref={ref} className="relative h-full w-full">
-      {COLUMNS.map((c, i) => (
-        <div
-          key={c.title}
-          className={`absolute top-0 bottom-0 rounded-xl border border-[var(--evo-border)] ${i === 0 ? 'bg-gradient-to-b from-[#EEF4FF] to-white/40' : 'bg-white/40'}`}
-          style={{ left: colW * i + 4, width: colW - 8 }}
-        >
-          <div className="px-3 pt-2 text-center">
-            <div className="text-[12.5px] font-semibold">{c.title}</div>
-            <div className="text-[10.5px] text-[var(--evo-muted)]">{c.sub}</div>
+      {[1, 2, 3].map((column) => {
+        const first = SLOTS.findIndex((s) => s.column === column) + 1;
+        const left = slotStart + slotW * (first - 1);
+        return (
+          <div key={column} className="absolute top-0 text-center" style={{ left, width: slotW * 2 }}>
+            <div className="text-[12px] leading-tight font-semibold">{COLUMNS[column].title}</div>
+            <div className="flex">
+              {SLOTS.filter((s) => s.column === column).map((s) => (
+                <div key={s.title + s.depth} className="flex-1 truncate text-[10px] leading-tight text-[var(--evo-brand)]">
+                  {s.title}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        );
+      })}
+
+      {LANES.map((id, lane) => {
+        const paper = PAPER_BY_ID.get(id)!;
+        const late = id === 'mitra';
+        return (
+          <div
+            key={id}
+            className="absolute right-0 left-0 rounded-xl border border-[var(--evo-border)] bg-gradient-to-r from-[#F3F7FF] to-white/40"
+            style={{ top: laneTop[lane], height: laneH(lane) }}
+          >
+            <div className="absolute top-1/2 left-3 w-[118px] -translate-y-1/2">
+              <div className="text-[13px] leading-tight font-semibold">{paper.name} 岛</div>
+              <div className="text-[10.5px] leading-tight text-[var(--evo-muted)]">{paper.venue}</div>
+              {late ? (
+                <span className="mt-0.5 inline-block rounded bg-indigo-50 px-1 text-[9.5px] font-semibold text-indigo-600">第 2 批加入</span>
+              ) : (
+                <div className="mt-0.5 text-[10.5px] leading-tight text-[var(--evo-subtle)]">{paper.idea}</div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+
+      {[2, 4].map((s) => (
+        <div key={s} className="absolute border-l border-dashed border-slate-200" style={{ left: slotStart + slotW * s, top: 2, bottom: 0 }} />
       ))}
 
       <svg className="pointer-events-none absolute inset-0" width={width} height={height}>
-        {visible.flatMap((node) =>
-          node.parents.map((pid) => {
-            const parent = PAPER_NODE_BY_ID.get(pid);
-            if (!parent) return null;
-            const a = pos(parent);
+        {visible
+          .filter((n) => n.host)
+          .map((node) => {
+            const host = PAPER_NODE_BY_ID.get(node.host!)!;
+            const a = pos(host);
             const b = pos(node);
-            const phase = view.phases.get(node.id);
-            const active = phase !== 'done';
+            const done = view.phases.get(node.id) === 'done';
+            const rejected = done && node.outcome === 'rejected';
             const strong = node.outcome === 'promoted' || node.id === highlight;
-            const d = `M${a.x + 18} ${a.y} C${a.x + colW * 0.45} ${a.y}, ${b.x - colW * 0.45} ${b.y}, ${b.x - 18} ${b.y}`;
+            const fromRoot = host.column === 0;
+            const bend = b.x - slotW * 0.48;
+            const trunk = fromRoot ? `M${a.x + 15} ${a.y} H${bend}` : '';
+            const curve = fromRoot
+              ? `M${bend} ${a.y} C${b.x - slotW * 0.22} ${a.y}, ${b.x - slotW * 0.32} ${b.y}, ${b.x - 13} ${b.y}`
+              : `M${a.x + 16} ${a.y} C${a.x + slotW * 0.5} ${a.y}, ${b.x - slotW * 0.5} ${b.y}, ${b.x - 13} ${b.y}`;
             return (
-              <motion.path
-                key={`${pid}-${node.id}`}
-                d={d}
-                fill="none"
-                stroke={active || strong ? '#2563EB' : '#CBD5E1'}
-                strokeWidth={strong ? 2.2 : 1.4}
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: active ? 0.75 : strong ? 0.9 : 0.18 }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              />
+              <g key={`tree-${node.id}`}>
+                {trunk && (
+                  <motion.path d={trunk} fill="none" stroke="#93B4F5" strokeWidth={1.6} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} />
+                )}
+                <motion.path
+                  d={curve}
+                  fill="none"
+                  stroke={rejected && !strong ? '#CBD5E1' : '#93B4F5'}
+                  strokeWidth={strong ? 2.2 : 1.6}
+                  strokeDasharray={rejected ? '4 4' : undefined}
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.6, delay: trunk ? 0.4 : 0, ease: [0.16, 1, 0.3, 1] }}
+                />
+              </g>
             );
-          }),
-        )}
+          })}
+        {visible
+          .filter((n) => n.partner)
+          .map((node) => {
+            const partner = PAPER_NODE_BY_ID.get(node.partner!)!;
+            const phase = view.phases.get(node.id);
+            const strong = node.outcome === 'promoted' || node.id === highlight;
+            const tone = phase !== 'done' ? 'active' : strong ? (node.outcome === 'promoted' ? 'promoted' : 'focus') : 'faded';
+            return <MergeArc key={`merge-${node.id}`} from={pos(partner)} to={pos(node)} tone={tone} flying={phase === 'proposed'} />;
+          })}
       </svg>
 
-      {visible.map((node) => {
-        const p = pos(node);
-        const { mood, animated } = moodFor(node, view);
-        const done = view.phases.get(node.id) === 'done';
-        const paper = PAPERS.find((x) => x.id === node.id);
-        const blocked = paper?.ready === false;
-        const promoted = done && node.outcome === 'promoted';
-        return (
-          <motion.button
-            key={node.id}
-            className="absolute flex flex-col items-center"
-            style={{ left: p.x - colW / 2 + 6, top: p.y - 16, width: colW - 12 }}
-            initial={{ opacity: 0, scale: 0.3 }}
-            animate={{ opacity: blocked ? 0.45 : 1, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-            onClick={() => !blocked && onSelect(node.id)}
-          >
-            <span className={`rounded-full ${selectedId === node.id ? 'ring-2 ring-[var(--evo-brand)] ring-offset-2' : ''}`}>
-              <EvoBot
-                size={promoted ? 40 : node.column === 0 ? 32 : 28}
-                shape={node.shape}
-                mood={blocked ? 'pruned' : mood}
-                animated={!blocked && animated}
-                color={blocked ? '#94A3B8' : undefined}
-              />
-            </span>
-            <span className="mt-0.5 flex max-w-full items-center gap-1 text-[11px] leading-tight">
-              <span className={`truncate font-semibold ${done && node.outcome === 'rejected' ? 'text-[var(--evo-muted)]' : ''}`}>{node.label}</span>
-              {node.glyph && <span className="evo-mono shrink-0 rounded bg-slate-100 px-1 text-[9.5px] text-slate-500">{node.glyph}</span>}
-            </span>
-            {node.column === 0 && paper && <span className="text-[9.5px] text-[var(--evo-subtle)]">{blocked ? '许可受限 · 未运行' : paper.venue}</span>}
-            {node.checks && done && <CheckDots node={node} />}
-            {promoted && (
-              <motion.span
-                className="mt-0.5 rounded-full bg-[var(--evo-brand)] px-1.5 text-[10px] font-semibold text-white"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 14 }}
-              >
-                晋升 · 新算法候选
-              </motion.span>
-            )}
-          </motion.button>
-        );
-      })}
+      {visible.map((node) => (
+        <IslandNode key={node.id} node={node} at={pos(node)} width={Math.min(slotW - 4, 132)} view={view} selected={selectedId === node.id} onSelect={onSelect} />
+      ))}
     </div>
+  );
+}
+
+const ARC_STYLE = {
+  active: { stroke: '#6366F1', width: 1.6, opacity: 0.85, dash: undefined },
+  promoted: { stroke: '#2563EB', width: 2.2, opacity: 0.95, dash: undefined },
+  focus: { stroke: '#6366F1', width: 1.8, opacity: 0.8, dash: '5 4' },
+  faded: { stroke: '#A5B4FC', width: 1.2, opacity: 0.28, dash: '5 4' },
+} as const;
+
+/** 另一个父算法跨岛汇入组合节点的飞线；提出阶段有粒子沿线飞过去。 */
+function MergeArc({ from, to, tone, flying }: { from: Point; to: Point; tone: keyof typeof ARC_STYLE; flying: boolean }) {
+  const pathRef = useRef<SVGPathElement>(null);
+  const dotRef = useRef<SVGCircleElement>(null);
+  const side = from.y > to.y ? 1 : -1;
+  const endY = to.y + side * 13;
+  const d = `M${from.x + 14} ${from.y} C${from.x + 90} ${from.y}, ${to.x - 24} ${endY + side * 40}, ${to.x - 2} ${endY}`;
+  const style = ARC_STYLE[tone];
+
+  useEffect(() => {
+    if (!flying) return;
+    const path = pathRef.current;
+    const dot = dotRef.current;
+    if (!path || !dot) return;
+    const len = path.getTotalLength();
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / 1200);
+      const p = path.getPointAtLength(len * (1 - Math.pow(1 - t, 3)));
+      dot.setAttribute('cx', String(p.x));
+      dot.setAttribute('cy', String(p.y));
+      dot.setAttribute('opacity', t >= 1 ? '0' : '1');
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [flying, d]);
+
+  return (
+    <g>
+      <motion.path
+        ref={pathRef}
+        d={d}
+        fill="none"
+        stroke={style.stroke}
+        strokeWidth={style.width}
+        strokeDasharray={style.dash}
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: style.opacity }}
+        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+      />
+      <circle ref={dotRef} r={4.5} fill="#6366F1" opacity={0}>
+        <animate attributeName="r" values="3.5;5.5;3.5" dur="0.6s" repeatCount="indefinite" />
+      </circle>
+    </g>
+  );
+}
+
+function IslandNode({
+  node,
+  at,
+  width,
+  view,
+  selected,
+  onSelect,
+}: {
+  node: PaperNode;
+  at: Point;
+  width: number;
+  view: PlayerView;
+  selected: boolean;
+  onSelect: (id: string) => void;
+}) {
+  const { mood, animated } = moodFor(node, view);
+  const done = view.phases.get(node.id) === 'done';
+  const promoted = done && node.outcome === 'promoted';
+  const size = promoted ? 32 : node.column === 0 ? 28 : 24;
+  const gain = precisionGainPp(node);
+  const q1 = node.metrics.recent_2026q1;
+  return (
+    <motion.button
+      className="absolute flex flex-col items-center"
+      style={{ left: at.x - width / 2, top: at.y - size / 2, width }}
+      initial={{ opacity: 0, scale: 0.3 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+      onClick={() => onSelect(node.id)}
+    >
+      <span className={`relative rounded-full ${selected ? 'ring-2 ring-[var(--evo-brand)] ring-offset-2' : ''}`}>
+        <EvoBot size={size} shape={node.shape} mood={mood} animated={animated} />
+        {node.code && (
+          <span
+            className={`evo-mono absolute top-1/2 right-full mr-1 -translate-y-1/2 rounded px-1 text-[9px] leading-[13px] font-semibold ${promoted ? 'bg-[var(--evo-brand)] text-white' : 'bg-slate-100 text-slate-500'}`}
+          >
+            {node.code}
+          </span>
+        )}
+        {node.checks && done && (
+          <span className="absolute top-1/2 left-full ml-1 -translate-y-1/2">
+            <CheckDots node={node} />
+          </span>
+        )}
+        {promoted && (
+          <motion.span
+            className="absolute bottom-full left-1/2 mb-0.5 -translate-x-1/2 rounded-full bg-[var(--evo-brand)] px-1.5 text-[10px] font-semibold whitespace-nowrap text-white shadow-sm"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 14 }}
+          >
+            晋升 · 新算法
+          </motion.span>
+        )}
+      </span>
+      {node.column === 0 ? (
+        <span className="evo-mono mt-0.5 text-[10.5px] leading-tight text-[var(--evo-muted)]">
+          {!done ? '复现中' : node.outcome === 'silent' ? '无告警' : `P ${pct(q1?.precision, 1)}`}
+        </span>
+      ) : (
+        <span className={`mt-0.5 max-w-full truncate text-[10.5px] leading-tight font-semibold ${done && node.outcome === 'rejected' ? 'text-[var(--evo-muted)]' : ''}`}>{node.label}</span>
+      )}
+      <AnimatePresence>
+        {done && !promoted && view.lastResultId === node.id && gain !== undefined && (
+          <motion.span
+            className={`evo-mono absolute -top-5 rounded-full px-1.5 text-[10px] font-semibold ${gain > 0 ? 'bg-green-50 text-[var(--evo-good)]' : 'bg-red-50 text-[var(--evo-bad)]'}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: -4 }}
+            exit={{ opacity: 0 }}
+          >
+            P {gain > 0 ? '+' : ''}
+            {gain.toFixed(1)}pp
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.button>
   );
 }
 
 function CheckDots({ node }: { node: PaperNode }) {
   return (
-    <span className="mt-0.5 flex flex-col gap-[2px]">
+    <span className="flex flex-col gap-[1.5px]">
       {QUARTERS.map((q) => (
-        <span key={q.key} className="flex gap-[2px]">
+        <span key={q.key} className="flex gap-[1.5px]">
           {CHECKS.map((c, i) => {
             const ok = node.checks?.[q.key]?.[c.key];
             return (
               <motion.span
                 key={c.key}
-                className={`size-[5px] rounded-full ${ok ? 'bg-[var(--evo-good)]' : 'bg-[var(--evo-bad)]'}`}
+                className={`size-[4.5px] rounded-full ${ok ? 'bg-[var(--evo-good)]' : 'bg-[var(--evo-bad)]'}`}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: i * 0.05 }}
@@ -291,7 +453,7 @@ function Scatter({ view, quarter, focusId }: { view: PlayerView; quarter: Quarte
             )}
             {(n.column === 0 || promoted) && (
               <text x={promoted ? cx : cx + 7} y={promoted ? cy + 15 : cy + 3} textAnchor={promoted ? 'middle' : 'start'} fontSize={9.5} fontWeight={promoted ? 700 : 500} fill={promoted ? '#2563EB' : '#334155'}>
-                {promoted ? '新组合' : n.label}
+                {promoted ? 'CAF' : n.label}
               </text>
             )}
           </motion.g>
@@ -302,17 +464,29 @@ function Scatter({ view, quarter, focusId }: { view: PlayerView; quarter: Quarte
 }
 
 function FocusCard({ node }: { node: PaperNode | undefined }) {
+  const host = node?.host ? PAPER_NODE_BY_ID.get(node.host) : undefined;
+  const partner = node?.partner ? PAPER_NODE_BY_ID.get(node.partner) : undefined;
   return (
     <div className="evo-card min-h-[150px] p-4">
       <AnimatePresence mode="wait">
         {node ? (
           <motion.div key={node.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <div className="flex items-center gap-2">
-              <span className="truncate text-[14px] font-semibold">{node.label}</span>
-              <span className="shrink-0 rounded bg-slate-100 px-1.5 text-[10px] text-slate-500">{operatorLabel(node.operator)}</span>
+              <span className="truncate text-[14px] font-semibold">{node.column === 0 ? `${node.label} 岛` : node.label}</span>
               {node.outcome === 'promoted' && <span className="shrink-0 rounded bg-[var(--evo-brand)] px-1.5 text-[10px] font-semibold text-white">晋升</span>}
             </div>
-            {node.column === 0 && <div className="mt-0.5 text-[11px] text-[var(--evo-muted)]">{PAPERS.find((p) => p.id === node.id)?.idea}</div>}
+            <div className="mt-0.5 text-[11px] text-[var(--evo-muted)]">
+              {node.column === 0 ? (
+                `${PAPER_BY_ID.get(node.id)?.venue} · ${PAPER_BY_ID.get(node.id)?.idea}`
+              ) : (
+                <>
+                  <span className="font-semibold text-[var(--evo-brand)]">
+                    {operatorLabel(node.operator)} · {node.code}
+                  </span>
+                  {host && partner && ` · 宿主 ${host.column === 0 ? `${host.label} 岛` : host.label}，${partner.label} 跨岛汇入`}
+                </>
+              )}
+            </div>
             <table className="evo-mono mt-2 w-full text-center text-[11px]">
               <thead className="text-[10px] text-[var(--evo-subtle)]">
                 <tr>
@@ -351,10 +525,7 @@ function FocusCard({ node }: { node: PaperNode | undefined }) {
 
 function Legend() {
   return (
-    <div className="flex items-center gap-3 text-[11px] text-[var(--evo-muted)]">
-      <span className="flex items-center gap-1">
-        <EvoBot size={16} mood="eval" animated={false} /> 运行中
-      </span>
+    <div className="flex shrink-0 items-center gap-3 text-[11px] text-[var(--evo-muted)]">
       <span className="flex items-center gap-1">
         <EvoBot size={16} mood="best" animated={false} /> 晋升
       </span>
@@ -362,8 +533,10 @@ function Legend() {
         <EvoBot size={16} mood="pruned" animated={false} /> 未晋升
       </span>
       <span className="flex items-center gap-1">
-        <span className="size-[6px] rounded-full bg-[var(--evo-good)]" />
-        <span className="size-[6px] rounded-full bg-[var(--evo-bad)]" /> 检查项
+        <span className="h-0.5 w-4 bg-[#93B4F5]" /> 同岛父代
+      </span>
+      <span className="flex items-center gap-1">
+        <span className="h-0.5 w-4 bg-indigo-500" /> 跨岛汇入
       </span>
     </div>
   );

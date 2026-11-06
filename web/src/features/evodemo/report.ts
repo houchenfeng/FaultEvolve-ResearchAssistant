@@ -133,11 +133,11 @@ const OPERATOR_LABELS: Record<string, string> = {
   repair: '修复',
   recall_focus: '召回补强',
   threshold_calibrate: '阈值校准',
-  paper_baseline: '论文复现',
-  fixed_mean: '算术平均',
-  agreement_geomean: '几何均值',
-  learned_disagreement: '学习式分歧惩罚',
-  lambda_zero: 'λ=0 对照',
+  paper_baseline: 'SOTA 论文复现',
+  fixed_mean: '等权风险集成',
+  agreement_geomean: '共识一致性融合',
+  learned_disagreement: '自适应分歧惩罚融合',
+  lambda_zero: '零惩罚对照',
 };
 
 export function operatorLabel(op: string): string {
