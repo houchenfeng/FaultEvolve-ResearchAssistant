@@ -7,7 +7,9 @@
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { useState } from 'react';
 
+import { DEMO_REPORT_INPUT } from './demo-script';
 import './evodemo.css';
+import { buildRunReport } from './report';
 import type { TaskDraft } from './screens/HomeScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { ConfirmScreen } from './screens/ConfirmScreen';
@@ -31,6 +33,8 @@ const DEFAULT_DRAFT: TaskDraft = {
   evaluation: 'ROS · 本地 evaluator.py',
   seed: '注入已有知识',
 };
+
+const DEMO_REPORT = buildRunReport(DEMO_REPORT_INPUT);
 
 const SAMPLE_TASK = '用 SMART 日志提前 7 天预测硬盘故障，评估用 ROS，误报预算 3%。';
 
@@ -99,6 +103,7 @@ export function EvoDemoApp() {
               {stage === 'tournament' && <TournamentScreen onNext={() => go('results')} />}
               {stage === 'results' && (
                 <ResultsScreen
+                  report={DEMO_REPORT}
                   onRestart={() => {
                     setDraft(DEFAULT_DRAFT);
                     go('home');

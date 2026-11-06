@@ -8,6 +8,8 @@
 import type { IslandKey, ShowcaseNode } from '@/features/showcase/hdd-showcase-data';
 import { SHOWCASE_ISLANDS, TRANSFERS } from '@/features/showcase/hdd-showcase-data';
 
+import type { ReportInput } from './report';
+
 export type NodeOutcome = 'improved' | 'failed' | 'pruned' | 'best' | 'baseline';
 
 export interface DemoNode extends ShowcaseNode {
@@ -161,3 +163,49 @@ export const DEBATE_CAST: Record<DebateRole, { name: string; en: string; shape: 
 };
 
 export const EVIDENCE_CHAIN = ['现象抽取', '预注册', '确认检验', '多重控制', '机制辩论', '跨切片外推'];
+
+/** 讲解页输入：节点来自演示进化树，主张来自展示运行的 discovery/phenomena.json。 */
+export const DEMO_REPORT_INPUT: ReportInput = {
+  runId: 'hdd_mvp_showcase_c89e2a01',
+  taskName: 'HDD 短期故障预测',
+  metricName: 'ROS',
+  extraMetrics: [
+    { key: 'q', label: 'Q 稳定性' },
+    { key: 'jev', label: 'Jev 评审' },
+  ],
+  nodes: DEMO_NODES.map((n) => ({
+    id: n.id,
+    parentId: n.parentId,
+    depth: n.depth,
+    score: n.score,
+    operator: n.operator,
+    title: n.title,
+    reflection: n.reflection,
+    group: ISLAND_META[n.island].name,
+    status: n.outcome === 'failed' ? 'failed' : n.outcome === 'pruned' ? 'pruned' : 'ok',
+    metrics: { q: n.q, jev: n.jev },
+  })),
+  transfers: DEMO_TRANSFERS,
+  claims: [
+    {
+      id: 'C-89f4bdd1-0010',
+      title: '窗口末端 smart_194_normalized 与短期 HDD 故障信号正相关',
+      grade: 'confirmed',
+      n: 9262,
+      effect: 0.3124,
+      ciLow: 0.2781,
+      ciHigh: 0.3459,
+      fdr: 'BH 通过',
+      boundary: '机制对局未分胜负，结论表述为可复现的关联指示，不写成因果定律。',
+    },
+    { id: 'C-showcase-0002', title: '未命名主张', grade: 'refuted', n: 9262, effect: 0.02, ciLow: -0.01, ciHigh: 0.05 },
+  ],
+  artifacts: [
+    { label: '进化树', path: 'tree.json' },
+    { label: '事件流', path: 'events.jsonl' },
+    { label: '运行摘要', path: 'run_summary.json' },
+    { label: '候选程序', path: 'programs/*.py' },
+    { label: '知识发现证据', path: 'discovery/certificates.json · preregistration.json' },
+    { label: '最终算法说明', path: 'reports/final_algorithm_README.md' },
+  ],
+};
