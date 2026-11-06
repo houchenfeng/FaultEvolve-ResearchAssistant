@@ -91,6 +91,21 @@ class RemoteConfig:
         return out
 
 
+def describe_ssh_error(exc: BaseException, cfg: RemoteConfig) -> str:
+    """Turn asyncssh failures into a hint that says which hop broke."""
+    raw = f"{type(exc).__name__}: {exc}"
+    name = type(exc).__name__
+    if cfg.jump and name == "ChannelOpenError":
+        _, th, tp = _split_addr(cfg.target)
+        return (f"{raw}。跳板机已登录，但跳板机上 {th}:{tp} 没有服务在监听——"
+                "服务器到跳板机的反向隧道（frpc / ssh -R）已断开，请在服务器上重启隧道后重试。")
+    if name == "PermissionDenied":
+        return f"{raw}。用户名或密码错误（检查 FE_SSH_JUMP* / FE_SSH_TARGET*）。"
+    if isinstance(exc, (TimeoutError, OSError)) and not name.startswith("Channel"):
+        return f"{raw}。连不上跳板机（{cfg.describe().get('jump', cfg.describe()['target'])}），检查网络或地址端口。"
+    return raw
+
+
 class _Conn:
     """Jump host + target connection pair."""
 
@@ -236,7 +251,7 @@ class RemoteSession:
             cfg = RemoteConfig.from_env()
             return asyncio.run(_probe(cfg))
         except Exception as exc:  # noqa: BLE001
-            return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+            return {"ok": False, "error": describe_ssh_error(exc, RemoteConfig.from_env())}
 
     def start(self, mode: str = "demo", provider: str | None = None, model: str | None = None,
               generations: int = 3, hub: Any = None) -> dict[str, Any]:
@@ -272,7 +287,7 @@ class RemoteSession:
                 await self._deploy(c, cfg, generations)
                 await self._poll(c)
         except Exception as exc:  # noqa: BLE001
-            self.error = f"{type(exc).__name__}: {exc}"
+            self.error = describe_ssh_error(exc, RemoteConfig.from_env())
             self.phase = "error"
             self.log("error", f"远端会话异常：{self.error}")
 
