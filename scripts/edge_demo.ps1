@@ -1,4 +1,4 @@
-# 本地-云端混合演示一键启动：后端（含 /api/edge 与平板网页）+ 工作台前端。
+﻿# 本地-云端混合演示一键启动：后端（含 /api/edge 与平板网页）+ 工作台前端。
 #
 #   powershell -ExecutionPolicy Bypass -File scripts\edge_demo.ps1
 #
@@ -25,8 +25,8 @@ $ips = Get-NetIPAddress -AddressFamily IPv4 |
     Select-Object -ExpandProperty IPAddress
 
 Write-Host ''
-Write-Host '路演演示（EvoBot）：' -NoNewline; Write-Host " http://127.0.0.1:$WebPort/demo" -ForegroundColor Cyan
-Write-Host '混合云实测：      ' -NoNewline; Write-Host " http://127.0.0.1:$WebPort/demo?stage=hybrid" -ForegroundColor Cyan
+Write-Host '路演演示（EvoBot）：' -NoNewline; Write-Host " http://127.0.0.1:$WebPort/" -ForegroundColor Cyan
+Write-Host '混合云实测：      ' -NoNewline; Write-Host " http://127.0.0.1:$WebPort/?stage=hybrid" -ForegroundColor Cyan
 foreach ($ip in $ips) {
     Write-Host '平板 APK 填写地址：' -NoNewline; Write-Host " ${ip}:$ApiPort" -ForegroundColor Green
     Write-Host '平板浏览器版：    ' -NoNewline; Write-Host " http://${ip}:$ApiPort/edge-tablet/" -ForegroundColor Green

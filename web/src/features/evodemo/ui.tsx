@@ -285,7 +285,7 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
                   <Field label="混合云实测" value="第 6 幕：平板 ↔ 本机 GPU 评估 ↔ 远端自进化（演示回放 / 真实运行）" />
                   <Hint>
                     切换到真实模式后，同一套页面改读 /api/runs/&#123;id&#125;/stream 事件流与 /api/servers 探测结果；
-                    经典工作台仍在 <a className="text-[var(--evo-brand)] underline" href="/">/</a>。
+                    经典工作台仍在 <a className="text-[var(--evo-brand)] underline" href="/overview">/overview</a>。
                   </Hint>
                 </>
               )}

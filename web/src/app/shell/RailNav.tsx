@@ -75,7 +75,7 @@ function renderItem(module: NavModule, isActive: boolean, currentRunId: string |
 
   if (!module.requiresRun) {
     return (
-      <Link to="/" className={itemClassName(isActive)} data-nav-item={module.id}>
+      <Link to="/overview" className={itemClassName(isActive)} data-nav-item={module.id}>
         {content}
       </Link>
     );
@@ -84,7 +84,7 @@ function renderItem(module: NavModule, isActive: boolean, currentRunId: string |
   if (!currentRunId) {
     return (
       <Link
-        to="/"
+        to="/overview"
         data-nav-item={module.id}
         data-nav-disabled="true"
         title={`请先在「总览」中选择一个运行，再进入${module.label}`}
@@ -131,7 +131,7 @@ function renderItem(module: NavModule, isActive: boolean, currentRunId: string |
       );
     default:
       return (
-        <Link to="/" className={itemClassName(isActive)} data-nav-item={module.id}>
+        <Link to="/overview" className={itemClassName(isActive)} data-nav-item={module.id}>
           {content}
         </Link>
       );

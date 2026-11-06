@@ -53,7 +53,7 @@ export function DeploymentModeCards({ modes }: DeploymentModeCardsProps) {
         </button>
 
         <a
-          href="/demo?stage=hybrid"
+          href="/?stage=hybrid"
           data-deployment-card="hybrid"
           className="rounded-card border border-success-500/50 bg-surface p-3 text-left hover:border-success-500"
         >

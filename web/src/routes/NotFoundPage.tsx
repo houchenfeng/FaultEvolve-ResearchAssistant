@@ -9,7 +9,7 @@ export function NotFoundPage() {
         <p className="mt-1 text-xs text-fg-muted">
           该地址没有对应的页面。侧栏固定只有四个模块，其余视图都是运行内部的深链接。
         </p>
-        <Link to="/" className="mt-3 inline-block text-xs text-brand-600 hover:underline">
+        <Link to="/overview" className="mt-3 inline-block text-xs text-brand-600 hover:underline">
           ← 返回总览
         </Link>
       </div>

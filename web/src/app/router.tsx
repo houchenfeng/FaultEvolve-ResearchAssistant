@@ -30,10 +30,15 @@ function buildRouteTree() {
     notFoundComponent: NotFoundPage,
   });
 
-  // 总览模块
+  // 首页即 EvoBot 路演前端；经典工作台总览在 /overview
   const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/',
+    component: EvoDemoPage,
+  });
+  const overviewRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/overview',
     component: OverviewPage,
   });
   const taskDetailRoute = createRoute({
@@ -104,6 +109,7 @@ function buildRouteTree() {
 
   return rootRoute.addChildren([
     indexRoute,
+    overviewRoute,
     demoRoute,
     taskDetailRoute,
     newRunRoute,

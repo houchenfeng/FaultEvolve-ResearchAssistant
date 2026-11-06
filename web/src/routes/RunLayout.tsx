@@ -93,7 +93,7 @@ export function RunLayout() {
           error={toApiError(runQuery.error)}
           onRetry={() => void runQuery.refetch()}
         />
-        <Link to="/" className="self-start text-xs text-brand-600 hover:underline">
+        <Link to="/overview" className="self-start text-xs text-brand-600 hover:underline">
           ← 返回总览重新选择运行
         </Link>
       </div>

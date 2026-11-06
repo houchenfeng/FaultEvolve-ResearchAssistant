@@ -41,7 +41,7 @@ export function TaskDetailPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Link to="/" className="self-start text-xs text-brand-600 hover:underline">
+      <Link to="/overview" className="self-start text-xs text-brand-600 hover:underline">
         ← 返回总览
       </Link>
 
