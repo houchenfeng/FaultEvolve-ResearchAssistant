@@ -9,6 +9,14 @@ Protocol (JSON text frames over one WebSocket, tablet -> laptop):
 
 laptop -> tablet: ``welcome``, ``ack`` (per frame), ``alarms`` (after the last
 history day both programs score every disk), ``summary``.
+
+Per evolution candidate (hybrid mode), the laptop drives one exchange:
+
+* laptop -> tablet ``eval_request`` ``{candidate, parent, index}``
+* tablet -> laptop ``snapshot_begin`` (inventory) / ``snapshot`` (one per day) /
+  ``snapshot_end`` ``{failures: {sn: day}}`` -- the window the candidate is scored on
+* laptop -> tablet ``candidate_alarms`` ``{candidate, alarms: [sn], caught, failures, false_alarms, ros}``
+* tablet -> laptop ``candidate_ack``
 """
 
 from __future__ import annotations
@@ -57,6 +65,12 @@ class EdgeHub:
         self._sim_task: asyncio.Task[None] | None = None
         self.device: dict[str, Any] | None = None
         self._frame_times: deque[tuple[float, int]] = deque(maxlen=200)
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._outbox: asyncio.Queue[dict[str, Any]] | None = None
+        self._waits: dict[str, threading.Event] = {}
+        self._snap: dict[str, Any] | None = None
+        #: Per-candidate tablet exchange (frames, bytes, rows, timing, ack), keyed by candidate id.
+        self.exchanges: dict[str, dict[str, Any]] = {}
         self._reset_stream()
 
     # ------------------------------------------------------------------ state
@@ -95,7 +109,111 @@ class EdgeHub:
             return self._on_failure(msg)
         if kind == "end":
             return self._on_end()
+        if kind == "snapshot_begin":
+            return self._on_snapshot_begin(msg, raw_len)
+        if kind == "snapshot":
+            return self._on_snapshot(msg, raw_len)
+        if kind == "snapshot_end":
+            return self._on_snapshot_end(msg, raw_len)
+        if kind == "candidate_ack":
+            return self._on_candidate_ack(msg)
         return []
+
+    # ------------------------------------------------- per-candidate exchange
+    def _on_snapshot_begin(self, msg: dict[str, Any], raw_len: int) -> list[dict[str, Any]]:
+        cid = str(msg.get("candidate"))
+        with self._lock:
+            self.columns = list(msg.get("columns") or self.columns)
+            self.history_days = int(msg.get("history_days") or self.history_days)
+            self.horizon_days = int(msg.get("horizon_days") or self.horizon_days)
+            try:
+                self.start_date = date.fromisoformat(str(msg.get("start_date")))
+            except ValueError:
+                pass
+            for d in msg.get("disks") or []:
+                self.disks[str(d["sn"])] = {
+                    "model": d.get("model") or "", "cap": float(d.get("cap") or 0),
+                    "rack": int(d.get("rack", 0)), "slot": int(d.get("slot", 0)),
+                }
+        self._snap = {"cid": cid, "rows": [], "frames": 1, "bytes": raw_len, "t0": time.time()}
+        return []
+
+    def _on_snapshot(self, msg: dict[str, Any], raw_len: int) -> list[dict[str, Any]]:
+        snap = self._snap
+        day = int(msg.get("day") or 0)
+        if snap is None or str(msg.get("candidate")) != snap["cid"]:
+            return []
+        for sn, values in msg.get("rows") or []:
+            if values is not None:
+                snap["rows"].append((str(sn), day, values))
+        snap["frames"] += 1
+        snap["bytes"] += raw_len
+        with self._lock:
+            self.frames += 1
+            self.bytes += raw_len
+        return [{"type": "ack", "day": day, "candidate": snap["cid"]}]
+
+    def _on_snapshot_end(self, msg: dict[str, Any], raw_len: int) -> list[dict[str, Any]]:
+        snap = self._snap
+        if snap is None or str(msg.get("candidate")) != snap["cid"]:
+            return []
+        self._snap = None
+        cid = snap["cid"]
+        with self._lock:
+            self.rows = snap["rows"]
+            self.failures = {str(sn): int(day) for sn, day in (msg.get("failures") or {}).items()}
+            self.day = self.history_days + self.horizon_days
+            self.phase = "done"
+        info = {"frames": snap["frames"] + 1, "bytes": snap["bytes"] + raw_len, "rows": len(snap["rows"]),
+                "failures": len(self.failures), "upload_s": round(time.time() - snap["t0"], 2)}
+        self.exchanges.setdefault(cid, {}).update(info)
+        self.log("data", f"平板为候选 {cid} 上报 SMART 窗口：{info['rows']} 行 · {info['bytes'] / 1024:.0f} KB · {info['frames']} 帧")
+        self._resolve(f"snapshot:{cid}")
+        return []
+
+    def _on_candidate_ack(self, msg: dict[str, Any]) -> list[dict[str, Any]]:
+        cid = str(msg.get("candidate"))
+        self.exchanges.setdefault(cid, {})["acked_at"] = time.time()
+        self.log("link", f"平板已在机房孪生上标出候选 {cid} 的 {msg.get('shown', 0)} 块预警盘")
+        self._resolve(f"ack:{cid}")
+        return []
+
+    def _resolve(self, key: str) -> None:
+        ev = self._waits.get(key)
+        if ev is not None:
+            ev.set()
+
+    # ---------------------------------------------------------- tablet link
+    @property
+    def tablet_linked(self) -> bool:
+        return self._outbox is not None
+
+    def bind(self, loop: asyncio.AbstractEventLoop, outbox: asyncio.Queue[dict[str, Any]], addr: str) -> None:
+        self._loop, self._outbox = loop, outbox
+        self.attach("边缘设备", addr)
+
+    def unbind(self, outbox: asyncio.Queue[dict[str, Any]]) -> None:
+        if self._outbox is outbox:
+            self._outbox = None
+            self.detach()
+
+    def push(self, msg: dict[str, Any]) -> bool:
+        """Send to the tablet from any thread; False when no tablet is linked."""
+        loop, outbox = self._loop, self._outbox
+        if loop is None or outbox is None:
+            return False
+        loop.call_soon_threadsafe(outbox.put_nowait, msg)
+        return True
+
+    def exchange(self, cid: str, msg: dict[str, Any], expect: str, timeout: float) -> bool:
+        """Blocking: push ``msg`` and wait for the tablet's ``expect`` reply for ``cid``."""
+        key = f"{expect}:{cid}"
+        ev = threading.Event()
+        self._waits[key] = ev
+        try:
+            return self.push(msg) and ev.wait(timeout)
+        finally:
+            self._waits.pop(key, None)
 
     def _on_hello(self, msg: dict[str, Any]) -> dict[str, Any]:
         with self._lock:
@@ -275,7 +393,7 @@ class EdgeHub:
             }
         device = dict(self.device) if self.device else None
         if device is not None:
-            device["online"] = device.get("connected", False) and now - device.get("last_seen", 0) < 15
+            device["online"] = bool(device.get("connected")) and (self.tablet_linked or now - device.get("last_seen", 0) < 15)
         return {
             "device": device,
             "stream": stream,
@@ -286,6 +404,7 @@ class EdgeHub:
             "events": list(self.events)[:60],
             "uploads": list(self.uploads)[:30],
             "evaluation_status": self.evaluation.get("status"),
+            "tablet_linked": self.tablet_linked,
             "lan_ips": lan_addresses(),
             "data_boundary": {
                 "kept_local": ["原始 SMART 遥测行", "训练集与验证集标签", "逐盘预测分数与告警名单", "模型权重与评估代码"],
@@ -314,7 +433,9 @@ class EdgeHub:
     async def _simulate(self, day_seconds: float) -> None:
         replay_path = paths.REPO_ROOT / "edge-tablet" / "public" / "replay.json"
         replay = json.loads(replay_path.read_text("utf-8"))
-        self.attach("本机模拟器", "127.0.0.1")
+        simulated = not self.tablet_linked
+        if simulated:
+            self.attach("本机模拟器", "127.0.0.1")
 
         async def send(msg: dict[str, Any]) -> None:
             raw = json.dumps(msg, ensure_ascii=False, separators=(",", ":"))
@@ -340,7 +461,8 @@ class EdgeHub:
                 await asyncio.sleep(day_seconds)
             await send({"type": "end"})
         finally:
-            self.detach()
+            if simulated:
+                self.detach()
 
     # ----------------------------------------------------------- evaluation
     def start_evaluation(self) -> bool:

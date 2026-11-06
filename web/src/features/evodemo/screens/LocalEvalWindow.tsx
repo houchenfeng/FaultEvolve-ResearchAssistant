@@ -19,37 +19,58 @@ type StepState = 'done' | 'active' | 'wait' | 'fail';
 function steps(c: RemoteCandidate | undefined, localStep: string | null, edge: EdgeState): { title: string; detail: string; state: StepState }[] {
   const evaluating = c?.status === 'evaluating';
   const finished = c && c.status !== 'evaluating';
-  const scene = c?.scene;
-  const fromTablet = scene ? scene.source !== 'replay' : edge.stream.phase === 'done';
+  const t = c?.tablet;
+  const linked = c ? !!t?.linked : !!edge.tablet_linked;
   const uploadedKeys = Object.keys(c?.uploaded ?? {});
   const activeText = evaluating && localStep ? localStep.replace(/^[^：]*：/, '') : '';
+  const uploading = t?.phase === 'uploading';
+  const scored = finished || t?.phase === 'downlink' || t?.phase === 'acked' || t?.phase === 'no_ack';
+
+  const upload: { detail: string; state: StepState } = !c
+    ? { detail: linked ? '平板在线，候选到达后由平板上报窗口' : '平板未连接，将用本机已有场景', state: 'wait' }
+    : !linked
+      ? { detail: `平板未连接 · 用本机已有场景（${c.scene?.source ?? edge.stream.disks + ' 块盘'}）`, state: 'done' }
+      : uploading
+        ? { detail: '本机请求 → 平板正在上报 14 天 SMART 窗口…', state: 'active' }
+        : t?.phase === 'timeout'
+          ? { detail: '平板 30s 未响应，改用本机已有场景', state: 'fail' }
+          : { detail: `平板 → 本机 ${t?.rows ?? '—'} 行 · ${t?.bytes ? (t.bytes / 1024).toFixed(0) : '—'} KB · ${t?.frames ?? '—'} 帧 · ${t?.upload_s ?? '—'}s`, state: 'done' };
+
+  const downlink: { detail: string; state: StepState } = !c || !scored
+    ? { detail: linked ? '评估完成后把该候选的预警盘下发到平板' : '平板未连接', state: 'wait' }
+    : !linked
+      ? { detail: '平板未连接，跳过', state: 'done' }
+      : t?.phase === 'downlink'
+        ? { detail: `下发 ${c.alarm_serials?.length ?? '…'} 块预警盘，等待平板确认…`, state: 'active' }
+        : t?.phase === 'no_ack'
+          ? { detail: '已下发，平板未确认', state: 'fail' }
+          : { detail: `已下发 ${t?.alarms_sent ?? 0} 块预警盘 · 平板已在机房孪生上标出`, state: 'done' };
+
   return [
     {
       title: '收到候选程序',
       detail: c ? `服务器 → 本机 · ${c.lines ?? '—'} 行 · 父代 ${c.parent ?? 'seed'}` : '等待服务器写出候选',
       state: c ? 'done' : 'wait',
     },
-    {
-      title: '载入平板场景',
-      detail: scene
-        ? `${fromTablet ? '平板实时推送' : '回放场景'} · ${scene.disks} 块盘 · ${scene.failures} 块实际故障`
-        : `${fromTablet ? '平板实时推送' : '平板未推完，用回放场景'} · ${edge.stream.disks || 300} 块盘`,
-      state: !c ? 'wait' : evaluating && !scene ? 'active' : 'done',
-    },
+    { title: '平板上报 SMART 窗口', ...upload },
     {
       title: '本机 GPU 评估',
-      detail: evaluating
-        ? activeText || '沙箱运行候选，GPU bootstrap 检验中…'
-        : c?.status === 'invalid'
+      detail:
+        c?.status === 'invalid'
           ? `无效：${(c.error ?? '').split(/\r?\n/).filter(Boolean).pop() ?? '运行失败'}`
           : finished
             ? `ROS ${c.ros?.toFixed(2) ?? '—'} · GPU 峰值 ${c.gpu?.peak_util ?? '—'}% · ${c.elapsed_s?.toFixed(0) ?? '—'}s${c.bootstrap ? ` · P(优于父代) ${(c.bootstrap.p_improve_f1 * 100).toFixed(0)}%` : ''}`
-            : '—',
-      state: !c ? 'wait' : evaluating ? 'active' : c.status === 'invalid' ? 'fail' : 'done',
+            : scored
+              ? '评估完成'
+              : evaluating && !uploading
+                ? activeText || '沙箱运行候选，GPU bootstrap 检验中…'
+                : '—',
+      state: !c || uploading ? 'wait' : c.status === 'invalid' ? 'fail' : scored ? 'done' : 'active',
     },
+    { title: '预警下发平板', ...downlink },
     {
       title: '白名单回传服务器',
-      detail: finished ? `回传 ${uploadedKeys.length} 个标量 · 拦截 ${c.blocked?.length ?? 0} 个字段` : '评估完成后只回传分数',
+      detail: finished ? `回传 ${uploadedKeys.length} 个标量 · 拦截 ${c.blocked?.length ?? 0} 个字段` : '只回传分数，原始遥测与逐盘预警不出本机',
       state: finished ? 'done' : 'wait',
     },
   ];

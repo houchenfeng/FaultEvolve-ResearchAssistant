@@ -23,7 +23,7 @@ export interface Replay {
 
 export type DiskState = 'ok' | 'alarm-before' | 'alarm-after' | 'alarm-both' | 'failed';
 
-export type Phase = 'ready' | 'ingest' | 'scoring' | 'observe' | 'done';
+export type Phase = 'ready' | 'ingest' | 'scoring' | 'observe' | 'done' | 'evolve';
 
 export interface AlarmSet {
   before: Set<string>;

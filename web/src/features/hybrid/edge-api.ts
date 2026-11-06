@@ -80,6 +80,7 @@ export interface EdgeState {
   events: Array<{ at: number; kind: string; text: string }>;
   uploads: GatePacket[];
   evaluation_status: string;
+  tablet_linked?: boolean;
   endpoints: string[];
   tablet_urls: string[];
   data_boundary: { kept_local: string[]; whitelist: string[] };
@@ -185,6 +186,19 @@ export interface RemoteCandidate {
   /** 该候选在平板场景上预警的盘，只在本机展示，不回传服务器。 */
   alarm_serials?: string[];
   received_at?: number;
+  /** 与平板的逐候选交互：平板上报 SMART 窗口 → 本机评估 → 预警下发平板并确认。 */
+  tablet?: {
+    linked: boolean;
+    phase?: 'uploading' | 'uploaded' | 'timeout' | 'downlink' | 'acked' | 'no_ack';
+    uploaded?: boolean;
+    frames?: number;
+    bytes?: number;
+    rows?: number;
+    failures?: number;
+    upload_s?: number;
+    acked?: boolean;
+    alarms_sent?: number;
+  };
 }
 
 export interface RemotePopulationEntry {

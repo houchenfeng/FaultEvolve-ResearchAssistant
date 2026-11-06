@@ -73,15 +73,18 @@ export class Uplink {
     this.ws = ws;
     ws.onopen = () => this.setStatus('online');
     ws.onmessage = (event) => {
-      if (this.pendingPing) {
+      let msg: LinkMessage;
+      try {
+        msg = JSON.parse(String(event.data)) as LinkMessage;
+      } catch {
+        return;
+      }
+      // Only replies time the link; laptop-initiated pushes arrive whenever the evolution needs them.
+      if (this.pendingPing && msg.type === 'ack') {
         this.lastRttMs = performance.now() - this.pendingPing;
         this.pendingPing = 0;
       }
-      try {
-        this.onMessage(JSON.parse(String(event.data)) as LinkMessage);
-      } catch {
-        /* ignore malformed frames */
-      }
+      this.onMessage(msg);
     };
     ws.onclose = () => {
       this.ws = null;

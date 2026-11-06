@@ -83,7 +83,15 @@ def register(app: FastAPI) -> None:
     async def edge_ws(ws: WebSocket) -> None:
         await ws.accept()
         client = ws.client.host if ws.client else "unknown"
-        HUB.attach("边缘设备", client)
+        # One writer per socket: replies and pushes from the remote-session thread share this queue.
+        outbox: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+        HUB.bind(asyncio.get_running_loop(), outbox, client)
+
+        async def writer() -> None:
+            while True:
+                await ws.send_text(json.dumps(await outbox.get(), ensure_ascii=False))
+
+        sender = asyncio.create_task(writer())
         try:
             while True:
                 raw = await ws.receive_text()
@@ -91,14 +99,15 @@ def register(app: FastAPI) -> None:
                     msg = json.loads(raw)
                 except json.JSONDecodeError:
                     continue
-                if msg.get("type") == "hello" and HUB.device is not None:
-                    HUB.device["name"] = str(msg.get("device") or "边缘设备")
+                if msg.get("type") in ("hello", "snapshot_begin") and HUB.device is not None and msg.get("device"):
+                    HUB.device["name"] = str(msg["device"])
                 for reply in await HUB.process(msg, len(raw.encode())):
-                    await ws.send_text(json.dumps(reply, ensure_ascii=False))
+                    outbox.put_nowait(reply)
         except WebSocketDisconnect:
             pass
         finally:
-            HUB.detach()
+            sender.cancel()
+            HUB.unbind(outbox)
 
     if paths.TABLET_DIST.is_dir():
         app.mount("/edge-tablet", StaticFiles(directory=paths.TABLET_DIST, html=True), name="edge-tablet")

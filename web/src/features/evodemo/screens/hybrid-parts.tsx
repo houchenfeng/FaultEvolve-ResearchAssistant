@@ -59,7 +59,10 @@ export function useHybridData() {
 
 export function TriDomain({ edge, remote, gpu }: { edge: EdgeState; remote: RemoteState; gpu?: GpuStatus }) {
   const device = edge.device;
-  const streaming = edge.stream.phase === 'ingesting' || edge.stream.phase === 'scoring';
+  const exchanging = remote.candidates.some((c) => c.tablet?.phase === 'uploading' || c.tablet?.phase === 'downlink');
+  const streaming = edge.stream.phase === 'ingesting' || edge.stream.phase === 'scoring' || exchanging;
+  const tabletRounds = remote.candidates.filter((c) => c.tablet?.uploaded).length;
+  const tabletAlarms = remote.candidates.filter((c) => c.tablet?.acked).length;
   const evaluating = remote.candidates.some((c) => c.status === 'evaluating') || remote.local_step != null;
   const generating = remote.running && remote.remote.current?.phase === 'llm';
   const tabletMood: BotMood = !device?.online ? 'idle' : streaming ? 'talk' : 'look';
@@ -80,7 +83,11 @@ export function TriDomain({ edge, remote, gpu }: { edge: EdgeState; remote: Remo
           ['场景', `${PHASE_LABEL[edge.stream.phase] ?? edge.stream.phase} · 第 ${edge.stream.day}/${edge.stream.horizon_days} 天`],
         ]}
       />
-      <Link up={`SMART 遥测 ${edge.stream.rows} 行`} down={`告警 ${edge.outcome.after.alarms} 条`} active={streaming} />
+      <Link
+        up={tabletRounds ? `SMART 窗口 ${tabletRounds} 次` : `SMART 遥测 ${edge.stream.rows} 行`}
+        down={tabletAlarms ? `候选预警 ${tabletAlarms} 次` : `告警 ${edge.outcome.after.alarms} 条`}
+        active={streaming}
+      />
       <Domain
         bot={<EvoBot size={52} mood={localMood} />}
         title="本机评估域 · GPU"

@@ -30,10 +30,13 @@ async function boot(): Promise<void> {
     return `${x.getMonth() + 1}月${x.getDate()}日`;
   };
 
+  const knownFailures = replay.disks.filter((x) => x.fail_day).length;
   const refresh = () => {
-    const shown = Math.min(day, totalDays);
+    const evolving = phase === 'evolve';
+    const shown = evolving ? totalDays : Math.min(day, totalDays);
+    const failedCount = evolving ? knownFailures : failed.size;
     hud.setClock(shown, phase, dateOf(shown));
-    hud.setStats(replay.disks.length - failed.size, failed.size, alarms ? alarms.after.size : null, alarms ? alarms.before.size : null);
+    hud.setStats(replay.disks.length - failedCount, failedCount, alarms ? alarms.after.size : null, alarms ? alarms.before.size : null);
     hud.setRunning(running, phase === 'done');
   };
 
@@ -89,7 +92,65 @@ async function boot(): Promise<void> {
       resync();
     } else if (msg.type === 'alarms') {
       applyAlarms(msg.before as string[], msg.after as string[], Number(msg.elapsed_s ?? 0));
+    } else if (msg.type === 'eval_request') {
+      void uploadForCandidate(String(msg.candidate), Number(msg.index ?? 0), msg.parent ? String(msg.parent) : null);
+    } else if (msg.type === 'candidate_alarms') {
+      showCandidate(msg);
     }
+  }
+
+  /** Hybrid evolution: the laptop is about to score a cloud candidate and asks for this hall's SMART window. */
+  async function uploadForCandidate(cid: string, index: number, parent: string | null): Promise<void> {
+    if (running) hud.onPause();
+    phase = 'evolve';
+    hud.setCandidate(`云端候选 #${index} · ${cid}`, `父代 ${parent ?? 'seed'} · 上报 SMART 窗口…`);
+    hud.log('eval', `云端候选 ${cid}：本地评估域请求机房 SMART 窗口`);
+    hall.overview();
+    link.send({
+      type: 'snapshot_begin',
+      candidate: cid,
+      device: 'Android 平板 · 机房孪生',
+      columns: replay.columns,
+      history_days: replay.history_days,
+      horizon_days: replay.horizon_days,
+      start_date: replay.start_date,
+      disks: replay.disks.map(({ sn, model, cap, rack, slot }) => ({ sn, model, cap, rack, slot })),
+    });
+    let bytes = 0;
+    for (let d = 1; d <= replay.history_days; d += 1) {
+      const sent = link.send({ ...telemetry(d), type: 'snapshot', candidate: cid });
+      bytes += sent;
+      hall.uplink(8);
+      hud.pushUplink(sent, link.sentFrames, link.sentBytes, sent > 0);
+      await new Promise((r) => window.setTimeout(r, 90));
+    }
+    const failures = Object.fromEntries(replay.disks.filter((x) => x.fail_day).map((x) => [x.sn, x.fail_day]));
+    link.send({ type: 'snapshot_end', candidate: cid, failures });
+    hud.setCandidate(`云端候选 #${index} · ${cid}`, `已上报 ${replay.history_days} 天窗口 ${(bytes / 1024).toFixed(0)} KB · 笔记本 GPU 评估中…`);
+    hud.log('data', `候选 ${cid}：${replay.history_days} 天 SMART 窗口（${(bytes / 1024).toFixed(0)} KB）→ 笔记本`);
+    refresh();
+  }
+
+  /** The laptop scored the candidate on this hall: light up its alarms, mark real failures, acknowledge. */
+  function showCandidate(msg: LinkMessage): void {
+    const cid = String(msg.candidate);
+    const list = (msg.alarms as string[] | undefined) ?? [];
+    const set = new Set(list);
+    phase = 'evolve';
+    for (let i = 0; i < replay.disks.length; i += 1) {
+      const d = replay.disks[i];
+      hall.setState(i, d.fail_day ? 'failed' : set.has(d.sn) ? 'alarm-after' : 'ok');
+    }
+    hall.downlink(list.map((sn) => hall.diskIndex(sn)).filter((i) => i >= 0), 'after');
+    alarms = { before: alarms?.before ?? new Set(), after: set };
+    const ros = typeof msg.ros === 'number' ? (msg.ros as number).toFixed(2) : '—';
+    const body = msg.valid
+      ? `ROS ${ros} · 预警 ${list.length} 块 · 提前命中 ${msg.caught ?? '—'}/${msg.failures ?? '—'} · 误报 ${msg.false_alarms ?? '—'}`
+      : '候选无效（本机沙箱运行失败）';
+    hud.setCandidate(`云端候选 #${msg.index ?? ''} · ${cid}`, body);
+    hud.log(msg.valid ? 'alarm' : 'failure', `候选 ${cid} 预警下发：${body}`);
+    link.send({ type: 'candidate_ack', candidate: cid, shown: list.length });
+    refresh();
   }
 
   function applyAlarms(before: string[], after: string[], elapsed: number): void {
@@ -192,11 +253,12 @@ async function boot(): Promise<void> {
     hall.resetAll();
     hud.hideDisk();
     hud.hideSummary();
+    hud.setCandidate(null);
     refresh();
   }
 
   hud.onStart = () => {
-    if (phase === 'done') reset();
+    if (phase === 'done' || phase === 'evolve') reset();
     if (running) return;
     if (day === 0) {
       sendHello();

@@ -439,7 +439,20 @@ class RemoteSession:
         entry: dict[str, Any] = {"id": cid, "parent": parent, "origin": meta.get("origin"),
                                  "lines": meta.get("lines"), "status": "evaluating", "received_at": time.time()}
         self.candidates.append(entry)
+        index = len(self.candidates)
         self.log("eval", f"收到候选 {cid}（父代 {parent or '无'}，{meta.get('lines')} 行），开始本地沙箱评估")
+        hub = self.hub
+        tablet: dict[str, Any] = {"linked": bool(hub is not None and hub.tablet_linked)}
+        entry["tablet"] = tablet
+        if hub is not None and tablet["linked"]:
+            self.local_step = f"{cid}：请求平板上报机房 SMART 窗口"
+            tablet["phase"] = "uploading"
+            got = await asyncio.to_thread(hub.exchange, cid, {
+                "type": "eval_request", "candidate": cid, "parent": parent, "index": index,
+            }, "snapshot", 30.0)
+            tablet.update(hub.exchanges.get(cid, {}), uploaded=got, phase="uploaded" if got else "timeout")
+            if not got:
+                self.log("error", f"平板 30s 内未上报候选 {cid} 的 SMART 窗口，改用本机已有场景")
         scene = local_eval.scene_from_hub(self.hub) or local_eval.scene_from_replay()
         with tempfile.TemporaryDirectory(prefix="fe_cand_") as tmp:
             path = Path(tmp) / f"{cid}.py"
@@ -464,6 +477,18 @@ class RemoteSession:
             "val_labels": "eval_only/val_labels.csv",
             "evaluator_source": "evaluator.py",
         })
+        sc = res.get("scene") or {}
+        alarm_serials = res.get("scene_alarm_serials", [])
+        if hub is not None and tablet["linked"]:
+            self.local_step = f"{cid}：预警下发平板机房孪生"
+            tablet["phase"] = "downlink"
+            acked = await asyncio.to_thread(hub.exchange, cid, {
+                "type": "candidate_alarms", "candidate": cid, "parent": parent, "index": index,
+                "valid": bool(res.get("valid")), "ros": res.get("ros"), "alarms": alarm_serials,
+                "caught": sc.get("caught"), "failures": sc.get("failures"), "false_alarms": sc.get("false_alarms"),
+            }, "ack", 10.0)
+            tablet.update(acked=acked, alarms_sent=len(alarm_serials), phase="acked" if acked else "no_ack")
+            self.local_step = None
         if self.hub is not None:
             self.hub.uploads.appendleft(gated)
         await write_text(f"results/{cid}.json", json.dumps(gated["allowed"], ensure_ascii=False))
@@ -475,10 +500,9 @@ class RemoteSession:
             "blocked": [b["field"] for b in gated["blocked"]],
             # Local-only (the gate above blocked it from the server): lets the UI paint
             # this candidate's alarms onto the tablet scene.
-            "alarm_serials": res.get("scene_alarm_serials", []),
+            "alarm_serials": alarm_serials,
         })
         g = res.get("gpu") or {}
-        sc = res.get("scene") or {}
         if res.get("valid"):
             self.log("eval", f"候选 {cid}：ROS {res['ros']:.2f}，平板场景预警命中 {sc.get('caught')}/{sc.get('failures')}"
                              f"、误报 {sc.get('false_alarms')}；GPU 峰值 {g.get('peak_util')}%、"

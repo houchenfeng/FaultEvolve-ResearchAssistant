@@ -7,6 +7,7 @@ const PHASE_TEXT: Record<Phase, string> = {
   scoring: '笔记本本地评估中（进化前 vs 进化后）',
   observe: '观察期 · 等待真实故障发生',
   done: '回放结束',
+  evolve: '混合云进化 · 每个候选都在本机评估',
 };
 
 const LOG_COLORS: Record<string, string> = {
@@ -48,6 +49,10 @@ export class Hud {
         <div class="phase ready" data-phase>${PHASE_TEXT.ready}</div>
         <div class="timeline"><div class="hist"></div><div class="fill" data-fill style="width:0%"></div></div>
         <div class="timeline-labels"><span>SMART 窗口 ${historyDays} 天</span><span>截止日</span><span>故障观察 ${totalDays - historyDays} 天</span></div>
+        <div data-cand style="display:none;margin-top:8px;padding:8px 10px;border-radius:10px;border:1px solid rgba(34,211,238,.45);background:rgba(34,211,238,.1)">
+          <div class="k" data-cand-title>云端候选</div>
+          <div class="num" data-cand-body style="font-size:15px;margin-top:2px"></div>
+        </div>
       </div>
       <div class="panel link">
         <div class="row"><span class="dot" data-dot></span><b data-linktext>未连接本地评估域</b><span style="flex:1"></span><button data-settings style="background:none;border:1px solid var(--line);color:var(--fg);border-radius:8px;padding:4px 8px">设置</button></div>
@@ -117,6 +122,15 @@ export class Hud {
     p.className = `phase ${phase}`;
     p.textContent = PHASE_TEXT[phase];
     el(this.root, '[data-fill]').style.width = `${(Math.min(day, this.totalDays) / this.totalDays) * 100}%`;
+  }
+
+  /** Hybrid evolution: which cloud candidate this hall is currently serving. */
+  setCandidate(title: string | null, body = ''): void {
+    const box = el(this.root, '[data-cand]');
+    box.style.display = title ? 'block' : 'none';
+    if (!title) return;
+    el(this.root, '[data-cand-title]').textContent = title;
+    el(this.root, '[data-cand-body]').textContent = body;
   }
 
   setStats(online: number, failed: number, after: number | null, before: number | null): void {
