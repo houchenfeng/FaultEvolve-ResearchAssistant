@@ -65,13 +65,13 @@ def paired_bootstrap(
     """Poisson bootstrap of weighted F1 and AUPRC for two score/alarm pairs on the same disks."""
     torch, device = _torch_device()
     gen = torch.Generator(device=device).manual_seed(seed)
-    yt = torch.as_tensor(y, dtype=torch.float32, device=device)
-    wt = torch.as_tensor(w, dtype=torch.float32, device=device)
+    yt = torch.as_tensor(np.array(y, dtype=np.float32), device=device)
+    wt = torch.as_tensor(np.array(w, dtype=np.float32), device=device)
 
     prepared = []
     for score, alarm in (before, after):
         order = torch.as_tensor(np.argsort(-np.asarray(score), kind="mergesort"), device=device)
-        prepared.append((torch.as_tensor(alarm, dtype=torch.float32, device=device), order))
+        prepared.append((torch.as_tensor(np.array(alarm, dtype=np.float32), device=device), order))
 
     def metrics(bw: Any, alarm: Any, order: Any) -> tuple[Any, Any]:
         ww = bw * wt

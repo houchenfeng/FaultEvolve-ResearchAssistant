@@ -175,7 +175,44 @@ subst X: /D
 6. **单设备**：`EdgeHub` 同一时间只按一个数据流处理；第二台平板发 `hello` 会重置当前数据流。
 7. **杂项**：`~/.ssh/config` 里服务器 IP 仍是旧的 10.61.48.10（现为 10.61.48.59）；`G:\自进化agent\tmp\fe_ssh.py` 和 `tmp\install_android.ps1` 是临时脚本，可删除。
 
-## 10. 验收清单
+## 10. 远端自进化（跳板机 SSH，演示 / 真实运行）
+
+在原有"回放云端轨迹"之外，新增真实的远端闭环：服务器负责选择父代、调用 LLM 生成候选；笔记本只负责评估，评估数据来自平板场景；两端之间只传代码和白名单分数。
+
+```
+笔记本 faultevolve.edge.remote ──SSH(跳板机)──▶ 服务器 scripts/edge_remote_evolver.py（setsid nohup 常驻）
+   ▲  拉 candidates/<cid>.py                         │ 选父代 → Qwen / Codex 生成 → 写候选
+   │  本地评估：平板场景(test 切分) + 完整 val + GPU bootstrap
+   └─ 写 results/<cid>.json（boundary.gate 之后的白名单标量）──▶ 读分数 → 更新种群 → 下一代
+```
+
+| 模式 | 服务器做什么 | LLM |
+| --- | --- | --- |
+| 演示 `demo` | 种子 `init.py`，依次回放 `rule_baseline.py`、`4016914b.py` | 不调用 |
+| 真实 `real` + `qwen` | 种子 `init.py` + `4016914b.py`，每代以最佳（25% 概率次优）为父代调用 DashScope，流式读取 | `qwen3.8-max-0902`（`FE_QWEN_MODEL`） |
+| 真实 `real` + `codex` | 同上，但提示词写入 `llm_requests/`，由笔记本本地 `codex exec`（ChatGPT 登录）回答到 `llm_responses/` | 本机 Codex |
+
+**配置**：仓库根目录 `.env`（已在 `.gitignore`，模板见 `.env.example`）：`FE_SSH_JUMP`、`FE_SSH_JUMP_PASSWORD`、`FE_SSH_TARGET`、`FE_SSH_TARGET_PASSWORD`、`FE_REMOTE_ROOT`（会话目录，NAS 上即可）、`FE_REMOTE_PYTHON`、`DASHSCOPE_API_KEY`、`FE_QWEN_MODEL`、`FE_LLM_PROVIDER`。Qwen key 只写到服务器本机 `~/.fe_edge/<会话>.env`（权限 600），不落 NAS。
+
+**接口**
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/edge/llm` | Qwen key / 模型、Codex 是否安装与登录 |
+| POST | `/api/edge/remote/probe` | 经跳板机探测服务器：延迟、GPU、Python、DashScope 可达性、主机指纹 |
+| POST | `/api/edge/remote/start` | `{"mode":"demo"|"real","provider":"qwen"|"codex","generations":N}` |
+| GET | `/api/edge/remote` | 会话状态、远端种群/最佳、每个候选的本地评估（平板命中、GPU 峰值、bootstrap）、两端事件 |
+| POST | `/api/edge/remote/stop` | 写 `STOP`，远端在当前步骤后退出 |
+
+**本地评估（`edge/local_eval.py`）**：平板实时数据流结束后（`phase=done`）用它，否则用平板同款 `replay.json`。场景被落成 `test` 切分，任何遵守 CLI 契约的候选程序都能直接打分；完整 val 按 `evaluator.py` 的同一套规则计算 ROS；GPU 配对 bootstrap 默认 10 万次重采样，并用 nvidia-smi 采样记录评估期间的 GPU 峰值利用率与显存。
+
+**工作台**：`/runs/hdd_mvp_showcase_c89e2a01/hybrid` 顶部"远端自进化（跳板机 SSH）"面板：模式切换、提供方选择、代数、启动/停止、探测、候选表与两端事件流。
+
+**Codex 本地登录**：`npm i -g @openai/codex` → `codex login`；`/api/edge/llm` 显示已登录后，面板里即可选 Codex。测试时可用 `FE_CODEX_CMD` 指向替身命令。
+
+**注意**：SSH 目前用密码 + `known_hosts=None`（探测接口返回两端主机指纹供核对），正式环境应改为密钥并固定 known_hosts。本机 8011 被旧版演示服务占用时，用 `scripts\edge_demo.ps1 -ApiPort 8012`，平板"设置"里同步改端口。
+
+## 11. 验收清单
 
 - [ ] `scripts\edge_demo.ps1` 能启动，`GET /api/edge/state` 返回 200
 - [ ] 平板连上后显示"已接入本地评估域"，回放结束总结为进化前 2/10、进化后 6/10

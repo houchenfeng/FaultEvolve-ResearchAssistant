@@ -28,6 +28,7 @@ WHITELIST: dict[str, str] = {
     "failures_observed": "观测到的故障数",
     "caught": "提前预警命中数",
     "false_alarms": "误报数",
+    "error_kind": "失败类型（异常类名 + 行号，不含消息）",
 }
 
 

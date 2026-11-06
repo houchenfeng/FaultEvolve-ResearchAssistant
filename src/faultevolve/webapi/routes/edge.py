@@ -2,15 +2,25 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from faultevolve.edge import gpu, paths
 from faultevolve.edge.cloud import cloud_replay
 from faultevolve.edge.hub import HUB
+from faultevolve.edge.remote import REMOTE, llm_status
+
+
+class RemoteStart(BaseModel):
+    mode: Literal["demo", "real"] = "demo"
+    provider: Literal["qwen", "codex"] | None = None
+    model: str | None = None
+    generations: int = 3
 
 
 def register(app: FastAPI) -> None:
@@ -47,6 +57,27 @@ def register(app: FastAPI) -> None:
     @app.post("/api/edge/simulate", tags=["edge"])
     async def edge_simulate(day_seconds: float = 1.0) -> dict[str, Any]:
         return {"started": HUB.start_simulation(max(0.2, min(day_seconds, 5.0)))}
+
+    @app.get("/api/edge/llm", tags=["edge"])
+    async def edge_llm() -> dict[str, Any]:
+        return await asyncio.to_thread(llm_status)
+
+    @app.get("/api/edge/remote", tags=["edge"])
+    async def edge_remote() -> dict[str, Any]:
+        return REMOTE.snapshot()
+
+    @app.post("/api/edge/remote/probe", tags=["edge"])
+    async def edge_remote_probe() -> dict[str, Any]:
+        return await asyncio.to_thread(REMOTE.probe)
+
+    @app.post("/api/edge/remote/start", tags=["edge"])
+    async def edge_remote_start(body: RemoteStart) -> dict[str, Any]:
+        return REMOTE.start(mode=body.mode, provider=body.provider, model=body.model,
+                            generations=max(1, min(body.generations, 20)), hub=HUB)
+
+    @app.post("/api/edge/remote/stop", tags=["edge"])
+    async def edge_remote_stop() -> dict[str, Any]:
+        return REMOTE.stop()
 
     @app.websocket("/api/edge/ws")
     async def edge_ws(ws: WebSocket) -> None:

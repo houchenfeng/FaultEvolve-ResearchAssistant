@@ -1,13 +1,15 @@
 /**
  * 本地-云端混合模式（`/runs/$runId/hybrid`）。
  *
- * 云端进化来自服务器真实运行的回放；本地评估域是实时的：平板经局域网推送
+ * 云端进化：远端自进化面板经跳板机驱动服务器（演示回放 / LLM 真实运行），
+ * 下方另保留历史运行回放。本地评估域是实时的：平板经局域网推送
  * SMART 遥测，笔记本在本机跑进化前/后两个算法和 GPU 评估，只把白名单分数回传。
  */
 import { CloudReplayPanel, BoundaryLog, GpuEvaluatorPanel } from '@/features/hybrid/EvalPanels';
 import { EdgeDevicePanel, RackHeatmap, StreamOutcome } from '@/features/hybrid/EdgePanels';
 import { useCloudReplay, useEdgeActions, useEdgeState, useEvaluation, useGpu } from '@/features/hybrid/edge-api';
 import { HybridFlow } from '@/features/hybrid/HybridFlow';
+import { RemoteEvolutionPanel } from '@/features/hybrid/RemotePanel';
 
 export function RunHybridPage() {
   const stateQuery = useEdgeState();
@@ -30,6 +32,7 @@ export function RunHybridPage() {
   return (
     <div className="flex flex-col gap-3" data-hybrid-page="true">
       <HybridFlow state={state} evaluation={evaluationQuery.data} />
+      <RemoteEvolutionPanel />
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_1.35fr_1.2fr]">
         <EdgeDevicePanel state={state} onSimulate={() => actions.simulate.mutate(1)} simulating={actions.simulate.isPending || state.stream.phase === 'ingesting'} />
         <RackHeatmap grid={state.grid} />

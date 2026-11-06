@@ -168,6 +168,98 @@ export function useCloudReplay() {
   return useQuery({ queryKey: ['edge', 'cloud'], queryFn: () => getJson<CloudReplay>('/api/edge/cloud'), staleTime: Infinity });
 }
 
+export interface RemoteCandidate {
+  id: string;
+  parent: string | null;
+  origin: string | null;
+  lines: number | null;
+  status: 'evaluating' | 'done' | 'invalid';
+  ros?: number | null;
+  scene?: { source: string; disks: number; failures: number; alarms?: number; caught?: number; false_alarms?: number; error?: string };
+  gpu?: { samples: number; peak_util: number | null; mean_util: number | null; peak_mem_mb: number | null; base_mem_mb: number | null };
+  bootstrap?: { device: string; n_boot: number; elapsed_s: number; p_improve_f1: number; vs: string };
+  error?: string | null;
+  elapsed_s?: number;
+  uploaded?: Record<string, string | number | boolean | null>;
+  blocked?: string[];
+}
+
+export interface RemotePopulationEntry {
+  id: string;
+  parent: string | null;
+  score: number;
+  origin: string;
+}
+
+export interface RemoteState {
+  session_id: string | null;
+  mode: 'demo' | 'real' | null;
+  provider: string | null;
+  model: string | null;
+  phase: string;
+  running: boolean;
+  error: string | null;
+  config: Record<string, string>;
+  remote_dir: string | null;
+  remote_pid: string | null;
+  local_step: string | null;
+  remote: {
+    state: string | null;
+    generation: number | null;
+    generations: number | null;
+    tokens: number | null;
+    current: null | { id: string; parent: string | null; phase: string; llm_chars?: number; reasoning_chars?: number };
+    best: RemotePopulationEntry | null;
+    population: RemotePopulationEntry[] | null;
+    host: string | null;
+  };
+  server_gpus: Array<{ name: string; util: number; mem_used_mb: number; mem_total_mb: number }>;
+  candidates: RemoteCandidate[];
+  events: Array<{ at: number; kind: string; text: string; source: 'local' | 'server' }>;
+}
+
+export interface LlmStatus {
+  default: string;
+  qwen: { key_present: boolean; model: string; base_url: string };
+  codex: { installed: boolean; command: string | null; login: null | { ok: boolean; text: string }; hint: string };
+}
+
+export interface RemoteStartBody {
+  mode: 'demo' | 'real';
+  provider?: 'qwen' | 'codex';
+  model?: string;
+  generations: number;
+}
+
+export function useRemoteState() {
+  return useQuery({ queryKey: ['edge', 'remote'], queryFn: () => getJson<RemoteState>('/api/edge/remote'), refetchInterval: 1500 });
+}
+
+export function useLlmStatus() {
+  return useQuery({ queryKey: ['edge', 'llm'], queryFn: () => getJson<LlmStatus>('/api/edge/llm'), staleTime: 30_000 });
+}
+
+export function useRemoteActions() {
+  const client = useQueryClient();
+  const refresh = () => void client.invalidateQueries({ queryKey: ['edge', 'remote'] });
+  return {
+    start: useMutation({
+      mutationFn: async (body: RemoteStartBody) => {
+        const res = await fetch('/api/edge/remote/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return (await res.json()) as { started: boolean; reason?: string };
+      },
+      onSuccess: refresh,
+    }),
+    stop: useMutation({ mutationFn: () => postJson('/api/edge/remote/stop'), onSuccess: refresh }),
+    probe: useMutation({ mutationFn: () => postJson<Record<string, unknown>>('/api/edge/remote/probe') }),
+  };
+}
+
 export function useEdgeActions() {
   const client = useQueryClient();
   const refresh = () => void client.invalidateQueries({ queryKey: ['edge'] });
