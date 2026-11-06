@@ -14,13 +14,14 @@ import './evodemo.css';
 import type { TaskDraft } from './screens/HomeScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { ConfirmScreen } from './screens/ConfirmScreen';
+import { HybridScreen } from './screens/HybridScreen';
 import { PaperWorkbenchScreen } from './screens/PaperWorkbenchScreen';
 import { ResultsScreen } from './screens/ResultsScreen';
 import { TournamentScreen } from './screens/TournamentScreen';
 import { WorkbenchScreen } from './screens/WorkbenchScreen';
 import { BrandMark, Icon, SettingsPanel } from './ui';
 
-type Stage = 'home' | 'confirm' | 'workbench' | 'tournament' | 'results';
+type Stage = 'home' | 'confirm' | 'workbench' | 'tournament' | 'results' | 'hybrid';
 
 const STAGES: { key: Stage; label: string }[] = [
   { key: 'home', label: '对话' },
@@ -28,7 +29,13 @@ const STAGES: { key: Stage; label: string }[] = [
   { key: 'workbench', label: '进化工作台' },
   { key: 'tournament', label: '知识发现' },
   { key: 'results', label: '结果讲解' },
+  { key: 'hybrid', label: '混合云实测' },
 ];
+
+function initialStage(): Stage {
+  const wanted = new URLSearchParams(window.location.search).get('stage');
+  return STAGES.find((s) => s.key === wanted)?.key ?? 'home';
+}
 
 const DEFAULT_DRAFT: TaskDraft = {
   text: '',
@@ -37,7 +44,7 @@ const DEFAULT_DRAFT: TaskDraft = {
 };
 
 export function EvoDemoApp() {
-  const [stage, setStage] = useState<Stage>('home');
+  const [stage, setStage] = useState<Stage>(initialStage);
   const [draft, setDraft] = useState<TaskDraft>(DEFAULT_DRAFT);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [cameFromConfirm, setCameFromConfirm] = useState(false);
@@ -80,10 +87,10 @@ export function EvoDemoApp() {
         </nav>
 
         <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11.5px] text-amber-700">
-          <span className="size-1.5 rounded-full bg-amber-500" /> {demo.badge}
+          <span className="size-1.5 rounded-full bg-amber-500" /> {stage === 'hybrid' ? '实时 · 非回放' : demo.badge}
         </span>
         <span className="hidden items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-[11.5px] text-green-700 lg:flex">
-          <span className="size-1.5 rounded-full bg-green-500" /> {demo.name}
+          <span className="size-1.5 rounded-full bg-green-500" /> {stage === 'hybrid' ? '平板 ↔ 本机 GPU ↔ 服务器' : demo.name}
         </span>
         <button className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-[13px] text-[var(--evo-muted)] hover:bg-slate-100" onClick={() => setSettingsOpen(true)}>
           <Icon name="gear" /> 设置
@@ -121,6 +128,7 @@ export function EvoDemoApp() {
                   }}
                 />
               )}
+              {stage === 'hybrid' && <HybridScreen />}
             </motion.div>
           </AnimatePresence>
         </main>

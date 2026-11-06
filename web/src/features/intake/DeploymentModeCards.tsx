@@ -3,17 +3,15 @@
  *
  * 纯云端对应已有的 local_cloud / ssh_cloud，可选中，但不改创建运行的请求体：
  * 真正的执行目标仍是下方的服务器配置。
- * 混合模式不在契约枚举里，卡片直接跳到运行的「本地-云端混合」面板（/api/edge）。
+ * 混合模式不在契约枚举里，卡片直接跳到路演演示的「混合云实测」一幕（/api/edge）。
  * 纯本地对应 local_desktop 且本期不可用，点它只打开说明，不切换当前模式。
  */
-import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import type { DeploymentModeAvailability } from '@/generated/api';
 
-const HYBRID_DETAIL = '云端生成候选算法，边缘遥测与评估留在本机，只回传白名单分数。点击打开演示面板。';
-const HYBRID_DEMO_RUN = 'hdd_mvp_showcase_c89e2a01';
+const HYBRID_DETAIL = '服务器经跳板机自进化，平板遥测与 GPU 评估留在本机，只回传白名单分数。点击打开混合云实测。';
 const LOCAL_FALLBACK = '即将支持：本地 Qwen 与完全离线运行。本期不能选择。';
 
 export interface DeploymentModeCardsProps {
@@ -54,9 +52,8 @@ export function DeploymentModeCards({ modes }: DeploymentModeCardsProps) {
           </p>
         </button>
 
-        <Link
-          to="/runs/$runId/hybrid"
-          params={{ runId: HYBRID_DEMO_RUN }}
+        <a
+          href="/demo?stage=hybrid"
           data-deployment-card="hybrid"
           className="rounded-card border border-success-500/50 bg-surface p-3 text-left hover:border-success-500"
         >
@@ -67,7 +64,7 @@ export function DeploymentModeCards({ modes }: DeploymentModeCardsProps) {
             </StatusBadge>
           </div>
           <p className="mt-2 text-[11px] text-fg-muted">{HYBRID_DETAIL}</p>
-        </Link>
+        </a>
 
         <button
           type="button"

@@ -2,6 +2,8 @@ import { AnimatePresence, animate, motion } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
+import { useLlmStatus, useRemoteState } from '@/features/hybrid/edge-api';
+
 export function BrandMark({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" fill="none" aria-hidden="true">
@@ -207,6 +209,8 @@ const SETTINGS_TABS = ['模型服务', '云端服务器', '本地评估', '实�
 
 export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [tab, setTab] = useState<(typeof SETTINGS_TABS)[number]>('云端服务器');
+  const llm = useLlmStatus().data;
+  const remoteCfg = useRemoteState().data?.config;
   return (
     <AnimatePresence>
       {open && (
@@ -244,20 +248,20 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
             <div className="evo-scroll flex-1 space-y-4 overflow-auto p-5">
               {tab === '模型服务' && (
                 <>
-                  <Field label="模型" value="qwen3-coder-plus（候选生成） · qwen3-max（反思与辩论）" />
-                  <Field label="Base URL" value="https://dashscope.aliyuncs.com/compatible-mode/v1" mono />
-                  <Field label="API Key" value="由服务器环境变量 DASHSCOPE_API_KEY 提供" />
-                  <Hint>密钥只存在服务端，网页不会回显。</Hint>
+                  <Field label="默认提供方" value={llm ? `${llm.default} · ${llm.qwen.model}` : 'qwen · qwen3.8-max-0902'} />
+                  <Field label="Base URL" value={llm?.qwen.base_url ?? 'https://dashscope.aliyuncs.com/compatible-mode/v1'} mono />
+                  <Field label="API Key" value={llm?.qwen.key_present ? '已在本机 .env 配置（DASHSCOPE_API_KEY）' : '未配置：在 .env 写入 DASHSCOPE_API_KEY'} />
+                  <Field label="Codex" value={llm?.codex.login?.ok ? `已登录 · ${llm.codex.login.text}` : llm?.codex.hint ?? '未检测到 codex CLI'} />
+                  <Hint>密钥只存在本机 .env 与服务器 ~/.fe_edge（600 权限），网页不会回显。</Hint>
                 </>
               )}
               {tab === '云端服务器' && (
                 <>
-                  <Field label="执行目标" value="ssh_cloud · 实验室 GPU 服务器" />
-                  <Field label="主机" value="hcf@10.0.3.21:22" mono />
-                  <Field label="私钥" value="~/.ssh/id_ed25519（仅引用路径）" mono />
-                  <Field label="代码目录" value="/home/hcf/faultevolve/code" mono />
-                  <Field label="运行输出" value="/home/hcf/faultevolve/runs" mono />
-                  <Hint>云端负责候选生成、反思与树搜索调度，只能看到分数与聚合统计。</Hint>
+                  <Field label="跳板机" value={remoteCfg?.jump ?? '未配置 FE_SSH_JUMP'} mono />
+                  <Field label="目标服务器" value={remoteCfg?.target ?? '未配置 FE_SSH_TARGET'} mono />
+                  <Field label="远端工作目录" value={remoteCfg?.root ?? '—'} mono />
+                  <Field label="Python" value={remoteCfg?.python ?? '—'} mono />
+                  <Hint>服务器经跳板机运行自进化，只能看到分数与白名单聚合统计；评估数据来自平板场景，留在本机。</Hint>
                 </>
               )}
               {tab === '本地评估' && (
@@ -278,6 +282,7 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
               {tab === '演示模式' && (
                 <>
                   <Field label="数据源" value="Demo：回放 hdd_mvp_showcase_c89e2a01" />
+                  <Field label="混合云实测" value="第 6 幕：平板 ↔ 本机 GPU 评估 ↔ 远端自进化（演示回放 / 真实运行）" />
                   <Hint>
                     切换到真实模式后，同一套页面改读 /api/runs/&#123;id&#125;/stream 事件流与 /api/servers 探测结果；
                     经典工作台仍在 <a className="text-[var(--evo-brand)] underline" href="/">/</a>。
