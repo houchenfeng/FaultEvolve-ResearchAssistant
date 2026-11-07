@@ -16,7 +16,6 @@ const ARC_SPAN = (196 * Math.PI) / 180;
 const CHASSIS = 5;
 const BAYS = 6;
 const BAY_PITCH = 0.078;
-const NODE_POS = new THREE.Vector3(0, 0, 0.35);
 const AISLE = 1.4;
 const ROW_PITCH = RACK_W + 0.012;
 const ROW_Z0 = -0.75;
@@ -31,9 +30,25 @@ interface Pose {
   q: THREE.Quaternion;
 }
 
+interface Occluder {
+  obj: THREE.Object3D;
+  mats: Array<{ m: THREE.Material; opacity: number; transparent: boolean; depthWrite: boolean }>;
+  fade: number;
+  /** Only fades while a disk is in close-up (the edge node is the hero of the overview). */
+  focusOnly: boolean;
+  rack: number;
+  box: THREE.Box3;
+}
+
+/** In rows the node steps aside from the aisle mouth so the overview looks straight down the cold aisle. */
+const NODE_AT: Record<Layout, THREE.Vector3> = {
+  arc: new THREE.Vector3(0, 0, 0.35),
+  rows: new THREE.Vector3(2.4, 0, -0.2),
+};
+
 const VIEWS: Record<Layout, { pos: THREE.Vector3; target: THREE.Vector3 }> = {
   arc: { pos: new THREE.Vector3(0, 3.7, 5.0), target: new THREE.Vector3(0, 0.85, -0.75) },
-  rows: { pos: new THREE.Vector3(4.8, 5.0, 3.4), target: new THREE.Vector3(-0.3, 0.5, -2.2) },
+  rows: { pos: new THREE.Vector3(1.4, 6.3, 4.9), target: new THREE.Vector3(0, 1.0, -2.0) },
 };
 
 const COLORS = {
@@ -178,6 +193,11 @@ export class DataHall {
   private morph: { from: Pose[]; t: number } | null = null;
   private arcDecor = new THREE.Group();
   private rowDecor = new THREE.Group();
+  private node = new THREE.Group();
+  private nodeFrom = new THREE.Vector3();
+  private occluders: Occluder[] = [];
+  private focusIndex = -1;
+  private viewShift = 0;
   private bayLocal: THREE.Vector3[] = [];
   private packets: Packet[] = [];
   private air!: THREE.Points;
@@ -224,7 +244,7 @@ export class DataHall {
     this.controls.dampingFactor = 0.08;
     this.controls.maxPolarAngle = Math.PI * 0.48;
     this.controls.minDistance = 0.6;
-    this.controls.maxDistance = 14;
+    this.controls.maxDistance = 16;
     this.controls.addEventListener('start', () => {
       this.tween = null;
       this.idleSince = performance.now();
@@ -249,7 +269,11 @@ export class DataHall {
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
 
-    canvas.addEventListener('pointerup', (e) => this.pick(e));
+    let down = { x: 0, y: 0 };
+    canvas.addEventListener('pointerdown', (e) => (down = { x: e.clientX, y: e.clientY }));
+    canvas.addEventListener('pointerup', (e) => {
+      if (Math.hypot(e.clientX - down.x, e.clientY - down.y) < 8) this.pick(e);
+    });
     window.addEventListener('resize', () => this.resize());
     this.resize();
     this.idleSince = performance.now();
@@ -309,13 +333,6 @@ export class DataHall {
       this.arcDecor.add(cable);
     }
     this.scene.add(this.arcDecor);
-    const floorGlow = new THREE.Mesh(
-      new THREE.RingGeometry(0.55, 0.62, 64),
-      new THREE.MeshBasicMaterial({ color: new THREE.Color(0x22d3ee).multiplyScalar(1.6), toneMapped: false, transparent: true, opacity: 0.8 }),
-    );
-    floorGlow.rotation.x = -Math.PI / 2;
-    floorGlow.position.set(NODE_POS.x, 0.005, NODE_POS.z);
-    this.scene.add(floorGlow);
   }
 
   /** Arc: racks ring the edge node, fronts facing inward. Rows: first half on the left, rest on the right, fronts facing the cold aisle. */
@@ -370,11 +387,11 @@ export class DataHall {
       hot.position.set(side * (ROW_X + RACK_D / 2 + 0.45), 0.003, zMid);
       d.add(hot);
       const hotLabel = textSprite('热通道', '#ffb08a', 34);
-      hotLabel.position.set(side * (ROW_X + RACK_D / 2 + 0.45), 0.2, ROW_Z0 - 0.3);
+      hotLabel.position.set(side * (ROW_X + RACK_D / 2 + 0.45), 0.2, zMid);
       d.add(hotLabel);
     }
     const coldLabel = textSprite('冷通道 · 封闭', '#8fe3ff', 34);
-    coldLabel.position.set(0, RACK_H + 0.2, ROW_Z0 - 0.15);
+    coldLabel.position.set(0, RACK_H + 0.25, zEnd);
     d.add(coldLabel);
 
     const glass = new THREE.MeshPhysicalMaterial({ color: 0x8fd3ff, roughness: 0.05, transparent: true, opacity: 0.12, depthWrite: false, side: THREE.DoubleSide });
@@ -408,20 +425,14 @@ export class DataHall {
       const tray = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.04, len + 0.6), trayMat);
       tray.position.set(side * ROW_X, 2.45, zMid + 0.3);
       d.add(tray);
+      this.addOccluder(tray);
       for (let k = 0; k < Math.ceil(this.rackGroups.length / 2) * 3; k += 1) {
         const cable = new THREE.Mesh(cableGeo, new THREE.MeshStandardMaterial({ color: k % 4 === 0 ? 0x2f7bff : 0x1a1f2b, roughness: 0.7 }));
         cable.position.set(side * ROW_X + ((k % 3) - 1) * 0.08, 2.5, ROW_Z0 - ROW_PITCH / 2 - Math.floor(k / 3) * ROW_PITCH);
         d.add(cable);
       }
     }
-    const stripMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xbfe6ff).multiplyScalar(2.2), toneMapped: false });
-    for (const x of [-0.3, 0.3]) {
-      const strip = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.02, len), stripMat);
-      strip.position.set(x, 3.15, zMid);
-      d.add(strip);
-    }
-
-    const cracBody = new THREE.MeshStandardMaterial({ color: 0xc9d2de, metalness: 0.5, roughness: 0.45 });
+    const cracBody = new THREE.MeshStandardMaterial({ color: 0x5b6676, metalness: 0.7, roughness: 0.5 });
     const grille = ventTexture();
     grille.repeat.set(3, 5);
     for (const side of [-1, 1]) {
@@ -443,6 +454,7 @@ export class DataHall {
       label.position.set(0, 2.2, 0.38);
       g.add(box, face, lcd, label);
       d.add(g);
+      this.addOccluder(g);
     }
 
     const rows = Math.ceil(this.rackGroups.length / 2);
@@ -515,6 +527,7 @@ export class DataHall {
       label.position.set(0, RACK_H + 0.16, RACK_D / 2);
       g.add(label);
       this.scene.add(g);
+      this.addOccluder(g, false, r);
     }
   }
 
@@ -608,8 +621,8 @@ export class DataHall {
   }
 
   private buildEdgeNode(): void {
-    const g = new THREE.Group();
-    g.position.copy(NODE_POS);
+    const g = this.node;
+    g.position.copy(NODE_AT.arc);
     const pedestal = new THREE.Mesh(
       new THREE.CylinderGeometry(0.42, 0.48, 0.75, 6),
       new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.85, roughness: 0.3 }),
@@ -634,20 +647,98 @@ export class DataHall {
     const ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(0x22d3ee).multiplyScalar(2.2), toneMapped: false });
     this.nodeRing = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.012, 8, 6), ringMat);
     this.nodeRing.rotation.x = Math.PI / 2;
-    this.nodeRing.position.set(NODE_POS.x, 1.25, NODE_POS.z);
+    this.nodeRing.position.set(0, 1.25, 0);
     this.nodeRing2 = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.008, 8, 64), ringMat);
     this.nodeRing2.rotation.x = Math.PI / 2;
-    this.nodeRing2.position.set(NODE_POS.x, 1.45, NODE_POS.z);
+    this.nodeRing2.position.set(0, 1.45, 0);
     this.nodeBeam = new THREE.Mesh(
       new THREE.CylinderGeometry(0.05, 0.22, 2.6, 24, 1, true),
       new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false }),
     );
-    this.nodeBeam.position.set(NODE_POS.x, 1.3, NODE_POS.z);
+    this.nodeBeam.position.set(0, 1.3, 0);
     const label = textSprite('本地评估域 · 笔记本', '#7ee8ff', 40);
-    label.position.set(NODE_POS.x, 1.78, NODE_POS.z);
+    label.position.set(0, 1.78, 0);
     const sub = textSprite('数据不出域', '#ffd28a', 30);
-    sub.position.set(NODE_POS.x, 1.66, NODE_POS.z);
-    this.scene.add(g, this.nodeRing, this.nodeRing2, this.nodeBeam, label, sub);
+    sub.position.set(0, 1.66, 0);
+    const floorGlow = new THREE.Mesh(
+      new THREE.RingGeometry(0.55, 0.62, 64),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(0x22d3ee).multiplyScalar(1.6), toneMapped: false, transparent: true, opacity: 0.8 }),
+    );
+    floorGlow.rotation.x = -Math.PI / 2;
+    floorGlow.position.y = 0.005;
+    g.add(this.nodeRing, this.nodeRing2, this.nodeBeam, label, sub, floorGlow);
+    this.scene.add(g);
+    this.addOccluder(g, true);
+  }
+
+  /** Anything that may stand between the camera and what it looks at; it fades to a ghost instead of hiding the view. */
+  private addOccluder(obj: THREE.Object3D, focusOnly = false, rack = -1): void {
+    const mats: Occluder['mats'] = [];
+    obj.traverse((o) => {
+      const holder = o as THREE.Mesh;
+      const m = holder.material;
+      if (!m || Array.isArray(m)) return;
+      const c = m.clone();
+      holder.material = c;
+      mats.push({ m: c, opacity: c.opacity, transparent: c.transparent, depthWrite: c.depthWrite });
+    });
+    this.occluders.push({ obj, mats, fade: 1, focusOnly, rack, box: new THREE.Box3() });
+  }
+
+  private updateOcclusion(dt: number): void {
+    const focusing = this.focusIndex >= 0 && this.returnTimer !== null;
+    const eye = this.camera.position;
+    const looks = focusing
+      ? [this.diskWorldPosition(this.focusIndex)]
+      : [this.controls.target, ...this.occlusionProbes()];
+    const keepRack = focusing ? this.disks[this.focusIndex].rack : -1;
+    const ray = new THREE.Ray();
+    const hit = new THREE.Vector3();
+    for (const o of this.occluders) {
+      let blocked = false;
+      if (o.obj.visible && o.rack !== keepRack && (focusing || !o.focusOnly)) {
+        o.box.setFromObject(o.obj);
+        for (const look of looks) {
+          const dist = eye.distanceTo(look);
+          ray.set(eye, look.clone().sub(eye).normalize());
+          if (ray.intersectBox(o.box, hit) && eye.distanceTo(hit) < dist - 0.05 && !o.box.containsPoint(look)) {
+            blocked = true;
+            break;
+          }
+        }
+      }
+      const target = blocked ? 0.12 : 1;
+      if (Math.abs(o.fade - target) < 1e-3) continue;
+      o.fade += (target - o.fade) * Math.min(1, dt * 6);
+      if (Math.abs(o.fade - target) < 0.01) o.fade = target;
+      for (const s of o.mats) {
+        s.m.opacity = s.opacity * o.fade;
+        s.m.transparent = s.transparent || o.fade < 1;
+        s.m.depthWrite = s.depthWrite && o.fade >= 1;
+        s.m.needsUpdate = true;
+      }
+    }
+  }
+
+  /** The disk card sits right of centre on the HUD, so a close-up slides the picture left to keep the disk clear of it. */
+  private updateViewShift(dt: number): void {
+    const want = this.focusIndex >= 0 && this.returnTimer !== null ? 0.15 : 0;
+    if (Math.abs(this.viewShift - want) < 1e-4) return;
+    this.viewShift += (want - this.viewShift) * Math.min(1, dt * 3);
+    if (Math.abs(this.viewShift - want) < 1e-3) this.viewShift = want;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    if (this.viewShift === 0) this.camera.clearViewOffset();
+    else this.camera.setViewOffset(w, h, this.viewShift * w, 0, w, h);
+  }
+
+  /** Overview probes: the drive faces the overview is meant to show, beyond the look-at point. */
+  private occlusionProbes(): THREE.Vector3[] {
+    if (this.layout === 'arc') return [];
+    const len = this.rowLength();
+    return [-1, 1].flatMap((side) =>
+      [0.2, 0.5, 0.8].map((f) => new THREE.Vector3(side * (AISLE / 2 - 0.02), 1.1, ROW_Z0 - f * len)),
+    );
   }
 
   private buildPackets(): void {
@@ -672,6 +763,7 @@ export class DataHall {
     this.overviewTarget.copy(VIEWS[layout].target);
     this.seedAir();
     if (animate) {
+      this.nodeFrom.copy(this.node.position);
       this.morph = { from: this.rackGroups.map((g) => ({ p: g.position.clone(), q: g.quaternion.clone() })), t: 0 };
       if (this.returnTimer !== null) window.clearTimeout(this.returnTimer);
       this.returnTimer = null;
@@ -679,6 +771,7 @@ export class DataHall {
       return;
     }
     this.poses[layout].forEach((pose, r) => this.applyPose(r, pose.p, pose.q));
+    this.node.position.copy(NODE_AT[layout]);
     this.arcDecor.visible = layout === 'arc';
     this.rowDecor.visible = layout === 'rows';
     this.updateBayMatrices();
@@ -700,6 +793,7 @@ export class DataHall {
       q.slerpQuaternions(m.from[r].q, to.q, k);
       this.applyPose(r, p, q);
     });
+    this.node.position.lerpVectors(this.nodeFrom, NODE_AT[this.layout], k);
     if (k >= 0.5) {
       this.arcDecor.visible = this.layout === 'arc';
       this.rowDecor.visible = this.layout === 'rows';
@@ -767,7 +861,7 @@ export class DataHall {
       const r = Math.floor(Math.random() * racks);
       const from = new THREE.Vector3(0, RACK_H + 0.02, 0).applyMatrix4(this.rackMatrices[r]);
       from.x += (Math.random() - 0.5) * 0.4;
-      const to = new THREE.Vector3(NODE_POS.x, 1.25, NODE_POS.z);
+      const to = this.node.position.clone().setY(1.25);
       const mid = from.clone().lerp(to, 0.5);
       mid.y = 2.9 + Math.random() * 0.4;
       this.launch(new THREE.QuadraticBezierCurve3(from, mid, to), COLORS.activity, 0.55 + Math.random() * 0.3, k * 0.04);
@@ -776,7 +870,7 @@ export class DataHall {
 
   downlink(indices: number[], color: 'after' | 'before'): void {
     indices.forEach((i, k) => {
-      const from = new THREE.Vector3(NODE_POS.x, 1.25, NODE_POS.z);
+      const from = this.node.position.clone().setY(1.25);
       const to = this.diskWorldPosition(i).add(this.diskNormal(i).multiplyScalar(0.05));
       const mid = from.clone().lerp(to, 0.5);
       mid.y = 3.0;
@@ -794,11 +888,12 @@ export class DataHall {
   }
 
   focus(i: number): void {
+    this.focusIndex = i;
     const p = this.diskWorldPosition(i);
     const n = this.diskNormal(i);
     const camPos =
       this.layout === 'rows'
-        ? p.clone().add(n.multiplyScalar(0.6)).add(new THREE.Vector3(0, 0.3, 0.6))
+        ? p.clone().add(n.multiplyScalar(0.85)).add(new THREE.Vector3(0, 0.35, 0.75))
         : p.clone().add(n.multiplyScalar(1.25)).add(new THREE.Vector3(0.45, 0.25, 0));
     this.tweenTo(camPos, p, 1.6);
     this.swayT0 = -1;
@@ -856,6 +951,7 @@ export class DataHall {
     this.composer.setSize(w, h);
     this.bloom.resolution.set(w / 2, h / 2);
     this.camera.aspect = w / h;
+    if (this.viewShift > 0) this.camera.setViewOffset(w, h, this.viewShift * w, 0, w, h);
     this.camera.updateProjectionMatrix();
   }
 
@@ -888,6 +984,8 @@ export class DataHall {
     }
 
     this.stepMorph(dt);
+    this.updateOcclusion(dt);
+    this.updateViewShift(dt);
 
     let moved = false;
     for (let i = 0; i < this.disks.length; i += 1) {

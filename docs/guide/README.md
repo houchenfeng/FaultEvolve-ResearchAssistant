@@ -190,7 +190,7 @@ New-NetFirewallRule -DisplayName FaultEvolveEdge -Direction Inbound -Protocol TC
 
 ![平板 · 平行布局（冷热通道）](../screenshots/evobot/12-tablet-rows.jpg)
 
-平行布局下硬盘故障时，镜头进入冷通道贴近故障盘，故障盘抽出并红色告警：
+视角不会被遮挡：平行布局默认从冷通道端头斜上方俯视，笔记本节点让到通道口一侧；自己拖动旋转时，挡在视线上的机柜、空调、走线架会自动淡成虚影；硬盘故障时镜头进入冷通道贴近故障盘，画面左移让开右侧的硬盘详情卡片（拖动视角不会误触点选）：
 
 ![平板 · 平行布局故障聚焦](../screenshots/evobot/13-tablet-rows-focus.jpg)
 
