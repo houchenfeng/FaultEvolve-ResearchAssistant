@@ -116,7 +116,7 @@ powershell -ExecutionPolicy Bypass -File scripts\edge_demo.ps1
 3. 笔记本打开 `http://127.0.0.1:5180/runs/hdd_mvp_showcase_c89e2a01/hybrid`，点"运行本地完整评估"。
 4. 没有平板时：在面板点"本机模拟回放"，或 `POST /api/edge/simulate`。
 
-APK 预置的默认地址是 `10.61.9.235:8011`（构建时的校园网 IP），IP 变了在平板"设置"里修改即可，不必重新打包。
+APK 预置的默认地址是 `<笔记本局域网IP>:8011`（构建时的校园网 IP），IP 变了在平板"设置"里修改即可，不必重新打包。
 
 ## 6. 构建
 
@@ -174,7 +174,7 @@ subst X: /D
 4. **模型训练依赖本机数据**：首次打分要在本机训练约 17 s（缓存于 `.fe/edge`），需要 `benchmark/hdd_mvp/data/public` 与 `eval_only` 存在。
 5. **APK 仅 debug 签名**，默认地址写死为构建时的 IP。
 6. **单设备**：`EdgeHub` 同一时间只按一个数据流处理；第二台平板发 `hello` 会重置当前数据流。
-7. **杂项**：`~/.ssh/config` 里服务器 IP 仍是旧的 10.61.48.10（现为 10.61.48.59）；`G:\自进化agent\tmp\fe_ssh.py` 和 `tmp\install_android.ps1` 是临时脚本，可删除。
+7. **杂项**：`~/.ssh/config` 里服务器 IP 仍是旧地址（需改为当前的 `<服务器内网IP>`）；`G:\自进化agent\tmp\fe_ssh.py` 和 `tmp\install_android.ps1` 是临时脚本，可删除。
 
 ## 10. 远端自进化（跳板机 SSH，演示 / 真实运行）
 
