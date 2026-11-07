@@ -17,6 +17,24 @@ const CHASSIS = 5;
 const BAYS = 6;
 const BAY_PITCH = 0.078;
 const NODE_POS = new THREE.Vector3(0, 0, 0.35);
+const AISLE = 1.4;
+const ROW_PITCH = RACK_W + 0.012;
+const ROW_Z0 = -0.75;
+const ROW_X = AISLE / 2 + RACK_D / 2;
+const MORPH_S = 1.8;
+
+/** arc: racks ring the edge node; rows: two facing rows around a contained cold aisle, as in a real data hall. */
+export type Layout = 'arc' | 'rows';
+
+interface Pose {
+  p: THREE.Vector3;
+  q: THREE.Quaternion;
+}
+
+const VIEWS: Record<Layout, { pos: THREE.Vector3; target: THREE.Vector3 }> = {
+  arc: { pos: new THREE.Vector3(0, 3.7, 5.0), target: new THREE.Vector3(0, 0.85, -0.75) },
+  rows: { pos: new THREE.Vector3(4.8, 5.0, 3.4), target: new THREE.Vector3(-0.3, 0.5, -2.2) },
+};
 
 const COLORS = {
   ok: new THREE.Color(0x19f58c),
@@ -154,6 +172,12 @@ export class DataHall {
   private halos!: THREE.InstancedMesh;
   private rackBars: THREE.Mesh[] = [];
   private rackMatrices: THREE.Matrix4[] = [];
+  private rackGroups: THREE.Group[] = [];
+  private poses: Record<Layout, Pose[]> = { arc: [], rows: [] };
+  private layout: Layout = 'arc';
+  private morph: { from: Pose[]; t: number } | null = null;
+  private arcDecor = new THREE.Group();
+  private rowDecor = new THREE.Group();
   private bayLocal: THREE.Vector3[] = [];
   private packets: Packet[] = [];
   private air!: THREE.Points;
@@ -170,8 +194,8 @@ export class DataHall {
   private scratch = new THREE.Matrix4();
   private tmpColor = new THREE.Color();
   private raycaster = new THREE.Raycaster();
-  private readonly overviewPos = new THREE.Vector3(0, 3.7, 5.0);
-  private readonly overviewTarget = new THREE.Vector3(0, 0.85, -0.75);
+  private readonly overviewPos = VIEWS.arc.pos.clone();
+  private readonly overviewTarget = VIEWS.arc.target.clone();
 
   constructor(canvas: HTMLCanvasElement, disks: ReplayDisk[]) {
     this.disks = disks;
@@ -210,6 +234,7 @@ export class DataHall {
     this.buildLights();
     this.buildRoom();
     this.buildRacks();
+    this.buildRowDecor();
     this.buildBays();
     this.buildAir();
     this.buildEdgeNode();
@@ -266,7 +291,7 @@ export class DataHall {
     );
     vents.rotation.x = -Math.PI / 2;
     vents.position.set(0, 0.004, 0);
-    this.scene.add(vents);
+    this.arcDecor.add(vents);
 
     const stripMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xbfe6ff).multiplyScalar(2.2), toneMapped: false, side: THREE.DoubleSide });
     const trayMat = new THREE.MeshStandardMaterial({ color: 0xd99a2b, metalness: 0.6, roughness: 0.45, side: THREE.DoubleSide });
@@ -274,15 +299,16 @@ export class DataHall {
     strip.position.y = 3.15;
     const tray = new THREE.Mesh(this.arcGeometry(ARC_R - 0.17, ARC_R + 0.17, ARC_SPAN * 1.08), trayMat);
     tray.position.y = 2.45;
-    this.scene.add(strip, tray);
+    this.arcDecor.add(strip, tray);
     const cableGeo = new THREE.BoxGeometry(0.3, 0.05, 0.015);
     for (let i = 0; i < 40; i += 1) {
       const a = -ARC_SPAN * 0.52 + (i / 39) * ARC_SPAN * 1.04;
       const cable = new THREE.Mesh(cableGeo, new THREE.MeshStandardMaterial({ color: i % 4 === 0 ? 0x2f7bff : 0x1a1f2b, roughness: 0.7 }));
       cable.position.set(ARC_R * Math.sin(a), 2.5, -ARC_R * Math.cos(a));
       cable.rotation.y = -a;
-      this.scene.add(cable);
+      this.arcDecor.add(cable);
     }
+    this.scene.add(this.arcDecor);
     const floorGlow = new THREE.Mesh(
       new THREE.RingGeometry(0.55, 0.62, 64),
       new THREE.MeshBasicMaterial({ color: new THREE.Color(0x22d3ee).multiplyScalar(1.6), toneMapped: false, transparent: true, opacity: 0.8 }),
@@ -292,12 +318,142 @@ export class DataHall {
     this.scene.add(floorGlow);
   }
 
-  /** Racks stand on an arc around the edge node, drive fronts facing inward. */
-  private rackMatrix(rack: number, count: number): THREE.Matrix4 {
-    const a = -ARC_SPAN / 2 + (count > 1 ? rack / (count - 1) : 0.5) * ARC_SPAN;
-    const m = new THREE.Matrix4().makeRotationY(-a);
-    m.setPosition(ARC_R * Math.sin(a), 0, -ARC_R * Math.cos(a));
-    return m;
+  /** Arc: racks ring the edge node, fronts facing inward. Rows: first half on the left, rest on the right, fronts facing the cold aisle. */
+  private rackPose(rack: number, count: number, layout: Layout): Pose {
+    if (layout === 'arc') {
+      const a = -ARC_SPAN / 2 + (count > 1 ? rack / (count - 1) : 0.5) * ARC_SPAN;
+      return {
+        p: new THREE.Vector3(ARC_R * Math.sin(a), 0, -ARC_R * Math.cos(a)),
+        q: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -a),
+      };
+    }
+    const half = Math.ceil(count / 2);
+    const left = rack < half;
+    const k = left ? rack : rack - half;
+    return {
+      p: new THREE.Vector3(left ? -ROW_X : ROW_X, 0, ROW_Z0 - RACK_W / 2 - k * ROW_PITCH),
+      q: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), left ? Math.PI / 2 : -Math.PI / 2),
+    };
+  }
+
+  private applyPose(r: number, p: THREE.Vector3, q: THREE.Quaternion): void {
+    this.rackGroups[r].position.copy(p);
+    this.rackGroups[r].quaternion.copy(q);
+    this.rackMatrices[r].compose(p, q, new THREE.Vector3(1, 1, 1));
+  }
+
+  private rowLength(): number {
+    return Math.ceil(this.rackGroups.length / 2) * ROW_PITCH;
+  }
+
+  /** Contained cold aisle: perforated floor tiles, glass roof and end door, trays over each row, CRAC units at the far wall. */
+  private buildRowDecor(): void {
+    const len = this.rowLength();
+    const zMid = ROW_Z0 - len / 2;
+    const zEnd = ROW_Z0 - len;
+    const d = this.rowDecor;
+
+    const vent = ventTexture();
+    vent.repeat.set(3, Math.round(len / 0.45));
+    const tiles = new THREE.Mesh(
+      new THREE.PlaneGeometry(AISLE - 0.1, len),
+      new THREE.MeshBasicMaterial({ map: vent, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }),
+    );
+    tiles.rotation.x = -Math.PI / 2;
+    tiles.position.set(0, 0.004, zMid);
+    d.add(tiles);
+
+    const hotMat = new THREE.MeshBasicMaterial({ color: 0xff6a3d, transparent: true, opacity: 0.07, depthWrite: false });
+    for (const side of [-1, 1]) {
+      const hot = new THREE.Mesh(new THREE.PlaneGeometry(0.9, len), hotMat);
+      hot.rotation.x = -Math.PI / 2;
+      hot.position.set(side * (ROW_X + RACK_D / 2 + 0.45), 0.003, zMid);
+      d.add(hot);
+      const hotLabel = textSprite('热通道', '#ffb08a', 34);
+      hotLabel.position.set(side * (ROW_X + RACK_D / 2 + 0.45), 0.2, ROW_Z0 - 0.3);
+      d.add(hotLabel);
+    }
+    const coldLabel = textSprite('冷通道 · 封闭', '#8fe3ff', 34);
+    coldLabel.position.set(0, RACK_H + 0.2, ROW_Z0 - 0.15);
+    d.add(coldLabel);
+
+    const glass = new THREE.MeshPhysicalMaterial({ color: 0x8fd3ff, roughness: 0.05, transparent: true, opacity: 0.12, depthWrite: false, side: THREE.DoubleSide });
+    const frameMat = new THREE.LineBasicMaterial({ color: 0x3aa8ff, transparent: true, opacity: 0.7 });
+    const roof = new THREE.Mesh(new THREE.PlaneGeometry(AISLE, len), glass);
+    roof.rotation.x = -Math.PI / 2;
+    roof.position.set(0, RACK_H + 0.01, zMid);
+    d.add(roof);
+    const roofFrame = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(AISLE, 0.02, len)), frameMat);
+    roofFrame.position.set(0, RACK_H + 0.01, zMid);
+    d.add(roofFrame);
+    for (let k = 1; k < Math.ceil(this.rackGroups.length / 2); k += 1) {
+      const rib = new THREE.Mesh(
+        new THREE.BoxGeometry(AISLE, 0.015, 0.015),
+        new THREE.MeshStandardMaterial({ color: 0x2b3a52, metalness: 0.9, roughness: 0.3 }),
+      );
+      rib.position.set(0, RACK_H + 0.01, ROW_Z0 - k * ROW_PITCH);
+      d.add(rib);
+    }
+    const door = new THREE.Mesh(new THREE.PlaneGeometry(AISLE, RACK_H), glass);
+    door.position.set(0, RACK_H / 2, zEnd);
+    const doorFrame = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(AISLE, RACK_H)), frameMat);
+    doorFrame.position.copy(door.position);
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(0.012, RACK_H, 0.012), new THREE.MeshBasicMaterial({ color: 0x3aa8ff }));
+    seam.position.set(0, RACK_H / 2, zEnd);
+    d.add(door, doorFrame, seam);
+
+    const trayMat = new THREE.MeshStandardMaterial({ color: 0xd99a2b, metalness: 0.6, roughness: 0.45 });
+    const cableGeo = new THREE.BoxGeometry(0.015, 0.05, ROW_PITCH * 0.9);
+    for (const side of [-1, 1]) {
+      const tray = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.04, len + 0.6), trayMat);
+      tray.position.set(side * ROW_X, 2.45, zMid + 0.3);
+      d.add(tray);
+      for (let k = 0; k < Math.ceil(this.rackGroups.length / 2) * 3; k += 1) {
+        const cable = new THREE.Mesh(cableGeo, new THREE.MeshStandardMaterial({ color: k % 4 === 0 ? 0x2f7bff : 0x1a1f2b, roughness: 0.7 }));
+        cable.position.set(side * ROW_X + ((k % 3) - 1) * 0.08, 2.5, ROW_Z0 - ROW_PITCH / 2 - Math.floor(k / 3) * ROW_PITCH);
+        d.add(cable);
+      }
+    }
+    const stripMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xbfe6ff).multiplyScalar(2.2), toneMapped: false });
+    for (const x of [-0.3, 0.3]) {
+      const strip = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.02, len), stripMat);
+      strip.position.set(x, 3.15, zMid);
+      d.add(strip);
+    }
+
+    const cracBody = new THREE.MeshStandardMaterial({ color: 0xc9d2de, metalness: 0.5, roughness: 0.45 });
+    const grille = ventTexture();
+    grille.repeat.set(3, 5);
+    for (const side of [-1, 1]) {
+      const g = new THREE.Group();
+      g.position.set(side * (ROW_X + 0.15), 0, zEnd - 1.0);
+      const box = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.0, 0.75), cracBody);
+      box.position.y = 1.0;
+      const face = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.9, 1.5),
+        new THREE.MeshBasicMaterial({ map: grille, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }),
+      );
+      face.position.set(0, 1.05, 0.38);
+      const lcd = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.22, 0.12),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(0x19f58c).multiplyScalar(1.6), toneMapped: false }),
+      );
+      lcd.position.set(0.3, 1.86, 0.38);
+      const label = textSprite('精密空调 CRAC', '#cfe9ff', 34);
+      label.position.set(0, 2.2, 0.38);
+      g.add(box, face, lcd, label);
+      d.add(g);
+    }
+
+    const rows = Math.ceil(this.rackGroups.length / 2);
+    const rowA = textSprite(`A 列 · R01–R${String(rows).padStart(2, '0')}`, '#8fd3ff', 34);
+    rowA.position.set(-ROW_X, RACK_H + 0.45, ROW_Z0 - 0.1);
+    const rowB = textSprite(`B 列 · R${String(rows + 1).padStart(2, '0')}–R${String(this.rackGroups.length).padStart(2, '0')}`, '#8fd3ff', 34);
+    rowB.position.set(ROW_X, RACK_H + 0.45, ROW_Z0 - 0.1);
+    d.add(rowA, rowB);
+
+    d.visible = false;
+    this.scene.add(d);
   }
 
   private buildRacks(): void {
@@ -311,10 +467,12 @@ export class DataHall {
     const rackCount = Math.max(...this.disks.map((d) => d.rack)) + 1;
 
     for (let r = 0; r < rackCount; r += 1) {
-      const m = this.rackMatrix(r, rackCount);
-      this.rackMatrices.push(m);
+      this.poses.arc.push(this.rackPose(r, rackCount, 'arc'));
+      this.poses.rows.push(this.rackPose(r, rackCount, 'rows'));
       const g = new THREE.Group();
-      g.applyMatrix4(m);
+      this.rackGroups.push(g);
+      this.rackMatrices.push(new THREE.Matrix4());
+      this.applyPose(r, this.poses.arc[r].p, this.poses.arc[r].q);
       const parts: Array<[number, number, number, number, number, number, THREE.Material]> = [
         [0.03, RACK_H, RACK_D, -RACK_W / 2 + 0.015, RACK_H / 2, 0, body],
         [0.03, RACK_H, RACK_D, RACK_W / 2 - 0.015, RACK_H / 2, 0, body],
@@ -420,24 +578,33 @@ export class DataHall {
 
   private buildAir(): void {
     const count = 700;
-    const reach = ARC_R - RACK_D / 2 - 0.1;
-    const pos = new Float32Array(count * 3);
     this.airSpeed = new Float32Array(count);
-    for (let i = 0; i < count; i += 1) {
-      const r = Math.sqrt(Math.random()) * reach;
-      const a = Math.random() * Math.PI * 2;
-      pos[i * 3] = r * Math.sin(a);
-      pos[i * 3 + 1] = Math.random() * 2.4;
-      pos[i * 3 + 2] = -r * Math.cos(a);
-      this.airSpeed[i] = 0.12 + Math.random() * 0.25;
-    }
+    for (let i = 0; i < count; i += 1) this.airSpeed[i] = 0.12 + Math.random() * 0.25;
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
     this.air = new THREE.Points(
       geo,
       new THREE.PointsMaterial({ color: 0x5fb6ff, size: 0.018, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }),
     );
     this.scene.add(this.air);
+    this.seedAir();
+  }
+
+  /** Cold air rises from the floor vents: the disc inside the ring, or the contained aisle between rows. */
+  private seedAir(): void {
+    const pos = this.air.geometry.getAttribute('position') as THREE.BufferAttribute;
+    const reach = ARC_R - RACK_D / 2 - 0.1;
+    const len = this.rowLength();
+    for (let i = 0; i < pos.count; i += 1) {
+      if (this.layout === 'arc') {
+        const r = Math.sqrt(Math.random()) * reach;
+        const a = Math.random() * Math.PI * 2;
+        pos.setXYZ(i, r * Math.sin(a), Math.random() * 2.4, -r * Math.cos(a));
+      } else {
+        pos.setXYZ(i, (Math.random() - 0.5) * (AISLE - 0.15), Math.random() * (RACK_H - 0.05), ROW_Z0 - Math.random() * len);
+      }
+    }
+    pos.needsUpdate = true;
   }
 
   private buildEdgeNode(): void {
@@ -494,6 +661,56 @@ export class DataHall {
   }
 
   // ----------------------------------------------------------------- public
+  get currentLayout(): Layout {
+    return this.layout;
+  }
+
+  setLayout(layout: Layout, animate = true): void {
+    if (layout === this.layout) return;
+    this.layout = layout;
+    this.overviewPos.copy(VIEWS[layout].pos);
+    this.overviewTarget.copy(VIEWS[layout].target);
+    this.seedAir();
+    if (animate) {
+      this.morph = { from: this.rackGroups.map((g) => ({ p: g.position.clone(), q: g.quaternion.clone() })), t: 0 };
+      if (this.returnTimer !== null) window.clearTimeout(this.returnTimer);
+      this.returnTimer = null;
+      this.overview();
+      return;
+    }
+    this.poses[layout].forEach((pose, r) => this.applyPose(r, pose.p, pose.q));
+    this.arcDecor.visible = layout === 'arc';
+    this.rowDecor.visible = layout === 'rows';
+    this.updateBayMatrices();
+    this.camera.position.copy(this.overviewPos);
+    this.controls.target.copy(this.overviewTarget);
+  }
+
+  private stepMorph(dt: number): void {
+    if (!this.morph) return;
+    const m = this.morph;
+    m.t = Math.min(1, m.t + dt / MORPH_S);
+    const k = easeInOut(m.t);
+    const lift = Math.sin(Math.PI * k) * 0.35;
+    const p = new THREE.Vector3();
+    const q = new THREE.Quaternion();
+    this.poses[this.layout].forEach((to, r) => {
+      p.lerpVectors(m.from[r].p, to.p, k);
+      p.y += lift;
+      q.slerpQuaternions(m.from[r].q, to.q, k);
+      this.applyPose(r, p, q);
+    });
+    if (k >= 0.5) {
+      this.arcDecor.visible = this.layout === 'arc';
+      this.rowDecor.visible = this.layout === 'rows';
+    }
+    this.updateBayMatrices();
+    if (this.alertIndex >= 0) {
+      this.alertLight.position.copy(this.diskWorldPosition(this.alertIndex)).add(this.diskNormal(this.alertIndex).multiplyScalar(0.25));
+    }
+    if (m.t >= 1) this.morph = null;
+  }
+
   diskIndex(sn: string): number {
     return this.index.get(sn) ?? -1;
   }
@@ -579,7 +796,10 @@ export class DataHall {
   focus(i: number): void {
     const p = this.diskWorldPosition(i);
     const n = this.diskNormal(i);
-    const camPos = p.clone().add(n.multiplyScalar(1.25)).add(new THREE.Vector3(0.45, 0.25, 0));
+    const camPos =
+      this.layout === 'rows'
+        ? p.clone().add(n.multiplyScalar(0.6)).add(new THREE.Vector3(0, 0.3, 0.6))
+        : p.clone().add(n.multiplyScalar(1.25)).add(new THREE.Vector3(0.45, 0.25, 0));
     this.tweenTo(camPos, p, 1.6);
     this.swayT0 = -1;
     if (this.returnTimer !== null) window.clearTimeout(this.returnTimer);
@@ -667,6 +887,8 @@ export class DataHall {
       }
     }
 
+    this.stepMorph(dt);
+
     let moved = false;
     for (let i = 0; i < this.disks.length; i += 1) {
       const state = this.states[i];
@@ -697,9 +919,10 @@ export class DataHall {
     if (this.alertIndex >= 0) this.alertLight.intensity = 2.2 + 1.8 * Math.sin(t * 9);
 
     const pos = this.air.geometry.getAttribute('position') as THREE.BufferAttribute;
+    const ceiling = this.layout === 'arc' ? 2.6 : RACK_H - 0.05;
     for (let i = 0; i < pos.count; i += 1) {
       let y = pos.getY(i) + this.airSpeed[i] * dt;
-      if (y > 2.6) y = 0;
+      if (y > ceiling) y = 0;
       pos.setY(i, y);
     }
     pos.needsUpdate = true;

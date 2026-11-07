@@ -279,6 +279,17 @@ async function boot(): Promise<void> {
     schedule();
   };
   hud.onEndpoint = (value) => link.setEndpoint(value);
+  hud.onLayout = (layout) => {
+    hall.setLayout(layout);
+    hud.setLayout(layout);
+    localStorage.setItem('fe.layout', layout);
+  };
+  const query = new URLSearchParams(location.search).get('layout');
+  const savedLayout = query ?? localStorage.getItem('fe.layout');
+  if (savedLayout === 'rows' || savedLayout === 'arc') {
+    hall.setLayout(savedLayout, false);
+    hud.setLayout(savedLayout);
+  }
 
   hall.onPick = (i) => {
     const d = replay.disks[i];

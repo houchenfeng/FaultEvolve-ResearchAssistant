@@ -1,4 +1,5 @@
 import type { LinkStatus } from './link';
+import type { Layout } from './scene';
 import type { Phase, ReplayDisk } from './types';
 
 const PHASE_TEXT: Record<Phase, string> = {
@@ -35,6 +36,7 @@ export class Hud {
   onReset: () => void = () => {};
   onSpeed: (speed: number) => void = () => {};
   onEndpoint: (value: string) => void = () => {};
+  onLayout: (layout: Layout) => void = () => {};
 
   private root: HTMLElement;
   private bars: number[] = [];
@@ -86,6 +88,8 @@ export class Hud {
         <button data-reset>↺ 重置</button>
         <span class="sep"></span>
         <button data-speed="0.5">0.5×</button><button data-speed="1" class="active">1×</button><button data-speed="2">2×</button>
+        <span class="sep"></span>
+        <button data-layout="arc" class="active">◎ 环形</button><button data-layout="rows">☰ 平行</button>
       </div>
       <div data-cardslot></div>
       <div data-overlay></div>
@@ -101,7 +105,14 @@ export class Hud {
         this.onSpeed(Number(b.dataset.speed));
       };
     });
+    root.querySelectorAll<HTMLButtonElement>('[data-layout]').forEach((b) => {
+      b.onclick = () => this.onLayout(b.dataset.layout as Layout);
+    });
     this.drawChart();
+  }
+
+  setLayout(layout: Layout): void {
+    this.root.querySelectorAll<HTMLButtonElement>('[data-layout]').forEach((b) => b.classList.toggle('active', b.dataset.layout === layout));
   }
 
   setRunning(running: boolean, done: boolean): void {
